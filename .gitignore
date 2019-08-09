@@ -1,0 +1,16 @@
+.DS_Store
+.idea/
+logs/
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+_book/
+target/
+docs/_build/
+.vscode/

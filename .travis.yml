@@ -1,0 +1,18 @@
+language: scala
+jdk:
+  - openjdk8
+sbt_args: -Xmx2048M
+before_script:
+  - travis_wait 30 sbt clean
+script:
+  - sbt coverage test coverageReport
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+sudo: false
+# cache settings
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/launchers
