@@ -1,5 +1,7 @@
 package asura.pea.api
 
+import java.io.File
+
 import akka.NotUsed
 import akka.actor.{ActorRef, ActorSystem, PoisonPill}
 import akka.pattern.ask
@@ -50,6 +52,10 @@ class GatlingApi @Inject()(
         stringToActorEventFlow(actorRef, classOf[WebMonitorController])
       }
     }
+  }
+
+  def simulation(runId: String) = Action {
+    Ok.sendFile(new File(s"${PeaConfig.resultsFolder}/${runId}/simulation.log"), false)
   }
 
   def stringToActorEventFlow[T <: AnyRef](workActor: ActorRef, msgClass: Class[T]): Flow[String, String, NotUsed] = {
