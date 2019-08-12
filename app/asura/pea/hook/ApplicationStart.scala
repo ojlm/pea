@@ -9,6 +9,7 @@ import akka.stream.ActorMaterializer
 import asura.common.util.{JsonUtils, LogUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.{PeaMonitorActor, PeaReporterActor, PeaWorkerActor}
+import asura.pea.http.HttpClient
 import asura.pea.model.{MemberStatus, PeaMember}
 import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Singleton}
@@ -57,6 +58,7 @@ class ApplicationStart @Inject()(
   lifecycle.addStopHook { () =>
     Future {
       if (null != PeaConfig.zkClient) PeaConfig.zkClient.close()
+      HttpClient.close()
     }(system.dispatcher)
   }
 
