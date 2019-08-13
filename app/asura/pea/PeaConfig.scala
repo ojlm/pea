@@ -3,6 +3,7 @@ package asura.pea
 import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import asura.common.util.StringUtils
 import org.apache.curator.framework.CuratorFramework
 
 import scala.concurrent.ExecutionContext
@@ -21,6 +22,7 @@ object PeaConfig {
   implicit var dispatcher: ExecutionContext = _
   implicit var materializer: ActorMaterializer = _
 
+  var hostname = StringUtils.EMPTY
   var zkClient: CuratorFramework = null
   var zkRootPath: String = null
   var zkCurrNode: String = null

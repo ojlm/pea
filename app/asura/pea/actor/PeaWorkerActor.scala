@@ -127,6 +127,8 @@ object PeaWorkerActor {
                                         var request: SingleRequest,
                                         var injections: Seq[Injection],
                                         report: Boolean = true,
+                                        var simulationId: String = null,
+                                        var start: Long = 0L
                                       )
 
 }

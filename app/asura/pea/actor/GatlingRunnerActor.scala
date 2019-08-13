@@ -22,8 +22,12 @@ class GatlingRunnerActor extends BaseActor {
   override def receive: Receive = {
     case msg: StartMessage =>
       sender() ! GatlingRunnerActor.start(msg)
-    case SingleHttpScenarioMessage(_, _, _, report) =>
-      sender() ! GatlingRunnerActor.start(StartMessage(innerClassPath, singleHttpSimulationRef, report))
+    case SingleHttpScenarioMessage(_, _, _, report, simulationId, start) =>
+      sender() ! GatlingRunnerActor.start(
+        StartMessage(innerClassPath, singleHttpSimulationRef, report),
+        simulationId,
+        start
+      )
     case GenerateReport(runId) =>
       GatlingRunnerActor.generateReport(runId) pipeTo sender()
   }
@@ -50,8 +54,12 @@ object GatlingRunnerActor {
 
   def props() = Props(new GatlingRunnerActor())
 
-  def start(message: StartMessage)(implicit ec: ExecutionContext): PeaGatlingRunResult = {
-    PeaGatlingRunner.run(message.toGatlingPropertiesMap)
+  def start(
+             message: StartMessage,
+             simulationId: String = null,
+             start: Long = 0L
+           )(implicit ec: ExecutionContext): PeaGatlingRunResult = {
+    PeaGatlingRunner.run(message.toGatlingPropertiesMap, simulationId, start)
   }
 
   def generateReport(runId: String, resultsFolder: String = PeaConfig.resultsFolder): Future[Int] = {

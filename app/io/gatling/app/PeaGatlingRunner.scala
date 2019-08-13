@@ -53,7 +53,10 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
     override def isCancelled: Boolean = cancelled
   }
 
-  def run()(implicit ec: ExecutionContext): PeaGatlingRunResult = {
+  /**
+    * simulationId and start for custom runId
+    */
+  def run(simulationId: String = null, nowMillis: Long = 0L)(implicit ec: ExecutionContext): PeaGatlingRunResult = {
     val selection = Selection(None, configuration)
     val simulation = selection.simulationClass.getDeclaredConstructor().newInstance()
     logger.info("Simulation instantiated")
@@ -63,7 +66,13 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
     simulation.executeBefore()
     logger.info("Before hooks executed")
 
-    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, configuration.core.version)
+    val runMessage = RunMessage(
+      simulationParams.name,
+      if (null != simulationId) simulationId else selection.simulationId,
+      if (nowMillis > 0) nowMillis else clock.nowMillis,
+      selection.description,
+      configuration.core.version
+    )
 
     val result = Future {
       var errMsg: String = StringUtils.EMPTY
@@ -175,11 +184,18 @@ object PeaGatlingRunner extends StrictLogging {
 
   def apply(config: mutable.Map[String, _]): PeaGatlingRunner = new PeaGatlingRunner(config)
 
-  def run(config: mutable.Map[String, _])(implicit ec: ExecutionContext): PeaGatlingRunResult = {
-    PeaGatlingRunner(config).run()
+  def run(
+           config: mutable.Map[String, _],
+           simulationId: String = null,
+           start: Long = 0L
+         )(implicit ec: ExecutionContext): PeaGatlingRunResult = {
+    PeaGatlingRunner(config).run(simulationId, start)
   }
 
-  def generateReport(config: mutable.Map[String, _], runId: String)(implicit ec: ExecutionContext): Future[Int] = {
+  def generateReport(
+                      config: mutable.Map[String, _],
+                      runId: String
+                    )(implicit ec: ExecutionContext): Future[Int] = {
     new PeaGatlingRunner(config, true).generateReport(runId)
   }
 }

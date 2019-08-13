@@ -1,5 +1,8 @@
 package asura.pea.service
 
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset, ZonedDateTime}
+
 import asura.common.util.JsonUtils
 import asura.pea.PeaConfig._
 import asura.pea.http.HttpClient
@@ -40,6 +43,17 @@ object PeaService {
     Future.sequence(futures).map(_ => WorkersAvailable(errors.isEmpty, errors))
   }
 
-  case class WorkersAvailable(available: Boolean, errors: mutable.Map[String, String])
+  def generateRunId(simulationId: String, start: Long): String = {
+    simulationId + "-" +
+      DateTimeFormatter
+        .ofPattern("yyyyMMddHHmmssSSS")
+        .format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), ZoneOffset.UTC))
+  }
+
+  case class WorkersAvailable(
+                               available: Boolean,
+                               errors: mutable.Map[String, String],
+                               var runId: String = null
+                             )
 
 }

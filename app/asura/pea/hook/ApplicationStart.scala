@@ -78,14 +78,14 @@ class ApplicationStart @Inject()(
       address.getHostAddress
     }
     val portOpt = configuration.getOptional[Int]("pea.port")
-    val hostname = try {
+    PeaConfig.hostname = try {
       import scala.sys.process._
       "hostname".!!.trim
     } catch {
       case _: Throwable => "Unknown"
     }
     val port = portOpt.getOrElse(9000)
-    PeaConfig.zkCurrNode = PeaMember.toNodeName(address, port, hostname)
+    PeaConfig.zkCurrNode = PeaMember.toNodeName(address, port, PeaConfig.hostname)
     PeaConfig.zkRootPath = configuration.getOptional[String]("pea.zk.path").get
     val connectString = configuration.get[String]("pea.zk.connectString")
     val builder = CuratorFrameworkFactory.builder()
