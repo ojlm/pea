@@ -10,7 +10,7 @@ import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.PeaWorkerActor._
-import asura.pea.model.{Injection, MemberStatus, SingleRequest}
+import asura.pea.model.{MemberStatus, SingleHttpScenarioMessage}
 import asura.pea.{ErrorMessages, PeaConfig}
 
 import scala.concurrent.Future
@@ -121,14 +121,5 @@ object PeaWorkerActor {
   case class UpdateRunningStatus(runId: String)
 
   case class UpdateEndStatus(code: Int, errMsg: String)
-
-  case class SingleHttpScenarioMessage(
-                                        var name: String,
-                                        var request: SingleRequest,
-                                        var injections: Seq[Injection],
-                                        report: Boolean = true,
-                                        var simulationId: String = null,
-                                        var start: Long = 0L
-                                      )
 
 }

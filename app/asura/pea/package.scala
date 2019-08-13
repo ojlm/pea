@@ -1,6 +1,6 @@
 package asura
 
-import asura.pea.actor.PeaWorkerActor.SingleHttpScenarioMessage
+import asura.pea.model.SingleHttpScenarioMessage
 
 package object pea {
 

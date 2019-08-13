@@ -13,7 +13,8 @@ import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.PeaWebMonitorActor
 import asura.pea.actor.PeaWebMonitorActor.WebMonitorController
-import asura.pea.actor.PeaWorkerActor.{GetNodeStatusMessage, SingleHttpScenarioMessage, StopEngine}
+import asura.pea.actor.PeaWorkerActor.{GetNodeStatusMessage, StopEngine}
+import asura.pea.model.SingleHttpScenarioMessage
 import asura.play.api.BaseApi
 import javax.inject.{Inject, Singleton}
 import org.pac4j.play.scala.SecurityComponents
