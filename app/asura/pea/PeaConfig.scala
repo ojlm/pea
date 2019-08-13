@@ -16,6 +16,7 @@ object PeaConfig {
   val KEEP_ALIVE_INTERVAL = 2
   val PATH_WORKERS = "workers"
   val PATH_REPORTERS = "reporters"
+  val PATH_JOBS = "jobs"
 
   implicit val DEFAULT_ACTOR_ASK_TIMEOUT: Timeout = 1 minutes
   implicit var system: ActorSystem = _

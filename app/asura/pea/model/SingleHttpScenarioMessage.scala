@@ -7,4 +7,4 @@ case class SingleHttpScenarioMessage(
                                       val report: Boolean = true,
                                       var simulationId: String = null,
                                       var start: Long = 0L
-                                    )
+                                    ) extends LoadMessage

@@ -3,10 +3,11 @@ package asura.pea.service
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset, ZonedDateTime}
 
+import asura.common.model.ApiRes
 import asura.common.util.JsonUtils
 import asura.pea.PeaConfig._
 import asura.pea.http.HttpClient
-import asura.pea.model.{MemberStatus, PeaMember}
+import asura.pea.model.{MemberStatus, PeaMember, SingleHttpScenarioMessage}
 
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -43,6 +44,16 @@ object PeaService {
     Future.sequence(futures).map(_ => WorkersAvailable(errors.isEmpty, errors))
   }
 
+  def sendSingleHttpScenario(member: PeaMember, load: SingleHttpScenarioMessage): Future[ApiRes] = {
+    HttpClient.wsClient
+      .url(s"${member.hostname}:${member.port}/api/gatling/single")
+      .post(JsonUtils.stringify(load))
+      .map(response => {
+        JsonUtils.parse(response.body[String], classOf[ApiRes])
+      })
+  }
+
+  // same with the gatling
   def generateRunId(simulationId: String, start: Long): String = {
     simulationId + "-" +
       DateTimeFormatter
