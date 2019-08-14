@@ -7,7 +7,7 @@ import asura.common.actor.BaseActor
 import asura.common.model.ApiCode
 import asura.common.util.JsonUtils
 import asura.pea.PeaConfig
-import asura.pea.actor.ReporterWorkersActor.{JobWorkerStatusChange, TryGenerateReport}
+import asura.pea.actor.ReporterWorkersActor.{GenerateReport, JobWorkerStatusChange, PushStatusToZk}
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 import asura.pea.model._
 import asura.pea.service.PeaService
@@ -15,6 +15,8 @@ import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.apache.zookeeper.CreateMode
 
 import scala.collection.mutable
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 // FIXME: assume that all workers are still idle
 class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
@@ -37,13 +39,16 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   override def receive: Receive = {
     case msg: ReporterJobStatus =>
       log.debug(s"Current job status change to: ${msg}")
-    case JobWorkerStatusChange(worker, memberStatus) => // worker status change event
+    case JobWorkerStatusChange(worker, memberStatus) =>
       handleWorkerStatusChangeEvent(worker, memberStatus)
     case msg: SingleHttpScenarioMessage =>
       watchWorkersAndSendLoad(msg)
-    case TryGenerateReport =>
-      tryGenerateReport()
+    case PushStatusToZk =>
+      pushJobStatusToZk()
+    case GenerateReport =>
+      generateReport()
     case _ =>
+      stopSelf()
   }
 
   def handleWorkerStatusChangeEvent(worker: PeaMember, workerStatus: MemberStatus): Unit = {
@@ -54,7 +59,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     } else {
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.IIL, workerStatus.status))
     }
-    pushJobStatusToZk()
+    self ! PushStatusToZk
   }
 
   def watchWorkersAndSendLoad(load: LoadMessage): Unit = {
@@ -67,8 +72,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
             jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.IIL, res.msg))
           }
         })
-      case _ =>
-        context stop self
+      case _ => stopSelf()
     })
   }
 
@@ -88,14 +92,32 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   }
 
   def gatherSimulationLog(worker: PeaMember): Unit = {
-    // TODO:
-    // downloading log file, filter current node
-    // update worker status in job node,
-    // check weather finished, send TryGenerateReport
+    if (worker.toAddress.equals(PeaMember.toAddress(PeaConfig.address, PeaConfig.port))) {
+      // current node
+      Future.successful(null)
+    } else {
+      PeaService.downloadSimulationLog(worker, runId)
+    }.map(_ => {
+      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.FINISHED))
+      if (jobStatus.workers.forall(s => !MemberStatus.IDLE.equals(s._2.status))) {
+        jobStatus.end = System.currentTimeMillis()
+        jobStatus.status = MemberStatus.REPORTING
+        self ! GenerateReport
+      }
+      self ! PushStatusToZk
+    })
   }
 
-  def tryGenerateReport(): Unit = {
-    // TODO
+  def generateReport(): Unit = {
+    GatlingRunnerActor.generateReport(runId)
+      .map(_ => {
+        jobStatus.status = MemberStatus.FINISHED
+        self ! PushStatusToZk
+        context.system.scheduler.scheduleOnce(10 seconds) {
+          // destroy self after 10 seconds
+          stopSelf()
+        }
+      })
   }
 
   def initJobNode(): Unit = {
@@ -122,6 +144,10 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       .forPath(jobNode, JsonUtils.stringify(jobStatus).getBytes(StandardCharsets.UTF_8))
   }
 
+  def stopSelf(): Unit = {
+    context stop self
+  }
+
   override def postStop(): Unit = {
     PeaConfig.zkClient.delete().guaranteed().forPath(jobNode)
   }
@@ -133,6 +159,8 @@ object ReporterWorkersActor {
 
   case class JobWorkerStatusChange(worker: PeaMember, status: MemberStatus)
 
-  case object TryGenerateReport
+  case object PushStatusToZk
+
+  case object GenerateReport
 
 }

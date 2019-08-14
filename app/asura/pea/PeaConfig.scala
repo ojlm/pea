@@ -23,6 +23,8 @@ object PeaConfig {
   implicit var dispatcher: ExecutionContext = _
   implicit var materializer: ActorMaterializer = _
 
+  var address = StringUtils.EMPTY
+  var port = 0
   var hostname = StringUtils.EMPTY
   var zkClient: CuratorFramework = null
   var zkRootPath: String = null

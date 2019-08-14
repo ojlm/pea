@@ -76,6 +76,7 @@ object PeaService {
               result.get
           }
           .map(_ => file)
+          .recover { case _: Throwable => null }
       })
   }
 

@@ -64,7 +64,7 @@ class ApplicationStart @Inject()(
 
   def registerToZK(): Unit = {
     val addressOpt = configuration.getOptional[String]("pea.address")
-    val address = if (addressOpt.nonEmpty) {
+    PeaConfig.address = if (addressOpt.nonEmpty) {
       addressOpt.get
     } else {
       val enumeration = NetworkInterface.getNetworkInterfaces.asScala.toSeq
@@ -84,8 +84,8 @@ class ApplicationStart @Inject()(
     } catch {
       case _: Throwable => "Unknown"
     }
-    val port = portOpt.getOrElse(9000)
-    PeaConfig.zkCurrNode = PeaMember.toNodeName(address, port, PeaConfig.hostname)
+    PeaConfig.port = portOpt.getOrElse(9000)
+    PeaConfig.zkCurrNode = PeaMember.toNodeName(PeaConfig.address, PeaConfig.port, PeaConfig.hostname)
     PeaConfig.zkRootPath = configuration.getOptional[String]("pea.zk.path").get
     val connectString = configuration.get[String]("pea.zk.connectString")
     val builder = CuratorFrameworkFactory.builder()

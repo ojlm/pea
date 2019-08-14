@@ -16,7 +16,7 @@ case class PeaMember(
 
   def toNodeName: String = PeaMember.toNodeName(address, port, hostname)
 
-  def toAddress: String = s"${address}:${port}"
+  def toAddress: String = PeaMember.toAddress(address, port)
 }
 
 object PeaMember {
@@ -44,4 +44,6 @@ object PeaMember {
   def toNodeName(address: String, port: Int, hostname: String): String = {
     s"${address}:${port}?hostname=${hostname}"
   }
+
+  def toAddress(address: String, port: Int) = s"${address}:${port}"
 }

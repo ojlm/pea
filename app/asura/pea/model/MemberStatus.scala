@@ -26,5 +26,6 @@ object MemberStatus {
   val RUNNING = "running" // reporter & worker
   val IIL = "ill" // worker, inconsistent status in reporter
   val GATHERING = "gathering" // gathering simulation log in report
+  val REPORTING = "reporting" // reporter
   val FINISHED = "finished" // reporter job
 }
