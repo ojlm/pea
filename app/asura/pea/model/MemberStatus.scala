@@ -22,6 +22,9 @@ case class MemberStatus(
 
 object MemberStatus {
 
-  val IDLE = "idle"
-  val RUNNING = "running"
+  val IDLE = "idle" //  worker
+  val RUNNING = "running" // reporter & worker
+  val IIL = "ill" // worker, inconsistent status in reporter
+  val GATHERING = "gathering" // gathering simulation log in report
+  val FINISHED = "finished" // reporter job
 }
