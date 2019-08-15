@@ -21,7 +21,7 @@ object PeaService {
 
   def getMemberStatus(member: PeaMember): Future[MemberStatus] = {
     HttpClient.wsClient
-      .url(s"${member.toAddress}/api/gatling/status")
+      .url(s"http://${member.toAddress}/api/gatling/status")
       .get()
       .map(response => {
         JsonUtils.parse(response.body[String], classOf[MemberStatus])
@@ -51,7 +51,7 @@ object PeaService {
 
   def sendSingleHttpScenario(member: PeaMember, load: SingleHttpScenarioMessage): Future[ApiRes] = {
     HttpClient.wsClient
-      .url(s"${member.toAddress}/api/gatling/single")
+      .url(s"http://${member.toAddress}/api/gatling/single")
       .post(JsonUtils.stringify(load))
       .map(response => {
         JsonUtils.parse(response.body[String], classOf[ApiRes])
@@ -60,7 +60,7 @@ object PeaService {
 
   def downloadSimulationLog(member: PeaMember, runId: String): Future[File] = {
     HttpClient.wsClient
-      .url(s"${member.toAddress}/api/gatling/simulation/${runId}")
+      .url(s"http://${member.toAddress}/api/gatling/simulation/${runId}")
       .withMethod("GET").stream()
       .flatMap(res => {
         val file = new File(s"${PeaConfig.resultsFolder}/${runId}/${member.address}.${member.port}.log")

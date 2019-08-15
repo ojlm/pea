@@ -3,6 +3,7 @@ package asura.pea.api
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.stream.Materializer
+import asura.common.util.FutureUtils
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.PeaReporterActor.SingleHttpScenarioJob
@@ -40,6 +41,21 @@ class HomeApi @Inject()(
 
   def single() = Action(parse.byteString).async { implicit req =>
     val message = req.bodyAs(classOf[SingleHttpScenarioJob])
-    (peaReporter ? message).toOkResult
+    val workers = message.workers
+    val request = message.request
+    if (null == workers || workers.isEmpty) {
+      FutureUtils.illegalArgs("Empty workers")
+    } else {
+      if (null != request) {
+        val exception = request.isValid()
+        if (null != exception) {
+          Future.failed(exception)
+        } else {
+          (peaReporter ? message).toOkResult
+        }
+      } else {
+        FutureUtils.illegalArgs("Empty request")
+      }
+    }
   }
 }

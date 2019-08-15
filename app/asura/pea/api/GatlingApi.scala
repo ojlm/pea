@@ -43,7 +43,12 @@ class GatlingApi @Inject()(
 
   def single() = Action(parse.byteString).async { implicit req =>
     val message = req.bodyAs(classOf[SingleHttpScenarioMessage])
-    (peaWorker ? message).toOkResult
+    val exception = message.isValid()
+    if (null != exception) {
+      Future.failed(exception)
+    } else {
+      (peaWorker ? message).toOkResult
+    }
   }
 
   def monitor() = WebSocket.acceptOrResult[String, String] { implicit req =>
