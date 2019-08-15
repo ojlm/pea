@@ -7,7 +7,7 @@ import java.time.{Instant, ZoneOffset, ZonedDateTime}
 
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
-import asura.common.model.ApiRes
+import asura.common.model.{ApiCode, ApiRes}
 import asura.common.util.JsonUtils
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig._
@@ -19,12 +19,12 @@ import scala.concurrent.Future
 
 object PeaService {
 
-  def getMemberStatus(member: PeaMember): Future[MemberStatus] = {
+  def getMemberStatus(member: PeaMember): Future[ApiResMemberStatus] = {
     HttpClient.wsClient
       .url(s"http://${member.toAddress}/api/gatling/status")
       .get()
       .map(response => {
-        JsonUtils.parse(response.body[String], classOf[MemberStatus])
+        JsonUtils.parse(response.body[String], classOf[ApiResMemberStatus])
       })
   }
 
@@ -32,12 +32,18 @@ object PeaService {
     val errors = mutable.Map[String, String]()
     val futures = workers.map(member => {
       PeaService.getMemberStatus(member)
-        .map(memberStatus =>
-          if (MemberStatus.IDLE.equals(memberStatus.status)) {
-            (true, null)
+        .map(res =>
+          if (ApiCode.equals(res.code)) {
+            val memberStatus = res.data
+            if (MemberStatus.IDLE.equals(memberStatus.status)) {
+              (true, null)
+            } else {
+              errors += (s"${member.toAddress}" -> memberStatus.status)
+              (false, memberStatus.status)
+            }
           } else {
-            errors += (s"${member.toAddress}" -> memberStatus.status)
-            (false, memberStatus.status)
+            errors += (s"${member.toAddress}" -> res.msg)
+            (false, res.msg)
           }
         )
         .recover {
@@ -87,6 +93,8 @@ object PeaService {
         .ofPattern("yyyyMMddHHmmssSSS")
         .format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), ZoneOffset.UTC))
   }
+
+  case class ApiResMemberStatus(code: String, msg: String, data: MemberStatus)
 
   case class WorkersAvailable(
                                available: Boolean,
