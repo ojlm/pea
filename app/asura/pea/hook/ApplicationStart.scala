@@ -124,6 +124,11 @@ class ApplicationStart @Inject()(
             PeaConfig.workerActor ! memberStatus
           }
         })
+        lifecycle.addStopHook { () =>
+          Future {
+            nodeCache.close()
+          }(system.dispatcher)
+        }
       }
       if (configuration.getOptional[Boolean]("pea.zk.role.reporter").getOrElse(false)) {
         PeaConfig.zkCurrReporterPath = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_REPORTERS}/${PeaConfig.zkCurrNode}"

@@ -15,6 +15,7 @@ import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.apache.zookeeper.CreateMode
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -35,6 +36,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       workers = workersStatus
     )
   }
+  val nodeCaches = ArrayBuffer[NodeCache]()
 
   override def receive: Receive = {
     case msg: ReporterJobStatus =>
@@ -127,6 +129,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       .forPath(jobNode, JsonUtils.stringify(jobStatus).getBytes(StandardCharsets.UTF_8))
     val nodeCache = new NodeCache(PeaConfig.zkClient, jobNode)
     nodeCache.start()
+    nodeCaches += nodeCache
     nodeCache.getListenable.addListener(new NodeCacheListener {
       override def nodeChanged(): Unit = {
         val jobStatus = JsonUtils.parse(
@@ -145,6 +148,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   }
 
   def stopSelf(): Unit = {
+    nodeCaches.foreach(_.close())
     context stop self
   }
 
