@@ -18,7 +18,7 @@ import asura.pea.model.SingleHttpScenarioMessage
 import asura.play.api.BaseApi
 import javax.inject.{Inject, Singleton}
 import org.pac4j.play.scala.SecurityComponents
-import play.api.mvc.WebSocket
+import play.api.mvc.{Result, WebSocket}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,25 +29,31 @@ class GatlingApi @Inject()(
                             implicit val exec: ExecutionContext,
                             implicit val mat: Materializer,
                             val controllerComponents: SecurityComponents
-                          ) extends BaseApi {
+                          ) extends BaseApi with CommonFunctions {
 
   val peaWorker = PeaConfig.workerActor
 
   def stop() = Action.async { implicit req =>
-    (peaWorker ? StopEngine).toOkResult
+    checkWorkerEnable {
+      (peaWorker ? StopEngine).toOkResult
+    }
   }
 
   def status() = Action.async { implicit req =>
-    (peaWorker ? GetNodeStatusMessage).toOkResult
+    checkWorkerEnable {
+      (peaWorker ? GetNodeStatusMessage).toOkResult
+    }
   }
 
   def single() = Action(parse.byteString).async { implicit req =>
-    val message = req.bodyAs(classOf[SingleHttpScenarioMessage])
-    val exception = message.isValid()
-    if (null != exception) {
-      Future.failed(exception)
-    } else {
-      (peaWorker ? message).toOkResult
+    checkWorkerEnable {
+      val message = req.bodyAs(classOf[SingleHttpScenarioMessage])
+      val exception = message.isValid()
+      if (null != exception) {
+        Future.failed(exception)
+      } else {
+        (peaWorker ? message).toOkResult
+      }
     }
   }
 
@@ -78,5 +84,13 @@ class GatlingApi @Inject()(
         .map(result => JsonUtils.stringify(result))
         .keepAlive(PeaConfig.KEEP_ALIVE_INTERVAL seconds, () => StringUtils.EMPTY)
     Flow.fromSinkAndSource(incomingMessages, outgoingMessages)
+  }
+
+  def checkWorkerEnable(func: => Future[Result]): Future[Result] = {
+    if (PeaConfig.enableWorker) {
+      func
+    } else {
+      FutureErrorResult("Role worker is disabled")
+    }
   }
 }

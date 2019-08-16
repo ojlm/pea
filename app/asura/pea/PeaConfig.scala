@@ -23,19 +23,33 @@ object PeaConfig {
   implicit var dispatcher: ExecutionContext = _
   implicit var materializer: ActorMaterializer = _
 
+  // system actor
+  var workerActor: ActorRef = null
+  var reporterActor: ActorRef = null
+  var monitorActor: ActorRef = null
+
+  // node
   var address = StringUtils.EMPTY
   var port = 0
   var hostname = StringUtils.EMPTY
+
+  // roles
+  var enableReporter = false
+  var enableWorker = false
+
+  // zk
   var zkClient: CuratorFramework = null
   var zkRootPath: String = null
   var zkCurrNode: String = null
   var zkCurrWorkerPath: String = null
   var zkCurrReporterPath: String = null
-  var resultsFolder: String = null
-  var workerActor: ActorRef = null
-  var reporterActor: ActorRef = null
-  var monitorActor: ActorRef = null
+
+  // gatling report
   var reportLogoHref: String = null
   var reportDescHref: String = null
   var reportDescContent: String = null
+  var resultsFolder: String = null
+
+  // worker
+  var workerProtocol: String = "http"
 }

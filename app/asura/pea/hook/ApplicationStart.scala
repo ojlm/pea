@@ -103,10 +103,13 @@ class ApplicationStart @Inject()(
           override def getAclForPath(path: String): util.List[ACL] = ZooDefs.Ids.CREATOR_ALL_ACL
         })
     }
+    val protocolOpt = configuration.getOptional[String]("pea.worker.protocol")
+    if (protocolOpt.nonEmpty) PeaConfig.workerProtocol = protocolOpt.get
     PeaConfig.zkClient = builder.build()
     PeaConfig.zkClient.start()
     try {
       if (configuration.getOptional[Boolean]("pea.zk.role.worker").getOrElse(true)) {
+        PeaConfig.enableWorker = true
         PeaConfig.zkCurrWorkerPath = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_WORKERS}/${PeaConfig.zkCurrNode}"
         val nodeData = JsonUtils.stringify(MemberStatus()).getBytes(StandardCharsets.UTF_8)
         PeaConfig.zkClient.create()
@@ -131,6 +134,7 @@ class ApplicationStart @Inject()(
         }
       }
       if (configuration.getOptional[Boolean]("pea.zk.role.reporter").getOrElse(false)) {
+        PeaConfig.enableReporter = true
         PeaConfig.zkCurrReporterPath = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_REPORTERS}/${PeaConfig.zkCurrNode}"
         PeaConfig.zkClient.create()
           .creatingParentsIfNeeded()
