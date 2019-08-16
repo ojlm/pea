@@ -33,7 +33,7 @@ object PeaService {
     val futures = workers.map(member => {
       PeaService.getMemberStatus(member)
         .map(res =>
-          if (ApiCode.equals(res.code)) {
+          if (ApiCode.OK.equals(res.code)) {
             val memberStatus = res.data
             if (MemberStatus.IDLE.equals(memberStatus.status)) {
               (true, null)

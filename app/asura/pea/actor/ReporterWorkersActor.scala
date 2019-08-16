@@ -94,12 +94,13 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   }
 
   def gatherSimulationLog(worker: PeaMember): Unit = {
-    if (worker.toAddress.equals(PeaMember.toAddress(PeaConfig.address, PeaConfig.port))) {
+    val futureFile = if (worker.toAddress.equals(PeaMember.toAddress(PeaConfig.address, PeaConfig.port))) {
       // current node
       Future.successful(null)
     } else {
       PeaService.downloadSimulationLog(worker, runId)
-    }.map(_ => {
+    }
+    futureFile.map(_ => {
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.FINISHED))
       if (jobStatus.workers.forall(s => !MemberStatus.IDLE.equals(s._2.status))) {
         jobStatus.end = System.currentTimeMillis()
