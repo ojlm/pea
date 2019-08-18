@@ -83,7 +83,10 @@ object ZincCompilerActor {
     val futureCode = ProcessUtils.execAsync(
       getCmd(message),
       (_: String) => {},
-      (stderr: String) => errors.append(stderr).append("\n")
+      (stderr: String) => {
+        errors.append(stderr).append("\n")
+        ()
+      }
     ).get
     futureCode.map(code => {
       CompileResponse(code == 0, errors.toString)

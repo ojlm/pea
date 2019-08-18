@@ -63,7 +63,6 @@ class PeaWorkerActor extends BaseActor {
 
   def runSimulation(message: RunSimulationMessage): Future[String] = {
     if (MemberStatus.IDLE.equals(memberStatus.status)) {
-      val error = StringBuilder.newBuilder
       (zincCompilerActor ? SimulationValidateMessage(message.simulation)).flatMap(res => {
         if (res.asInstanceOf[Boolean]) {
           runLoad(message)
