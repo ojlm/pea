@@ -3,9 +3,12 @@
 START_SCRIPT=./bin/pea
 PID_FILE=./pea.pid
 
+export ROLE_WORKER=true
+export ROLE_REPORTER=true
+
 # ***********************************************
 # ***********************************************
-ARGS="-Dconfig.resource=application.conf"
+ARGS="-Dhttp.port=9000 -Dconfig.resource=application.conf"
 DAEMON=$START_SCRIPT
 
 # colors
