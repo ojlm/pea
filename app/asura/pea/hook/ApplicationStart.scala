@@ -48,6 +48,12 @@ class ApplicationStart @Inject()(
   PeaConfig.reporterActor = system.actorOf(PeaReporterActor.props())
   PeaConfig.workerActor = system.actorOf(PeaWorkerActor.props())
   PeaConfig.monitorActor = system.actorOf(PeaMonitorActor.props())
+  PeaConfig.defaultSimulationSourceFolder = configuration
+    .getOptional[String]("pea.worker.source")
+    .getOrElse(StringUtils.EMPTY)
+  PeaConfig.defaultSimulationOutputFolder = configuration
+    .getOptional[String]("pea.worker.output")
+    .getOrElse(StringUtils.EMPTY)
 
   val enableZk = configuration.getOptional[Boolean]("pea.zk.enabled").getOrElse(false)
   if (enableZk) {
@@ -77,13 +83,13 @@ class ApplicationStart @Inject()(
       }.getOrElse(InetAddress.getLocalHost)
       address.getHostAddress
     }
-    val portOpt = configuration.getOptional[Int]("pea.port")
     PeaConfig.hostname = try {
       import scala.sys.process._
       "hostname".!!.trim
     } catch {
       case _: Throwable => "Unknown"
     }
+    val portOpt = configuration.getOptional[Int]("pea.port")
     PeaConfig.port = portOpt.getOrElse(9000)
     PeaConfig.zkCurrNode = PeaMember.toNodeName(PeaConfig.address, PeaConfig.port, PeaConfig.hostname)
     PeaConfig.zkRootPath = configuration.getOptional[String]("pea.zk.path").get

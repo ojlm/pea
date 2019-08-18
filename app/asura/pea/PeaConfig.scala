@@ -18,7 +18,7 @@ object PeaConfig {
   val PATH_REPORTERS = "reporters"
   val PATH_JOBS = "jobs"
 
-  implicit val DEFAULT_ACTOR_ASK_TIMEOUT: Timeout = 1 minutes
+  implicit val DEFAULT_ACTOR_ASK_TIMEOUT: Timeout = 10 minutes
   implicit var system: ActorSystem = _
   implicit var dispatcher: ExecutionContext = _
   implicit var materializer: ActorMaterializer = _
@@ -52,4 +52,6 @@ object PeaConfig {
 
   // worker
   var workerProtocol: String = "http"
+  var defaultSimulationSourceFolder: String = null
+  var defaultSimulationOutputFolder: String = null
 }

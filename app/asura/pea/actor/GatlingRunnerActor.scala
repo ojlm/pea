@@ -5,7 +5,7 @@ import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.{GenerateReport, StartMessage}
-import asura.pea.model.SingleHttpScenarioMessage
+import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.pea.simulation.SingleHttpSimulation
 import io.gatling.app.PeaGatlingRunner
 import io.gatling.core.config.GatlingPropertiesBuilder
@@ -28,6 +28,8 @@ class GatlingRunnerActor extends BaseActor {
         simulationId,
         start
       )
+    case msg: RunSimulationMessage =>
+    // TODO
     case GenerateReport(runId) =>
       GatlingRunnerActor.generateReport(runId) pipeTo sender()
   }

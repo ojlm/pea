@@ -10,7 +10,8 @@ import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.PeaWorkerActor._
-import asura.pea.model.{MemberStatus, SingleHttpScenarioMessage}
+import asura.pea.actor.ZincCompilerActor.SimulationValidateMessage
+import asura.pea.model.{LoadMessage, MemberStatus, RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.pea.{ErrorMessages, PeaConfig}
 
 import scala.concurrent.Future
@@ -31,6 +32,8 @@ class PeaWorkerActor extends BaseActor {
       sender() ! memberStatus
     case msg: SingleHttpScenarioMessage =>
       doSingleHttpScenario(msg) pipeTo sender()
+    case msg: RunSimulationMessage =>
+      runSimulation(msg) pipeTo sender()
     case StopEngine =>
       sender() ! tryStopEngine()
     case UpdateRunningStatus(runId) =>
@@ -58,23 +61,42 @@ class PeaWorkerActor extends BaseActor {
     result
   }
 
-  def doSingleHttpScenario(message: SingleHttpScenarioMessage): Future[String] = {
+  def runSimulation(message: RunSimulationMessage): Future[String] = {
     if (MemberStatus.IDLE.equals(memberStatus.status)) {
-      asura.pea.singleHttpScenario = message
-      val futureRunResult = (gatlingRunnerActor ? message).asInstanceOf[Future[PeaGatlingRunResult]]
-      futureRunResult.map(runResult => {
-        engineCancelable = runResult.cancel
-        self ! UpdateRunningStatus(runResult.runId)
-        runResult.result.map(result => {
-          if (!result.isByCanceled) { // stop not by hand
-            self ! UpdateEndStatus(result.code, result.errMsg)
-          }
-        })
-        runResult.runId
+      val error = StringBuilder.newBuilder
+      (zincCompilerActor ? SimulationValidateMessage(message.simulation)).flatMap(res => {
+        if (res.asInstanceOf[Boolean]) {
+          runLoad(message)
+        } else {
+          Future.failed(new RuntimeException(s"Simulation not compiled: ${message.simulation}"))
+        }
       })
     } else {
       ErrorMessages.error_BusyStatus.toFutureFail
     }
+  }
+
+  def doSingleHttpScenario(message: SingleHttpScenarioMessage): Future[String] = {
+    if (MemberStatus.IDLE.equals(memberStatus.status)) {
+      asura.pea.singleHttpScenario = message
+      runLoad(message)
+    } else {
+      ErrorMessages.error_BusyStatus.toFutureFail
+    }
+  }
+
+  private def runLoad(message: LoadMessage): Future[String] = {
+    val futureRunResult = (gatlingRunnerActor ? message).asInstanceOf[Future[PeaGatlingRunResult]]
+    futureRunResult.map(runResult => {
+      engineCancelable = runResult.cancel
+      self ! UpdateRunningStatus(runResult.runId)
+      runResult.result.map(result => {
+        if (!result.isByCanceled) { // stop not by hand
+          self ! UpdateEndStatus(result.code, result.errMsg)
+        }
+      })
+      runResult.runId
+    })
   }
 
   private def updateCodeStatus(code: Int, errMsg: String): Unit = {
