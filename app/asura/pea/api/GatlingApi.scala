@@ -14,6 +14,7 @@ import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.PeaWebMonitorActor
 import asura.pea.actor.PeaWebMonitorActor.WebMonitorController
 import asura.pea.actor.PeaWorkerActor.{GetNodeStatusMessage, StopEngine}
+import asura.pea.actor.ZincCompilerActor.GetAllSimulations
 import asura.pea.model.SingleHttpScenarioMessage
 import asura.play.api.BaseApi
 import javax.inject.{Inject, Singleton}
@@ -55,6 +56,10 @@ class GatlingApi @Inject()(
         (peaWorker ? message).toOkResult
       }
     }
+  }
+
+  def simulations() = Action(parse.byteString).async { implicit req =>
+    (peaWorker ? GetAllSimulations).toOkResult
   }
 
   def monitor() = WebSocket.acceptOrResult[String, String] { implicit req =>

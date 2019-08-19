@@ -8,4 +8,5 @@ GET         /api/gatling/stop                     asura.pea.api.GatlingApi.stop(
 GET         /api/gatling/status                   asura.pea.api.GatlingApi.status()
 POST        /api/gatling/single                   asura.pea.api.GatlingApi.single()
 GET         /api/gatling/monitor                  asura.pea.api.GatlingApi.monitor()
+GET         /api/gatling/simulations              asura.pea.api.GatlingApi.simulations()
 GET         /api/gatling/simulation/:runId        asura.pea.api.GatlingApi.simulation(runId)

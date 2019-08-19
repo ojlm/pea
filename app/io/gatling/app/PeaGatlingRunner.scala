@@ -4,6 +4,7 @@
 package io.gatling.app
 
 import java.io.{File, PrintWriter}
+import java.nio.file.Paths
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.pattern.ask
@@ -12,6 +13,7 @@ import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.{GatlingResult, PeaGatlingRunResult}
 import asura.pea.gatling.PeaDataWritersStatsEngine
 import com.typesafe.scalalogging.StrictLogging
+import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.CoreComponents
@@ -197,5 +199,15 @@ object PeaGatlingRunner extends StrictLogging {
                       runId: String
                     )(implicit ec: ExecutionContext): Future[Int] = {
     new PeaGatlingRunner(config, true).generateReport(runId)
+  }
+
+  def getSimulationClasses(binariesDirectory: String = PeaConfig.defaultSimulationOutputFolder): Set[String] = {
+    try {
+      SimulationClassLoader(Paths.get(binariesDirectory)).simulationClasses.map(_.getName).toSet
+    } catch {
+      case t: Throwable =>
+        logger.warn(LogUtils.stackTraceToString(t))
+        Set.empty
+    }
   }
 }

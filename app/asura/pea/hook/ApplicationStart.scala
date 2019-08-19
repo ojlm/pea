@@ -5,9 +5,11 @@ import java.nio.charset.StandardCharsets
 import java.util
 
 import akka.actor.ActorSystem
+import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import asura.common.util.{JsonUtils, LogUtils, StringUtils}
 import asura.pea.PeaConfig
+import asura.pea.actor.ZincCompilerActor.{CompileMessage, CompileResponse}
 import asura.pea.actor.{PeaMonitorActor, PeaReporterActor, PeaWorkerActor}
 import asura.pea.http.HttpClient
 import asura.pea.model.{MemberStatus, PeaMember}
@@ -32,6 +34,9 @@ class ApplicationStart @Inject()(
                                   configuration: Configuration,
                                 ) extends StrictLogging {
 
+  implicit val ec = system.dispatcher
+  implicit val askTimeout = PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
+
   PeaConfig.system = system
   PeaConfig.dispatcher = system.dispatcher
   PeaConfig.materializer = ActorMaterializer()(system)
@@ -54,7 +59,11 @@ class ApplicationStart @Inject()(
   PeaConfig.defaultSimulationOutputFolder = configuration
     .getOptional[String]("pea.worker.output")
     .getOrElse(StringUtils.EMPTY)
-
+  if (configuration.getOptional[Boolean]("pea.simulations.compileAtStartup").getOrElse(false)) {
+    (PeaConfig.workerActor ? CompileMessage()).map(res => {
+      logger.info(s"Compiler status: ${res.asInstanceOf[CompileResponse]}")
+    })
+  }
   val enableZk = configuration.getOptional[Boolean]("pea.zk.enabled").getOrElse(false)
   if (enableZk) {
     registerToZK()
@@ -65,7 +74,7 @@ class ApplicationStart @Inject()(
     Future {
       if (null != PeaConfig.zkClient) PeaConfig.zkClient.close()
       HttpClient.close()
-    }(system.dispatcher)
+    }
   }
 
   def registerToZK(): Unit = {
@@ -136,7 +145,7 @@ class ApplicationStart @Inject()(
         lifecycle.addStopHook { () =>
           Future {
             nodeCache.close()
-          }(system.dispatcher)
+          }
         }
       }
       if (configuration.getOptional[Boolean]("pea.zk.role.reporter").getOrElse(false)) {

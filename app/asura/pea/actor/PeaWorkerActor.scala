@@ -10,7 +10,7 @@ import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.PeaWorkerActor._
-import asura.pea.actor.ZincCompilerActor.SimulationValidateMessage
+import asura.pea.actor.ZincCompilerActor.{CompileMessage, GetAllSimulations, SimulationValidateMessage}
 import asura.pea.model.{LoadMessage, MemberStatus, RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.pea.{ErrorMessages, PeaConfig}
 
@@ -30,6 +30,10 @@ class PeaWorkerActor extends BaseActor {
       log.debug(s"Current node data change to: ${msg}")
     case GetNodeStatusMessage =>
       sender() ! memberStatus
+    case GetAllSimulations =>
+      (zincCompilerActor ? GetAllSimulations) pipeTo sender()
+    case msg: CompileMessage =>
+      (zincCompilerActor ? msg) pipeTo sender()
     case msg: SingleHttpScenarioMessage =>
       doSingleHttpScenario(msg) pipeTo sender()
     case msg: RunSimulationMessage =>

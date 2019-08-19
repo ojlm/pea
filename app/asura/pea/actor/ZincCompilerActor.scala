@@ -3,8 +3,9 @@ package asura.pea.actor
 import akka.actor.Props
 import akka.pattern.pipe
 import asura.common.actor.BaseActor
-import asura.common.util.ProcessUtils
+import asura.common.util.{ProcessUtils, StringUtils}
 import asura.pea.PeaConfig
+import io.gatling.app.PeaGatlingRunner
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -25,12 +26,14 @@ class ZincCompilerActor extends BaseActor {
       if (COMPILE_STATUS_IDLE == status) {
         ZincCompilerActor.doCompileWithErrors(msg).map(response => {
           if (response.success) {
-            // TODO: get simulations set
+            last = System.currentTimeMillis()
+            val f = StringUtils.notEmptyElse(msg.outputFolder, PeaConfig.defaultSimulationOutputFolder)
+            this.simulations = PeaGatlingRunner.getSimulationClasses(f)
           }
           response
         }) pipeTo sender()
       } else {
-        sender() ! COMPILE_STATUS_RUNNING
+        sender() ! CompileResponse(false, "Compiler is running.")
       }
     case SimulationValidateMessage(simulation) =>
       sender() ! simulations.contains(simulation)
