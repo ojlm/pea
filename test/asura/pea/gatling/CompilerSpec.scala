@@ -2,8 +2,8 @@ package asura.pea.gatling
 
 import asura.common.util.FutureUtils.RichFuture
 import asura.pea.IDEPathHelper
-import asura.pea.actor.ZincCompilerActor
 import asura.pea.actor.ZincCompilerActor.CompileMessage
+import asura.pea.compiler.ZincCompiler
 import com.typesafe.scalalogging.StrictLogging
 
 object CompilerSpec extends StrictLogging {
@@ -15,7 +15,7 @@ object CompilerSpec extends StrictLogging {
       outputFolder = s"${IDEPathHelper.projectRootDir}/logs/output",
       verbose = false,
     )
-    val code = ZincCompilerActor.doCompile(
+    val code = ZincCompiler.doGatlingCompile(
       compileMessage,
       stdout => {
         logger.info(s"stdout: ${stdout}")

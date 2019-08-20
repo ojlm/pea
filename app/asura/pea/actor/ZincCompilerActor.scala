@@ -3,11 +3,10 @@ package asura.pea.actor
 import akka.actor.Props
 import akka.pattern.pipe
 import asura.common.actor.BaseActor
-import asura.common.util.{ProcessUtils, StringUtils}
+import asura.common.util.StringUtils
 import asura.pea.PeaConfig
+import asura.pea.compiler.ZincCompiler
 import io.gatling.app.PeaGatlingRunner
-
-import scala.concurrent.{ExecutionContext, Future}
 
 class ZincCompilerActor extends BaseActor {
 
@@ -24,7 +23,7 @@ class ZincCompilerActor extends BaseActor {
       sender() ! Simulations(last, simulations)
     case msg: CompileMessage =>
       if (COMPILE_STATUS_IDLE == status) {
-        ZincCompilerActor.doCompileWithErrors(msg).map(response => {
+        ZincCompiler.doGatlingCompileWithErrors(msg).map(response => {
           if (response.success) {
             last = System.currentTimeMillis()
             val f = StringUtils.notEmptyElse(msg.outputFolder, PeaConfig.defaultSimulationOutputFolder)
@@ -61,48 +60,5 @@ object ZincCompilerActor {
   case object GetAllSimulations
 
   case class Simulations(last: Long, simulations: Set[String])
-
-  lazy val currentClassPath = System
-    .getProperty("java.class.path")
-    .split(":")
-    .filter(p => {
-      // filter idea jar
-      !p.contains("idea_rt.jar")
-    })
-    .mkString(":")
-
-  def getCmd(message: CompileMessage): String = {
-    val cmd = s"java -Dfile.encoding=UTF-8 -cp ${currentClassPath} " +
-      s"io.gatling.compiler.ZincCompiler " +
-      s"-sf ${message.srcFolder} " +
-      s"-bf ${message.outputFolder} " +
-      s"${if (message.verbose) "-eso -verbose" else ""}"
-    cmd
-  }
-
-  def doCompileWithErrors(message: CompileMessage): Future[CompileResponse] = {
-    implicit val ec = ExecutionContext.global
-    val errors = StringBuilder.newBuilder
-    val futureCode = ProcessUtils.execAsync(
-      getCmd(message),
-      (_: String) => {},
-      (stderr: String) => {
-        errors.append(stderr).append("\n")
-        ()
-      }
-    ).get
-    futureCode.map(code => {
-      CompileResponse(code == 0, errors.toString)
-    })
-  }
-
-  def doCompile(
-                 message: CompileMessage,
-                 stdout: String => Unit = (_) => {},
-                 stderr: String => Unit = (_) => {},
-               ): Future[Int] = {
-    implicit val ec = ExecutionContext.global
-    ProcessUtils.execAsync(getCmd(message), stdout, stderr).get
-  }
 
 }
