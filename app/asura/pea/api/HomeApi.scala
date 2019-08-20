@@ -8,9 +8,11 @@ import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.PeaReporterActor.SingleHttpScenarioJob
 import asura.pea.model.PeaMember
 import asura.play.api.BaseApi
+import controllers.Assets
 import javax.inject.{Inject, Singleton}
 import org.pac4j.play.scala.SecurityComponents
-import play.api.mvc.Result
+import play.api.http.HttpErrorHandler
+import play.api.mvc._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
@@ -20,13 +22,19 @@ class HomeApi @Inject()(
                          implicit val system: ActorSystem,
                          implicit val exec: ExecutionContext,
                          implicit val mat: Materializer,
-                         val controllerComponents: SecurityComponents
+                         val controllerComponents: SecurityComponents,
+                         val assets: Assets,
+                         val errorHandler: HttpErrorHandler,
                        ) extends BaseApi with CommonFunctions {
 
   val peaReporter = PeaConfig.reporterActor
 
-  def index() = Action.async { implicit req =>
-    Future.successful(Ok("pea"))
+  def index() = assets.at("index.html")
+
+  def asset(resource: String): Action[AnyContent] = if (resource.startsWith("api")) {
+    Action.async(r => errorHandler.onClientError(r, NOT_FOUND, "Not found"))
+  } else {
+    if (resource.contains(".")) assets.at(resource) else index
   }
 
   def workers() = Action.async { implicit req =>
