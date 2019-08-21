@@ -15,3 +15,4 @@ target/
 docs/_build/
 .vscode/
 /public
+*.zip
