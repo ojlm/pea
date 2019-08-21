@@ -2,6 +2,10 @@ language: scala
 jdk:
   - openjdk8
 sbt_args: -Xmx2048M
+env:
+  - NODE_VERSION="12.8.1"
+before_install:
+  - nvm install $NODE_VERSION
 before_script:
   - travis_wait 30 sbt clean
 script:
@@ -16,4 +20,3 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/launchers
-    
