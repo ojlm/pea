@@ -5,7 +5,7 @@ import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.common.util.StringUtils
 import asura.pea.PeaConfig
-import asura.pea.compiler.ZincCompiler
+import asura.pea.compiler.{CompileResponse, ZincCompiler}
 import io.gatling.app.PeaGatlingRunner
 
 class ZincCompilerActor extends BaseActor {
@@ -52,8 +52,6 @@ object ZincCompilerActor {
                              outputFolder: String = PeaConfig.defaultSimulationSourceFolder,
                              verbose: Boolean = false
                            )
-
-  case class CompileResponse(success: Boolean, errMsg: String)
 
   case class SimulationValidateMessage(simulation: String)
 
