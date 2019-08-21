@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve --open --proxy-config src/proxy.conf.js --host 0.0.0.0",
     "test": "ng test --watch",
+    "test:none": "echo test none",
     "test:ci": "ng test --watch=false --browsers ChromeHeadless",
     "test:coverage": "ng test --watch=true --code-coverage=true",
     "test:coverage:ci": "ng test --watch=false --code-coverage=true --browsers ChromeHeadless",
