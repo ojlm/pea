@@ -1,13 +1,17 @@
 package asura.pea.api
 
+import java.io.File
+
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.stream.Materializer
+import asura.common.model.{ApiRes, ApiResError}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.PeaReporterActor.{RunSimulationJob, SingleHttpScenarioJob}
 import asura.pea.model.{LoadJob, PeaMember}
 import asura.play.api.BaseApi
+import asura.play.api.BaseApi.OkApiRes
 import controllers.Assets
 import javax.inject.{Inject, Singleton}
 import org.pac4j.play.scala.SecurityComponents
@@ -33,6 +37,29 @@ class HomeApi @Inject()(
     Action.async(r => errorHandler.onClientError(r, NOT_FOUND, "Not found"))
   } else {
     if (resource.contains(".")) assets.at(resource) else index
+  }
+
+  def report(filePath: String) = Action {
+    val file = new File(s"${PeaConfig.resultsFolder}/${filePath}")
+    if (file.isDirectory) {
+      TemporaryRedirect(s"/report/${filePath}/index.html")
+    } else {
+      if (file.exists()) {
+        if (file.getAbsolutePath.startsWith(PeaConfig.resultsFolder)) {
+          Ok.sendFile(file, true)
+        } else {
+          OkApiRes(ApiResError(s"Blocking access to this file: ${file.getAbsolutePath}"))
+        }
+      } else {
+        OkApiRes(ApiResError(s"File is not there: ${file.getAbsolutePath}"))
+      }
+    }
+  }
+
+  def reports() = Action {
+    val file = new File(PeaConfig.resultsFolder)
+    val folders = file.listFiles().filter(_.isDirectory).map(_.getName)
+    OkApiRes(ApiRes(data = folders))
   }
 
   def workers() = Action.async { implicit req =>

@@ -1,5 +1,7 @@
 GET         /                                     asura.pea.api.HomeApi.index()
+GET         /report/*file                         asura.pea.api.HomeApi.report(file)
 
+GET         /api/reports                          asura.pea.api.HomeApi.reports()
 GET         /api/workers                          asura.pea.api.HomeApi.workers()
 GET         /api/reporters                        asura.pea.api.HomeApi.reporters()
 POST        /api/single                           asura.pea.api.HomeApi.single()
