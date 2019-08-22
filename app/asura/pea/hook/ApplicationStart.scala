@@ -73,7 +73,6 @@ class ApplicationStart @Inject()(
   // add stop hook
   lifecycle.addStopHook { () =>
     Future {
-      if (null != PeaConfig.zkClient) PeaConfig.zkClient.close()
       HttpClient.close()
     }
   }
@@ -124,6 +123,7 @@ class ApplicationStart @Inject()(
     PeaConfig.zkClient = builder.build()
     PeaConfig.zkClient.start()
     try {
+      var nodeCache: NodeCache = null
       if (configuration.getOptional[Boolean]("pea.zk.role.worker").getOrElse(true)) {
         PeaConfig.enableWorker = true
         PeaConfig.zkCurrWorkerPath = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_WORKERS}/${PeaConfig.zkCurrNode}"
@@ -132,7 +132,7 @@ class ApplicationStart @Inject()(
           .creatingParentsIfNeeded()
           .withMode(CreateMode.EPHEMERAL)
           .forPath(PeaConfig.zkCurrWorkerPath, nodeData)
-        val nodeCache = new NodeCache(PeaConfig.zkClient, PeaConfig.zkCurrWorkerPath)
+        nodeCache = new NodeCache(PeaConfig.zkClient, PeaConfig.zkCurrWorkerPath)
         nodeCache.start()
         nodeCache.getListenable.addListener(new NodeCacheListener {
           override def nodeChanged(): Unit = {
@@ -143,11 +143,6 @@ class ApplicationStart @Inject()(
             PeaConfig.workerActor ! memberStatus
           }
         })
-        lifecycle.addStopHook { () =>
-          Future {
-            nodeCache.close()
-          }
-        }
       }
       if (configuration.getOptional[Boolean]("pea.zk.role.reporter").getOrElse(false)) {
         PeaConfig.enableReporter = true
@@ -156,6 +151,12 @@ class ApplicationStart @Inject()(
           .creatingParentsIfNeeded()
           .withMode(CreateMode.EPHEMERAL)
           .forPath(PeaConfig.zkCurrReporterPath, null)
+      }
+      lifecycle.addStopHook { () =>
+        Future {
+          if (null != nodeCache) nodeCache.close()
+          PeaConfig.zkClient.close()
+        }
       }
     } catch {
       case t: Throwable =>
