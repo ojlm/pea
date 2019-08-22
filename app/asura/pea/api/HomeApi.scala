@@ -27,8 +27,6 @@ class HomeApi @Inject()(
                          val errorHandler: HttpErrorHandler,
                        ) extends BaseApi with CommonFunctions {
 
-  val peaReporter = PeaConfig.reporterActor
-
   def index() = assets.at("index.html")
 
   def asset(resource: String): Action[AnyContent] = if (resource.startsWith("api")) {
@@ -60,7 +58,7 @@ class HomeApi @Inject()(
           if (null != exception) {
             Future.failed(exception)
           } else {
-            (peaReporter ? message).toOkResult
+            (PeaConfig.reporterActor ? message).toOkResult
           }
         } else {
           FutureErrorResult("Empty request")

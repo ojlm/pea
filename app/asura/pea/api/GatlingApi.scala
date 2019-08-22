@@ -32,17 +32,15 @@ class GatlingApi @Inject()(
                             val controllerComponents: SecurityComponents
                           ) extends BaseApi with CommonFunctions {
 
-  val peaWorker = PeaConfig.workerActor
-
   def stop() = Action.async { implicit req =>
     checkWorkerEnable {
-      (peaWorker ? StopEngine).toOkResult
+      (PeaConfig.workerActor ? StopEngine).toOkResult
     }
   }
 
   def status() = Action.async { implicit req =>
     checkWorkerEnable {
-      (peaWorker ? GetNodeStatusMessage).toOkResult
+      (PeaConfig.workerActor ? GetNodeStatusMessage).toOkResult
     }
   }
 
@@ -53,13 +51,13 @@ class GatlingApi @Inject()(
       if (null != exception) {
         Future.failed(exception)
       } else {
-        (peaWorker ? message).toOkResult
+        (PeaConfig.workerActor ? message).toOkResult
       }
     }
   }
 
   def simulations() = Action(parse.byteString).async { implicit req =>
-    (peaWorker ? GetAllSimulations).toOkResult
+    (PeaConfig.workerActor ? GetAllSimulations).toOkResult
   }
 
   def monitor() = WebSocket.acceptOrResult[String, String] { implicit req =>
