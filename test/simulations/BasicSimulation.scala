@@ -1,11 +1,14 @@
 package simulations
 
+import asura.pea.gatling.PeaSimulation
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
 
-class BasicSimulation extends Simulation {
+class BasicSimulation extends PeaSimulation {
+
+  override val description: String = "BasicSimulation for test."
 
   val httpProtocol = http
     .baseUrl("http://computer-database.gatling.io") // Here is the root for all relative URLs

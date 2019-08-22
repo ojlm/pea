@@ -11,7 +11,8 @@ import akka.pattern.ask
 import asura.common.util.{LogUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.{GatlingResult, PeaGatlingRunResult}
-import asura.pea.gatling.PeaDataWritersStatsEngine
+import asura.pea.gatling.{PeaDataWritersStatsEngine, PeaSimulation}
+import asura.pea.model.SimulationModel
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.commons.util.DefaultClock
@@ -201,13 +202,22 @@ object PeaGatlingRunner extends StrictLogging {
     new PeaGatlingRunner(config, true).generateReport(runId)
   }
 
-  def getSimulationClasses(binariesDirectory: String = PeaConfig.defaultSimulationOutputFolder): Set[String] = {
+  def getSimulationClasses(binariesDirectory: String = PeaConfig.defaultSimulationOutputFolder): Seq[SimulationModel] = {
     try {
-      SimulationClassLoader(Paths.get(binariesDirectory)).simulationClasses.map(_.getName).toSet
+      // to instantiate PeaSimulation below
+      io.gatling.core.Predef._configuration = GatlingConfiguration.load()
+      SimulationClassLoader(Paths.get(binariesDirectory))
+        .simulationClasses
+        .map(clazz => {
+          val description = if (classOf[PeaSimulation].isAssignableFrom(clazz)) {
+            clazz.asInstanceOf[Class[PeaSimulation]].newInstance().description
+          } else {
+            StringUtils.EMPTY
+          }
+          SimulationModel(clazz.getName, description)
+        })
     } catch {
-      case t: Throwable =>
-        logger.warn(LogUtils.stackTraceToString(t))
-        Set.empty
+      case t: Throwable => logger.warn(LogUtils.stackTraceToString(t)); Nil
     }
   }
 }

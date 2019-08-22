@@ -6,6 +6,7 @@ import asura.common.actor.BaseActor
 import asura.common.util.StringUtils
 import asura.pea.PeaConfig
 import asura.pea.compiler.{CompileResponse, ScalaCompiler}
+import asura.pea.model.SimulationModel
 import io.gatling.app.PeaGatlingRunner
 
 class CompilerActor extends BaseActor {
@@ -16,7 +17,7 @@ class CompilerActor extends BaseActor {
 
   var status = COMPILE_STATUS_IDLE
   var last = 0L // time last compile simulations
-  var simulations: Set[String] = Set.empty
+  var simulations: Seq[SimulationModel] = Nil
 
   override def receive: Receive = {
     case GetAllSimulations =>
@@ -35,7 +36,7 @@ class CompilerActor extends BaseActor {
         sender() ! CompileResponse(false, "Compiler is running.")
       }
     case SimulationValidateMessage(simulation) =>
-      sender() ! simulations.contains(simulation)
+      sender() ! simulations.find(_.name.equals(simulation))
     case _ =>
   }
 }
@@ -57,6 +58,6 @@ object CompilerActor {
 
   case object GetAllSimulations
 
-  case class Simulations(last: Long, simulations: Set[String])
+  case class Simulations(last: Long, simulations: Seq[SimulationModel])
 
 }
