@@ -10,7 +10,7 @@ import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.PeaWorkerActor._
-import asura.pea.actor.ZincCompilerActor.{CompileMessage, GetAllSimulations, SimulationValidateMessage}
+import asura.pea.actor.CompilerActor.{CompileMessage, GetAllSimulations, SimulationValidateMessage}
 import asura.pea.model.{LoadMessage, MemberStatus, RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.pea.{ErrorMessages, PeaConfig}
 
@@ -21,7 +21,7 @@ class PeaWorkerActor extends BaseActor {
   var memberStatus = MemberStatus(MemberStatus.IDLE)
 
   implicit val ec = context.dispatcher
-  val zincCompilerActor = context.actorOf(ZincCompilerActor.props())
+  val zincCompilerActor = context.actorOf(CompilerActor.props())
   val gatlingRunnerActor = context.actorOf(GatlingRunnerActor.props())
   var engineCancelable: Cancellable = null
 

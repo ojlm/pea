@@ -9,7 +9,7 @@ import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import asura.common.util.{JsonUtils, LogUtils, StringUtils}
 import asura.pea.PeaConfig
-import asura.pea.actor.ZincCompilerActor.CompileMessage
+import asura.pea.actor.CompilerActor.CompileMessage
 import asura.pea.actor.{PeaMonitorActor, PeaReporterActor, PeaWorkerActor}
 import asura.pea.compiler.CompileResponse
 import asura.pea.http.HttpClient

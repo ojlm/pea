@@ -3,7 +3,7 @@ package asura.pea.compiler
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Path, Paths}
 
-import asura.pea.actor.ZincCompilerActor.CompileMessage
+import asura.pea.actor.CompilerActor.CompileMessage
 
 case class CompilerConfiguration(
                                   simulationsDirectory: Path,
