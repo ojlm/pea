@@ -29,7 +29,11 @@ class GatlingRunnerActor extends BaseActor {
         start
       )
     case msg: RunSimulationMessage =>
-    // TODO
+      sender() ! GatlingRunnerActor.start(
+        StartMessage(PeaConfig.defaultSimulationOutputFolder, msg.simulation, msg.report),
+        msg.simulationId,
+        msg.start
+      )
     case GenerateReport(runId) =>
       GatlingRunnerActor.generateReport(runId) pipeTo sender()
   }

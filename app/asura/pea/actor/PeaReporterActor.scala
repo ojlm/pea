@@ -4,8 +4,8 @@ import akka.actor.Props
 import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.pea.PeaConfig
-import asura.pea.actor.PeaReporterActor.SingleHttpScenarioJob
-import asura.pea.model.{PeaMember, SingleHttpScenarioMessage}
+import asura.pea.actor.PeaReporterActor.{RunSimulationJob, SingleHttpScenarioJob}
+import asura.pea.model._
 import asura.pea.service.PeaService
 import asura.pea.service.PeaService.WorkersAvailable
 
@@ -18,12 +18,14 @@ class PeaReporterActor extends BaseActor {
   override def receive: Receive = {
     case SingleHttpScenarioJob(workers, request) =>
       checkAndStartJob(workers, request) pipeTo sender()
+    case RunSimulationJob(workers, request) =>
+      checkAndStartJob(workers, request) pipeTo sender()
     case _ =>
   }
 
   private def checkAndStartJob(
                                 workers: Seq[PeaMember],
-                                message: SingleHttpScenarioMessage
+                                message: LoadMessage
                               ): Future[WorkersAvailable] = {
     PeaService.isWorkersAvailable(workers)
       .map(res => {
@@ -43,6 +45,14 @@ object PeaReporterActor {
 
   def props() = Props(new PeaReporterActor())
 
-  case class SingleHttpScenarioJob(workers: Seq[PeaMember], request: SingleHttpScenarioMessage)
+  case class SingleHttpScenarioJob(
+                                    workers: Seq[PeaMember],
+                                    request: SingleHttpScenarioMessage,
+                                  ) extends LoadJob
+
+  case class RunSimulationJob(
+                               workers: Seq[PeaMember],
+                               request: RunSimulationMessage,
+                             ) extends LoadJob
 
 }

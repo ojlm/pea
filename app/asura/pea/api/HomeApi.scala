@@ -5,8 +5,8 @@ import akka.pattern.ask
 import akka.stream.Materializer
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
-import asura.pea.actor.PeaReporterActor.SingleHttpScenarioJob
-import asura.pea.model.PeaMember
+import asura.pea.actor.PeaReporterActor.{RunSimulationJob, SingleHttpScenarioJob}
+import asura.pea.model.{LoadJob, PeaMember}
 import asura.play.api.BaseApi
 import controllers.Assets
 import javax.inject.{Inject, Singleton}
@@ -48,26 +48,37 @@ class HomeApi @Inject()(
   def single() = Action(parse.byteString).async { implicit req =>
     checkReporterEnable {
       val message = req.bodyAs(classOf[SingleHttpScenarioJob])
-      val workers = message.workers
-      val request = message.request
-      if (null == workers || workers.isEmpty) {
-        FutureErrorResult("Empty workers")
-      } else {
-        if (null != request) {
-          val exception = request.isValid()
-          if (null != exception) {
-            Future.failed(exception)
-          } else {
-            (PeaConfig.reporterActor ? message).toOkResult
-          }
+      loadJob(message)
+    }
+  }
+
+  def runSimulation() = Action(parse.byteString).async { implicit req =>
+    checkReporterEnable {
+      val message = req.bodyAs(classOf[RunSimulationJob])
+      loadJob(message)
+    }
+  }
+
+  private def loadJob(message: LoadJob): Future[Result] = {
+    val workers = message.workers
+    val request = message.request
+    if (null == workers || workers.isEmpty) {
+      FutureErrorResult("Empty workers")
+    } else {
+      if (null != request) {
+        val exception = request.isValid()
+        if (null != exception) {
+          Future.failed(exception)
         } else {
-          FutureErrorResult("Empty request")
+          (PeaConfig.reporterActor ? message).toOkResult
         }
+      } else {
+        FutureErrorResult("Empty request")
       }
     }
   }
 
-  def checkReporterEnable(func: => Future[Result]): Future[Result] = {
+  private def checkReporterEnable(func: => Future[Result]): Future[Result] = {
     if (PeaConfig.enableReporter) {
       func
     } else {

@@ -11,11 +11,11 @@ import asura.common.actor.{ActorEvent, SenderMessage}
 import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
+import asura.pea.actor.CompilerActor.GetAllSimulations
 import asura.pea.actor.PeaWebMonitorActor
 import asura.pea.actor.PeaWebMonitorActor.WebMonitorController
 import asura.pea.actor.PeaWorkerActor.{GetNodeStatusMessage, StopEngine}
-import asura.pea.actor.CompilerActor.GetAllSimulations
-import asura.pea.model.SingleHttpScenarioMessage
+import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.play.api.BaseApi
 import javax.inject.{Inject, Singleton}
 import org.pac4j.play.scala.SecurityComponents
@@ -56,6 +56,18 @@ class GatlingApi @Inject()(
     }
   }
 
+  def runSimulation() = Action(parse.byteString).async { implicit req =>
+    checkWorkerEnable {
+      val message = req.bodyAs(classOf[RunSimulationMessage])
+      val exception = message.isValid()
+      if (null != exception) {
+        Future.failed(exception)
+      } else {
+        (PeaConfig.workerActor ? message).toOkResult
+      }
+    }
+  }
+
   def simulations() = Action(parse.byteString).async { implicit req =>
     (PeaConfig.workerActor ? GetAllSimulations).toOkResult
   }
@@ -69,7 +81,7 @@ class GatlingApi @Inject()(
     }
   }
 
-  def simulation(runId: String) = Action {
+  def getSimulationLog(runId: String) = Action {
     Ok.sendFile(new File(s"${PeaConfig.resultsFolder}/${runId}/simulation.log"), false)
   }
 

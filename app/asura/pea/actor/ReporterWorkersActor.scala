@@ -4,8 +4,8 @@ import java.nio.charset.StandardCharsets
 
 import akka.actor.Props
 import asura.common.actor.BaseActor
-import asura.common.model.ApiCode
-import asura.common.util.JsonUtils
+import asura.common.model.{ApiCode, ApiRes}
+import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.ReporterWorkersActor.{GenerateReport, JobWorkerStatusChange, PushStatusToZk}
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
@@ -45,6 +45,8 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       handleWorkerStatusChangeEvent(worker, memberStatus)
     case msg: SingleHttpScenarioMessage =>
       watchWorkersAndSendLoad(msg)
+    case msg: RunSimulationMessage =>
+      watchWorkersAndSendLoad(msg)
     case PushStatusToZk =>
       pushJobStatusToZk()
     case GenerateReport =>
@@ -64,16 +66,28 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     self ! PushStatusToZk
   }
 
+  private def dealServiceResponse(worker: PeaMember, futureRes: Future[ApiRes]): Unit = {
+    futureRes.map(res => {
+      if (!ApiCode.OK.equals(res.code)) { // something wrong after idle status checked
+        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.IIL, res.msg))
+      }
+    }).recover {
+      case t: Throwable =>
+        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.IIL, t.getMessage))
+    }
+  }
+
   def watchWorkersAndSendLoad(load: LoadMessage): Unit = {
     initJobNode()
     workers.foreach(worker => load match {
       case msg: SingleHttpScenarioMessage =>
         watchWorkerNode(worker)
-        PeaService.sendSingleHttpScenario(worker, msg).map(res => {
-          if (!ApiCode.OK.equals(res.code)) { // something wrong after idle status checked
-            jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.IIL, res.msg))
-          }
-        })
+        val futureRes = PeaService.sendSingleHttpScenario(worker, msg)
+        dealServiceResponse(worker, futureRes)
+      case msg: RunSimulationMessage =>
+        watchWorkerNode(worker)
+        val futureRes = PeaService.sendSimulation(worker, msg)
+        dealServiceResponse(worker, futureRes)
       case _ => stopSelf()
     })
   }
@@ -149,12 +163,16 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   }
 
   def stopSelf(): Unit = {
-    nodeCaches.foreach(_.close())
     context stop self
   }
 
   override def postStop(): Unit = {
-    PeaConfig.zkClient.delete().guaranteed().forPath(jobNode)
+    try {
+      nodeCaches.foreach(_.close())
+      PeaConfig.zkClient.delete().guaranteed().forPath(jobNode)
+    } catch {
+      case t: Throwable => log.warning(LogUtils.stackTraceToString(t))
+    }
   }
 }
 

@@ -8,9 +8,9 @@ import akka.pattern.{ask, pipe}
 import asura.common.actor.BaseActor
 import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
+import asura.pea.actor.CompilerActor.{CompileMessage, GetAllSimulations, SimulationValidateMessage}
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.PeaWorkerActor._
-import asura.pea.actor.CompilerActor.{CompileMessage, GetAllSimulations, SimulationValidateMessage}
 import asura.pea.model.{LoadMessage, MemberStatus, RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.pea.{ErrorMessages, PeaConfig}
 
@@ -21,7 +21,7 @@ class PeaWorkerActor extends BaseActor {
   var memberStatus = MemberStatus(MemberStatus.IDLE)
 
   implicit val ec = context.dispatcher
-  val zincCompilerActor = context.actorOf(CompilerActor.props())
+  val compilerActor = context.actorOf(CompilerActor.props())
   val gatlingRunnerActor = context.actorOf(GatlingRunnerActor.props())
   var engineCancelable: Cancellable = null
 
@@ -31,9 +31,9 @@ class PeaWorkerActor extends BaseActor {
     case GetNodeStatusMessage =>
       sender() ! memberStatus
     case GetAllSimulations =>
-      (zincCompilerActor ? GetAllSimulations) pipeTo sender()
+      (compilerActor ? GetAllSimulations) pipeTo sender()
     case msg: CompileMessage =>
-      (zincCompilerActor ? msg) pipeTo sender()
+      (compilerActor ? msg) pipeTo sender()
     case msg: SingleHttpScenarioMessage =>
       doSingleHttpScenario(msg) pipeTo sender()
     case msg: RunSimulationMessage =>
@@ -67,7 +67,7 @@ class PeaWorkerActor extends BaseActor {
 
   def runSimulation(message: RunSimulationMessage): Future[String] = {
     if (MemberStatus.IDLE.equals(memberStatus.status)) {
-      (zincCompilerActor ? SimulationValidateMessage(message.simulation)).flatMap(res => {
+      (compilerActor ? SimulationValidateMessage(message.simulation)).flatMap(res => {
         if (res.asInstanceOf[Boolean]) {
           runLoad(message)
         } else {

@@ -12,7 +12,7 @@ import asura.common.util.JsonUtils
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig._
 import asura.pea.http.HttpClient
-import asura.pea.model.{MemberStatus, PeaMember, SingleHttpScenarioMessage}
+import asura.pea.model.{MemberStatus, PeaMember, RunSimulationMessage, SingleHttpScenarioMessage}
 
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -58,6 +58,15 @@ object PeaService {
   def sendSingleHttpScenario(member: PeaMember, load: SingleHttpScenarioMessage): Future[ApiRes] = {
     HttpClient.wsClient
       .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/single")
+      .post(JsonUtils.stringify(load))
+      .map(response => {
+        JsonUtils.parse(response.body[String], classOf[ApiRes])
+      })
+  }
+
+  def sendSimulation(member: PeaMember, load: RunSimulationMessage): Future[ApiRes] = {
+    HttpClient.wsClient
+      .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/simulation")
       .post(JsonUtils.stringify(load))
       .map(response => {
         JsonUtils.parse(response.body[String], classOf[ApiRes])

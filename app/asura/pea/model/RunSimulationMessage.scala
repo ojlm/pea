@@ -3,10 +3,10 @@ package asura.pea.model
 import asura.common.util.StringUtils
 
 case class RunSimulationMessage(
-                                 simulation: String,
-                                 report: Boolean = true,
-                                 simulationId: String = null,
-                                 start: Long = 0L
+                                 var simulation: String,
+                                 val report: Boolean = true,
+                                 var simulationId: String = null,
+                                 var start: Long = 0L
                                ) extends LoadMessage {
 
   def isValid(): Exception = {
