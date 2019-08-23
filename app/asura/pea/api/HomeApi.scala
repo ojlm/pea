@@ -103,7 +103,7 @@ class HomeApi @Inject()(
     } catch {
       case t: Throwable =>
         logger.warn(LogUtils.stackTraceToString(t))
-        Collections.EMPTY_LIST[String]
+        Collections.emptyList[String]()
     }
     Future.successful(children.asScala.map(PeaMember(_)).filter(m => null != m)).toOkResult
   }
@@ -114,7 +114,7 @@ class HomeApi @Inject()(
     } catch {
       case t: Throwable =>
         logger.warn(LogUtils.stackTraceToString(t))
-        Collections.EMPTY_LIST[String]
+        Collections.emptyList[String]()
     }
     Future.successful(children.asScala.map(PeaMember(_)).filter(m => null != m)).toOkResult
   }
