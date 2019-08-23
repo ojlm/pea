@@ -62,6 +62,11 @@ class HomeApi @Inject()(
     OkApiRes(ApiRes(data = folders))
   }
 
+  def jobs() = Action.async { implicit req =>
+    val children = PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}")
+    Future.successful(children).toOkResult
+  }
+
   def workers() = Action.async { implicit req =>
     val children = PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_WORKERS}")
     Future.successful(children.asScala.map(PeaMember(_)).filter(m => null != m)).toOkResult
