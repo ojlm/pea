@@ -10,7 +10,7 @@ case class ReporterJobStatus(
                               var runId: String = StringUtils.EMPTY,
                               var start: Long = 0L,
                               var end: Long = 0L,
-                              var workers: mutable.Map[String, JobWorkerStatus]
+                              var workers: mutable.Map[String, JobWorkerStatus] = mutable.Map.empty
                             )
 
 object ReporterJobStatus {

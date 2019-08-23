@@ -1,17 +1,21 @@
 package asura.pea.api
 
 import java.io.File
+import java.nio.charset.StandardCharsets
+import java.util.Collections
 
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.stream.Materializer
 import asura.common.model.{ApiRes, ApiResError}
+import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.PeaReporterActor.{RunSimulationJob, SingleHttpScenarioJob}
-import asura.pea.model.{LoadJob, PeaMember}
+import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus}
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
+import com.typesafe.scalalogging.StrictLogging
 import controllers.Assets
 import javax.inject.{Inject, Singleton}
 import org.pac4j.play.scala.SecurityComponents
@@ -29,7 +33,7 @@ class HomeApi @Inject()(
                          val controllerComponents: SecurityComponents,
                          val assets: Assets,
                          val errorHandler: HttpErrorHandler,
-                       ) extends BaseApi with CommonFunctions {
+                       ) extends BaseApi with CommonFunctions with StrictLogging {
 
   def index() = assets.at("index.html")
 
@@ -58,22 +62,60 @@ class HomeApi @Inject()(
 
   def reports() = Action {
     val file = new File(PeaConfig.resultsFolder)
-    val folders = file.listFiles().filter(_.isDirectory).map(_.getName)
-    OkApiRes(ApiRes(data = folders))
+    val files = file.listFiles()
+    if (null != files) {
+      OkApiRes(ApiRes(data = files.filter(_.isDirectory).map(_.getName)))
+    } else {
+      OkApiRes(ApiRes(data = Nil))
+    }
   }
 
   def jobs() = Action.async { implicit req =>
-    val children = PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}")
+    val children = try {
+      PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}")
+    } catch {
+      case t: Throwable =>
+        logger.warn(LogUtils.stackTraceToString(t))
+        Nil
+    }
     Future.successful(children).toOkResult
   }
 
+  def jobDetail(runId: String) = Action.async { implicit req =>
+    val status = try {
+      val path = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}/${runId}"
+      val data = PeaConfig.zkClient.getData.forPath(path)
+      JsonUtils.parse(
+        new String(data, StandardCharsets.UTF_8),
+        classOf[ReporterJobStatus]
+      )
+    } catch {
+      case t: Throwable =>
+        logger.warn(LogUtils.stackTraceToString(t))
+        ReporterJobStatus()
+    }
+    Future.successful(status).toOkResult
+  }
+
   def workers() = Action.async { implicit req =>
-    val children = PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_WORKERS}")
+    val children = try {
+      PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_WORKERS}")
+    } catch {
+      case t: Throwable =>
+        logger.warn(LogUtils.stackTraceToString(t))
+        Collections.EMPTY_LIST[String]
+    }
     Future.successful(children.asScala.map(PeaMember(_)).filter(m => null != m)).toOkResult
   }
 
   def reporters() = Action.async { implicit req =>
-    val children = PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_REPORTERS}")
+    val children = try {
+      PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_REPORTERS}")
+    } catch {
+      case t: Throwable =>
+        logger.warn(LogUtils.stackTraceToString(t))
+        Collections.EMPTY_LIST[String]
+    }
     Future.successful(children.asScala.map(PeaMember(_)).filter(m => null != m)).toOkResult
   }
 
