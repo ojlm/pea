@@ -1,0 +1,7 @@
+<nz-list [nzDataSource]="items" nzBordered [nzRenderItem]="item">
+  <ng-template #item let-item>
+    <nz-list-item>
+      <a (click)="open(item)">{{item}}</a>
+    </nz-list-item>
+  </ng-template>
+</nz-list>

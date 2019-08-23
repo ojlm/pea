@@ -1,0 +1,10 @@
+<nz-list [nzDataSource]="items" nzBordered [nzRenderItem]="item">
+  <ng-template #item let-item>
+    <nz-list-item>
+      <i nz-icon nzType="number" nzTheme="outline"></i>
+      <span>{{item.address}}:{{item.port}}</span>
+      <i nz-icon nzType="number" nzTheme="outline"></i>
+      <span>{{item.hostname}}</span>
+    </nz-list-item>
+  </ng-template>
+</nz-list>
