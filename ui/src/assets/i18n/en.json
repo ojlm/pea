@@ -1,0 +1,10 @@
+{
+  "item.start": "Start At",
+  "item.during": "During",
+  "item.successful.count": "Successful Count",
+  "item.fail.count": "Fail Count",
+  "item.total": "Total",
+  "item.waiting": "Waiting",
+  "item.active": "Active",
+  "item.done": "Done"
+}

@@ -1,0 +1,78 @@
+<div *ngIf="start">
+  <div class="time">
+    <span>
+      <span>{{'item.start'|translate}}</span>
+      <span>{{start}}</span>
+    </span>
+    <span>
+      <span>{{'item.during'|translate}}</span>
+      <span>{{run}}</span>
+    </span>
+  </div>
+  <div class="global" nz-row nzGutter="4">
+    <div nz-col nzSpan="12">
+      <nz-statistic [nzValue]="global.successfulCount" [nzTitle]="'item.successful.count'|translate">
+      </nz-statistic>
+    </div>
+    <div nz-col nzSpan="12">
+      <nz-statistic [nzValue]="global.failedCount" [nzTitle]="'item.fail.count'|translate">
+      </nz-statistic>
+    </div>
+  </div>
+  <div class="total">
+    <span>
+      <span>{{'item.total'|translate}}</span>
+      <span>{{total.total}}</span>
+    </span>
+    <span>
+      <span>{{'item.waiting'|translate}}</span>
+      <span>{{total.waiting}}</span>
+    </span>
+    <span>
+      <span>{{'item.active'|translate}}</span>
+      <span>{{total.active}}</span>
+    </span>
+  </div>
+  <div class="users">
+    <div *ngFor="let item of users">
+      <span>{{item.name}}</span>
+      <span>
+        <span>{{'item.total'|translate}}</span>
+        <span>{{item.counters.total}}</span>
+      </span>
+      <span>
+        <span>{{'item.waiting'|translate}}</span>
+        <span>{{item.counters.waiting}}</span>
+      </span>
+      <span>
+        <span>{{'item.active'|translate}}</span>
+        <span>{{item.counters.active}}</span>
+      </span>
+      <span>
+        <span>{{'item.done'|translate}}</span>
+        <span>{{item.counters.done}}</span>
+      </span>
+      <span>{{item.counters.percent}}</span>
+    </div>
+  </div>
+  <div class="requests">
+    <div *ngFor="let item of requests">
+      <span>{{item.name}}</span>
+      <span>
+        <span>{{'item.successful.count'|translate}}</span>
+        <span>{{item.counters.successfulCount}}</span>
+      </span>
+      <span>
+        <span>{{'item.fail.count'|translate}}</span>
+        <span>{{item.counters.failedCount}}</span>
+      </span>
+    </div>
+  </div>
+  <div class="errors">
+    <div *ngFor="let item of errors">
+      <span>{{item.name}}</span>
+      <span>{{item.count}}</span>
+    </div>
+  </div>
+</div>
+<nz-empty *ngIf="!start"></nz-empty>

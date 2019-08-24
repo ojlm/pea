@@ -1,0 +1,10 @@
+{
+  "item.start": "启动时间",
+  "item.during": "持续时长",
+  "item.successful.count": "成功数",
+  "item.fail.count": "失败数",
+  "item.total": "总共",
+  "item.waiting": "等待",
+  "item.active": "激活",
+  "item.done": "完成"
+}

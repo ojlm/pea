@@ -1,0 +1,25 @@
+.pea-item {
+  width: 100%;
+  cursor: pointer;
+}
+
+.pea-item i {
+  margin-right: 4px;
+}
+
+.pea-item button {
+  float: right;
+  color: lightskyblue;
+}
+
+.pea-addr i {
+  color: lightseagreen;
+}
+
+.pea-hostname {
+  margin-left: 12px;
+}
+
+.pea-hostname i {
+  color: purple;
+}

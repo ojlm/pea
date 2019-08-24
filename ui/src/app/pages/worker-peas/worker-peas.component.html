@@ -1,10 +1,19 @@
 <nz-list [nzDataSource]="items" nzBordered [nzRenderItem]="item">
   <ng-template #item let-item>
     <nz-list-item>
-      <i nz-icon nzType="number" nzTheme="outline"></i>
-      <span>{{item.address}}:{{item.port}}</span>
-      <i nz-icon nzType="number" nzTheme="outline"></i>
-      <span>{{item.hostname}}</span>
+      <div class="pea-item">
+        <span class="pea-addr">
+          <i nz-icon nzType="number" nzTheme="outline"></i>
+          <span>{{item.address}}:{{item.port}}</span>
+        </span>
+        <span class="pea-hostname">
+          <i nz-icon nzType="desktop" nzTheme="outline"></i>
+          <span>{{item.hostname}}</span>
+        </span>
+        <button nz-button nzType="dashed" nzSize="small" (click)="monitor(item)">
+          <i nz-icon nzType="scan" nzTheme="outline"></i>
+        </button>
+      </div>
     </nz-list-item>
   </ng-template>
 </nz-list>
