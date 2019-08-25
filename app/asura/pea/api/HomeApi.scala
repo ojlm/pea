@@ -11,6 +11,7 @@ import asura.common.model.{ApiRes, ApiResError}
 import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
+import asura.pea.actor.CompilerActor.GetAllSimulations
 import asura.pea.actor.PeaReporterActor.{RunSimulationJob, SingleHttpScenarioJob}
 import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus}
 import asura.play.api.BaseApi
@@ -131,6 +132,10 @@ class HomeApi @Inject()(
       val message = req.bodyAs(classOf[RunSimulationJob])
       loadJob(message)
     }
+  }
+
+  def simulations() = Action(parse.byteString).async { implicit req =>
+    (PeaConfig.workerActor ? GetAllSimulations).toOkResult
   }
 
   private def loadJob(message: LoadJob): Future[Result] = {
