@@ -1,6 +1,7 @@
 const PROXY_CONFIG = {
   "**": {
     target: "http://localhost:9000",
+    changeOrigin: true,
     secure: false,
     bypass: function (req) {
       if (req && req.headers && req.headers.accept && req.headers.accept.indexOf("html") !== -1) {
@@ -9,6 +10,6 @@ const PROXY_CONFIG = {
       }
     }
   }
-};
+}
 
 module.exports = PROXY_CONFIG

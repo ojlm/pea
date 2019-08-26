@@ -5,10 +5,14 @@ import { RouterModule } from '@angular/router'
 import { TranslateModule } from '@ngx-translate/core'
 import { NgZorroAntdModule } from 'ng-zorro-antd'
 
+import { InjectionsBuilderComponent } from './injections-builder/injections-builder.component'
+import { MemberSelectorComponent } from './member-selector/member-selector.component'
 import { PeaMemberComponent } from './pea-member/pea-member.component'
 
 const COMPONENTS = [
   PeaMemberComponent,
+  InjectionsBuilderComponent,
+  MemberSelectorComponent,
 ]
 
 const ENTRY_COMPONENTS = [

@@ -1,0 +1,13 @@
+<div class="members-selector" style="width:100%;text-align:center;">
+  <nz-transfer [nzDataSource]="list" [nzRender]="render" nzShowSearch [nzTitles]="titles" [nzListStyle]="listStyle"
+    [nzItemUnit]="'item.node'|translate" [nzItemsUnit]="'item.nodes'|translate" [nzFilterOption]="filterOption"
+    (nzChange)="change($event)">
+    <ng-template #render let-item>
+      <span class="item">
+        <i nz-icon nzType="number" nzTheme="outline"></i>
+        <span>{{item.address}}:{{item.port}}</span>
+      </span>
+      <span class="hostname">{{item.hostname}}</span>
+    </ng-template>
+  </nz-transfer>
+</div>

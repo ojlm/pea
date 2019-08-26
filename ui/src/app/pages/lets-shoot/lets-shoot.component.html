@@ -1,1 +1,76 @@
-lets-shoot
+<div style="height: 100%;">
+  <nz-divider [nzText]="'tips.buildRequest'|translate" nzOrientation="left"></nz-divider>
+  <nz-tabset nzAnimated="false" nzSize="small" nzType="card" nzTabPosition="top" nzTabBarGutter="4"
+    [(nzSelectedIndex)]="tabIndex">
+    <nz-tab [nzTitle]="'item.request'|translate">
+      <nz-input-group style="width:100%;" [nzAddOnBefore]="nameTpl">
+        <ng-template #nameTpl>
+          <div style="width:58px;text-align:left;">
+            <span>{{'item.name'|translate}}</span>
+          </div>
+        </ng-template>
+        <input type="text" style="width:100%;" nz-input [(ngModel)]="innerRequest.request.name" />
+      </nz-input-group>
+      <nz-input-group style="width:100%;margin-top:4px;" [nzSize]="'default'" [nzAddOnBefore]="methodTpl">
+        <ng-template #methodTpl>
+          <nz-select style="width:80px;" [(ngModel)]="innerRequest.request.method">
+            <nz-option *ngFor="let m of METHODS" [nzLabel]="m" [nzValue]="m"></nz-option>
+          </nz-select>
+        </ng-template>
+        <input nz-input style="width:100%;" [(ngModel)]="innerRequest.request.url">
+      </nz-input-group>
+      <nz-tabset nzAnimated="false" nzSize="small" nzType="line" nzTabPosition="top" nzTabBarGutter="0">
+        <nz-tab [nzTitle]="'Headers'">
+          <textarea rows="4" nz-input [(ngModel)]="headersStr"></textarea>
+        </nz-tab>
+        <nz-tab [nzTitle]="'Body'">
+          <textarea rows="4" nz-input [(ngModel)]="innerRequest.request.body"></textarea>
+        </nz-tab>
+      </nz-tabset>
+      <nz-divider [nzText]="injectionsTpl" nzOrientation="left">
+        <ng-template #injectionsTpl>
+          <span style="font-size:smaller;">{{'item.injections'|translate}}</span>
+        </ng-template>
+      </nz-divider>
+      <app-injections-builder [(data)]="innerRequest.injections"></app-injections-builder>
+    </nz-tab>
+    <nz-tab [nzTitle]="'item.script'|translate">
+      <div>
+        <span style="color:lightseagreen;">
+          <span>{{'tips.lastCompileTime'|translate}}: </span>
+        </span>
+        <span style="margin-left:4px;font-size:small;color:lightcoral;">
+          <i nz-icon nzType="number" nzTheme="outline"></i>
+          <span>{{lastCompileTime}}</span>
+        </span>
+      </div>
+      <nz-input-group style="width:100%;margin-top:4px;" [nzSize]="'default'" [nzAddOnBefore]="scriptTpl">
+        <ng-template #scriptTpl>
+          <div style="width:58px;text-align:left;">
+            <span>{{'item.script'|translate}}</span>
+          </div>
+        </ng-template>
+        <nz-select style="width: 100%;" [(ngModel)]="simulation" nzAllowClear>
+          <nz-option *ngFor="let item of simulations" [nzValue]="item" [nzLabel]="item.name" nzCustomContent>
+            <div>
+              <div class="option-title">
+                <i nz-icon nzType="code" nzTheme="outline"></i>
+                <span>{{item.name}}</span>
+              </div>
+              <div class="option-desc">{{item.description}}</div>
+            </div>
+          </nz-option>
+        </nz-select>
+      </nz-input-group>
+      <div *ngIf="simulation&&simulation.description" class="desc">{{simulation.description}}</div>
+    </nz-tab>
+  </nz-tabset>
+  <nz-divider [nzText]="'tips.selectWorkers'|translate" nzOrientation="left"></nz-divider>
+  <app-member-selector [(data)]="selectedWorkers"></app-member-selector>
+  <nz-divider style="width:100%;" [nzText]="'tips.runJob'|translate" nzOrientation="left"></nz-divider>
+  <div style="padding:0 16px 16px 0;float:right;">
+    <button type="button" nz-button nzType="primary" [nzSize]="'default'" [nzLoading]="loading" (click)="run()">
+      <span>{{'btn.run'|translate}}</span>
+    </button>
+  </div>
+</div>

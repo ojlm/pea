@@ -1,0 +1,9 @@
+.item i {
+  color: lightseagreen;
+}
+
+.hostname {
+  margin-left: 4px;
+  color: lightgray;
+  font-size: small;
+}

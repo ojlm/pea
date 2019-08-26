@@ -21,13 +21,9 @@ export interface ApiResObj {
   data?: Object
 }
 
-export const APICODE = {
-  DEFAULT: '00000',
-  OK: '10000',
-  INVALID: '20000',
-  ERROR: '90000',
-  NOT_LOGIN: '90001',
-  PERMISSION_DENIED: '90002',
+export interface SelectOption {
+  label?: string
+  value?: any
 }
 
 export class ActorEvent<T> {
@@ -35,6 +31,15 @@ export class ActorEvent<T> {
   msg?: string
   data?: T & DataBody<T>
   type?: string = 'init' || 'list' || 'item' || 'over' || 'notify'
+}
+
+export const APICODE = {
+  DEFAULT: '00000',
+  OK: '10000',
+  INVALID: '20000',
+  ERROR: '90000',
+  NOT_LOGIN: '90001',
+  PERMISSION_DENIED: '90002',
 }
 
 export const ActorEventType = {

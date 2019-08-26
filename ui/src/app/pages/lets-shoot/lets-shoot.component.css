@@ -1,0 +1,30 @@
+.option-title {
+  border-bottom: 1px solid lightgrey;
+}
+
+.option-title>i {
+  margin-right: 4px;
+}
+
+.option-desc {
+  max-height: 80px;
+  overflow: auto;
+  color: lightgrey;
+  white-space: normal;
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+.desc {
+  margin-top: 4px;
+  font-size: small;
+  color: lightslategray;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  padding: 8px;
+  max-height: 200px;
+  overflow: auto;
+  white-space: normal;
+  word-break: break-all;
+  word-wrap: break-word;
+}
