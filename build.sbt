@@ -1,9 +1,11 @@
 name := """pea"""
 organization := "cc.akkaha"
-version := "1.0-SNAPSHOT"
+version := "0.1.0"
 scalaVersion := "2.12.8"
 
-lazy val pea = Project("pea", file(".")).enablePlugins(PlayScala)
+lazy val pea = Project("pea", file("."))
+  .enablePlugins(PlayScala)
+  .settings(publishSettings: _*)
 
 val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.1.2" exclude("io.gatling", "gatling-app")
 val gatlingCompiler = "io.gatling" % "gatling-compiler" % "3.1.2"
