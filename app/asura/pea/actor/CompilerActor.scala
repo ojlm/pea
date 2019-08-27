@@ -36,7 +36,7 @@ class CompilerActor extends BaseActor {
         sender() ! CompileResponse(false, "Compiler is running.")
       }
     case SimulationValidateMessage(simulation) =>
-      sender() ! simulations.find(_.name.equals(simulation)).isEmpty
+      sender() ! simulations.find(_.name.equals(simulation)).nonEmpty
     case _ =>
   }
 }
