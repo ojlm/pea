@@ -75,7 +75,7 @@ export class LetsShootComponent implements OnInit {
           nzClosable: true
         })
       }
-    }, err => this.loading = false)
+    }, _ => this.loading = false)
   }
 
   buildLoadJob(): SingleHttpScenarioJob | RunSimulationJob {

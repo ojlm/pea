@@ -12,7 +12,7 @@ export class ApiCodeInterceptor implements HttpInterceptor {
   constructor(private inj: Injector) {
     this.message = this.inj.get(NzMessageService)
   }
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<any> {
     if (req.url.startsWith('./assets')) {
       return next.handle(req)
     } else {
@@ -25,11 +25,12 @@ export class ApiCodeInterceptor implements HttpInterceptor {
           }
           const code = res.body.code
           if (APICODE.NOT_LOGIN === code) {
-          } else if (APICODE.OK === code) {
-            return of(event)
-          } else {
+          } else if (APICODE.OK !== code) {
             const errMsg = res.body.msg
             this.message.error(errMsg)
+            return Observable.create(obs => obs.error(event))
+          } else {
+            return of(event)
           }
         } else {
           return of(event)
