@@ -134,7 +134,16 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
 
   def generateReport(): Unit = {
     GatlingRunnerActor.generateReport(runId)
-      .map(_ => {
+      .recover {
+        case t: Throwable => log.warning(LogUtils.stackTraceToString(t)); -1
+      }
+      .map(code => {
+        code match {
+          case -1 => log.warning("[GenerateReport]:Exception")
+          case 0 => log.warning("[GenerateReport]:Success")
+          case 1 => log.warning("[GenerateReport]:InvalidArguments")
+          case 2 => log.warning("[GenerateReport]:AssertionsFailed")
+        }
         jobStatus.status = MemberStatus.REPORTER_FINISHED
         self ! PushStatusToZk
         context.system.scheduler.scheduleOnce(10 seconds) {

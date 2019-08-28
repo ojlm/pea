@@ -85,7 +85,7 @@ object PeaService {
         val dir = s"${PeaConfig.resultsFolder}${File.separator}${runId}"
         Files.createDirectories(Paths.get(dir))
         val file = new File(s"${dir}${File.separator}${member.address}.${member.port}.log")
-        val os = Files.newOutputStream(file.toPath, StandardOpenOption.CREATE_NEW)
+        val os = Files.newOutputStream(file.toPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND)
         val sink = Sink.foreach[ByteString] { bytes =>
           os.write(bytes.toArray)
         }
