@@ -118,6 +118,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     val workerNode = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_WORKERS}/${worker.toNodeName}"
     val nodeCache = new NodeCache(PeaConfig.zkClient, workerNode)
     nodeCache.start()
+    nodeCaches += nodeCache
     nodeCache.getListenable.addListener(new NodeCacheListener {
       override def nodeChanged(): Unit = {
         val memberStatus = JsonUtils.parse(
