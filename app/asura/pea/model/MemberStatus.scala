@@ -32,4 +32,5 @@ object MemberStatus {
   // extra worker status in reporter
   val REPORTER_WORKER_IIL = "ill"
   val REPORTER_WORKER_GATHERING = "gathering"
+  val REPORTER_WORKER_FINISHED = REPORTER_FINISHED
 }

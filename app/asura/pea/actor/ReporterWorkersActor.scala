@@ -1,13 +1,16 @@
 package asura.pea.actor
 
+import java.io.File
 import java.nio.charset.StandardCharsets
 
+import akka.Done
 import akka.actor.Props
+import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.common.model.{ApiCode, ApiRes}
 import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
-import asura.pea.actor.ReporterWorkersActor.{GenerateReport, JobWorkerStatusChange, PushStatusToZk}
+import asura.pea.actor.ReporterWorkersActor.{DownloadSimulationFinished, GenerateReport, JobWorkerStatusChange, PushStatusToZk}
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 import asura.pea.model._
 import asura.pea.service.PeaService
@@ -48,10 +51,18 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       watchWorkersAndSendLoad(msg)
     case msg: RunSimulationMessage =>
       watchWorkersAndSendLoad(msg)
-    case PushStatusToZk =>
-      pushJobStatusToZk()
+    case DownloadSimulationFinished(worker, _) =>
+      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_FINISHED))
+      if (jobStatus.workers.forall(s => MemberStatus.REPORTER_WORKER_FINISHED.equals(s._2.status))) {
+        jobStatus.end = System.currentTimeMillis()
+        jobStatus.status = MemberStatus.REPORTER_REPORTING
+        self ! GenerateReport
+      }
+      self ! PushStatusToZk
     case GenerateReport =>
       generateReport()
+    case PushStatusToZk =>
+      pushJobStatusToZk()
     case _ =>
       stopSelf()
   }
@@ -65,7 +76,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
     } else if (MemberStatus.WORKER_IDLE.equals(workerStatus.status)) {
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_GATHERING, workerStatus.errMsg))
-      gatherSimulationLog(worker)
+      downloadSimulationLog(worker) pipeTo self
     } else {
       // code should not run here
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, workerStatus.status))
@@ -73,20 +84,24 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     self ! PushStatusToZk
   }
 
-  private def dealServiceResponse(worker: PeaMember, futureRes: Future[ApiRes]): Unit = {
+  private def dealServiceResponse(worker: PeaMember, futureRes: Future[ApiRes]): Future[Done] = {
     futureRes.map(res => {
-      if (!ApiCode.OK.equals(res.code)) { // something wrong after idle status checked
+      if (ApiCode.OK.equals(res.code)) { // something wrong after idle status checked
+        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
+      } else {
         jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, res.msg))
       }
+      Done
     }).recover {
       case t: Throwable =>
         jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, t.getMessage))
+        Done
     }
   }
 
   def watchWorkersAndSendLoad(load: LoadMessage): Unit = {
     initJobNode()
-    workers.foreach(worker => load match {
+    val doneFutures = workers.map(worker => load match {
       case msg: SingleHttpScenarioMessage =>
         watchWorkerNode(worker)
         val futureRes = PeaService.sendSingleHttpScenario(worker, msg)
@@ -95,8 +110,8 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
         watchWorkerNode(worker)
         val futureRes = PeaService.sendSimulation(worker, msg)
         dealServiceResponse(worker, futureRes)
-      case _ => stopSelf()
     })
+    Future.sequence(doneFutures).map(_ => self ! PushStatusToZk)
   }
 
   def watchWorkerNode(worker: PeaMember): Unit = {
@@ -114,22 +129,14 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     })
   }
 
-  def gatherSimulationLog(worker: PeaMember): Unit = {
+  def downloadSimulationLog(worker: PeaMember): Future[DownloadSimulationFinished] = {
     val futureFile = if (worker.toAddress.equals(PeaMember.toAddress(PeaConfig.address, PeaConfig.port))) {
       // current node
       Future.successful(null)
     } else {
       PeaService.downloadSimulationLog(worker, runId)
     }
-    futureFile.map(_ => {
-      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_FINISHED))
-      if (jobStatus.workers.forall(s => !MemberStatus.WORKER_IDLE.equals(s._2.status))) {
-        jobStatus.end = System.currentTimeMillis()
-        jobStatus.status = MemberStatus.REPORTER_REPORTING
-        self ! GenerateReport
-      }
-      self ! PushStatusToZk
-    })
+    futureFile.map(file => DownloadSimulationFinished(worker, file))
   }
 
   def generateReport(): Unit = {
@@ -139,10 +146,10 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       }
       .map(code => {
         code match {
-          case -1 => log.warning("[GenerateReport]:Exception")
-          case 0 => log.warning("[GenerateReport]:Success")
-          case 1 => log.warning("[GenerateReport]:InvalidArguments")
-          case 2 => log.warning("[GenerateReport]:AssertionsFailed")
+          case -1 => log.debug("[GenerateReport]:Exception")
+          case 0 => log.debug("[GenerateReport]:Success")
+          case 1 => log.debug("[GenerateReport]:InvalidArguments")
+          case 2 => log.debug("[GenerateReport]:AssertionsFailed")
         }
         jobStatus.status = MemberStatus.REPORTER_FINISHED
         self ! PushStatusToZk
@@ -199,6 +206,8 @@ object ReporterWorkersActor {
   case class JobWorkerStatusChange(worker: PeaMember, status: MemberStatus)
 
   case object PushStatusToZk
+
+  case class DownloadSimulationFinished(worker: PeaMember, file: File)
 
   case object GenerateReport
 

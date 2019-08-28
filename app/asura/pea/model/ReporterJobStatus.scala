@@ -15,9 +15,8 @@ case class ReporterJobStatus(
 
 object ReporterJobStatus {
 
-  // the worker status can only be one of `running`, `ill` and `finished`.
   case class JobWorkerStatus(
-                              status: String = MemberStatus.WORKER_RUNNING,
+                              status: String = MemberStatus.WORKER_IDLE,
                               errMsg: String = null,
                             )
 
