@@ -8,6 +8,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{Materializer, OverflowStrategy}
 import asura.common.actor.{ActorEvent, SenderMessage}
+import asura.common.model.ApiResError
 import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
@@ -16,6 +17,8 @@ import asura.pea.actor.PeaWebMonitorActor.WebMonitorController
 import asura.pea.actor.PeaWorkerActor.{GetNodeStatusMessage, StopEngine}
 import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.play.api.BaseApi
+import asura.play.api.BaseApi.OkApiRes
+import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Singleton}
 import org.pac4j.play.scala.SecurityComponents
 import play.api.mvc.{Result, WebSocket}
@@ -29,7 +32,7 @@ class GatlingApi @Inject()(
                             implicit val exec: ExecutionContext,
                             implicit val mat: Materializer,
                             val controllerComponents: SecurityComponents
-                          ) extends BaseApi with CommonFunctions {
+                          ) extends BaseApi with CommonFunctions with StrictLogging {
 
   def stop() = Action.async { implicit req =>
     checkWorkerEnable {
@@ -77,7 +80,17 @@ class GatlingApi @Inject()(
   }
 
   def getSimulationLog(runId: String) = Action {
-    Ok.sendFile(new File(s"${PeaConfig.resultsFolder}${File.separator}${runId}${File.separator}simulation.log"), false)
+    val file = new File(s"${PeaConfig.resultsFolder}${File.separator}${runId}${File.separator}simulation.log")
+    logger.debug(s"Downloading file(${file.exists()}): ${file.getAbsolutePath}")
+    if (file.exists()) {
+      if (file.getAbsolutePath.startsWith(PeaConfig.resultsFolder)) {
+        Ok.sendFile(file, false)
+      } else {
+        OkApiRes(ApiResError(s"Blocking access to this file: ${file.getAbsolutePath}"))
+      }
+    } else {
+      OkApiRes(ApiResError(s"File is not there: ${file.getAbsolutePath}"))
+    }
   }
 
   def stringToActorEventFlow[T <: AnyRef](workActor: ActorRef, msgClass: Class[T]): Flow[String, String, NotUsed] = {
