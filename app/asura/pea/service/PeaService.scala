@@ -1,23 +1,26 @@
 package asura.pea.service
 
 import java.io.File
-import java.nio.file.{Files, StandardOpenOption}
+import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset, ZonedDateTime}
 
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
 import asura.common.model.{ApiCode, ApiRes}
-import asura.common.util.JsonUtils
+import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig._
 import asura.pea.http.HttpClient
 import asura.pea.model.{MemberStatus, PeaMember, RunSimulationMessage, SingleHttpScenarioMessage}
+import com.typesafe.scalalogging.Logger
 
 import scala.collection.mutable
 import scala.concurrent.Future
 
 object PeaService {
+
+  val logger = Logger(getClass)
 
   def getMemberStatus(member: PeaMember): Future[ApiResMemberStatus] = {
     HttpClient.wsClient
@@ -35,7 +38,7 @@ object PeaService {
         .map(res =>
           if (ApiCode.OK.equals(res.code)) {
             val memberStatus = res.data
-            if (MemberStatus.IDLE.equals(memberStatus.status)) {
+            if (MemberStatus.WORKER_IDLE.equals(memberStatus.status)) {
               (true, null)
             } else {
               errors += (s"${member.toAddress}" -> memberStatus.status)
@@ -76,23 +79,32 @@ object PeaService {
   def downloadSimulationLog(member: PeaMember, runId: String): Future[File] = {
     HttpClient.wsClient
       .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/simulation/${runId}")
-      .withMethod("GET").stream()
+      .withMethod("GET")
+      .stream()
       .flatMap(res => {
-        val file = new File(s"${PeaConfig.resultsFolder}/${runId}/${member.address}.${member.port}.log")
+        val dir = s"${PeaConfig.resultsFolder}${File.separator}${runId}"
+        Files.createDirectories(Paths.get(dir))
+        val file = new File(s"${dir}${File.separator}${member.address}.${member.port}.log")
         val os = Files.newOutputStream(file.toPath, StandardOpenOption.CREATE_NEW)
         val sink = Sink.foreach[ByteString] { bytes =>
           os.write(bytes.toArray)
         }
         res.bodyAsSource
           .runWith(sink)
-          .andThen {
-            case result =>
-              os.close()
-              result.get
+          .andThen { case result =>
+            os.close()
+            result.get
           }
           .map(_ => file)
-          .recover { case _: Throwable => null }
+          .recover { case t: Throwable =>
+            logger.warn(LogUtils.stackTraceToString(t))
+            null
+          }
       })
+      .recover { case t: Throwable =>
+        logger.warn(LogUtils.stackTraceToString(t))
+        null
+      }
   }
 
   // same with the gatling
