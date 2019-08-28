@@ -12,7 +12,7 @@ import asura.common.util.StringUtils
   * @param errMsg error message of last job
   */
 case class MemberStatus(
-                         var status: String = MemberStatus.IDLE,
+                         var status: String = MemberStatus.WORKER_IDLE,
                          var runId: String = StringUtils.EMPTY,
                          var start: Long = 0L,
                          var end: Long = 0L,
@@ -22,10 +22,14 @@ case class MemberStatus(
 
 object MemberStatus {
 
-  val IDLE = "idle" //  worker
-  val RUNNING = "running" // reporter & worker
-  val IIL = "ill" // worker, inconsistent status in reporter
-  val GATHERING = "gathering" // gathering simulation log in report
-  val REPORTING = "reporting" // reporter
-  val FINISHED = "finished" // reporter job
+  val WORKER_IDLE = "idle"
+  val WORKER_RUNNING = "running"
+
+  val REPORTER_RUNNING = WORKER_RUNNING
+  val REPORTER_REPORTING = "reporting"
+  val REPORTER_FINISHED = "finished"
+
+  // extra worker status in reporter
+  val REPORTER_WORKER_IIL = "ill"
+  val REPORTER_WORKER_GATHERING = "gathering"
 }

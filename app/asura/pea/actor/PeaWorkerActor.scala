@@ -18,7 +18,7 @@ import scala.concurrent.Future
 
 class PeaWorkerActor extends BaseActor {
 
-  var memberStatus = MemberStatus(MemberStatus.IDLE)
+  var memberStatus = MemberStatus(MemberStatus.WORKER_IDLE)
 
   implicit val ec = context.dispatcher
   val compilerActor = context.actorOf(CompilerActor.props())
@@ -52,7 +52,7 @@ class PeaWorkerActor extends BaseActor {
 
   def tryStopEngine(): Boolean = {
     var result = true
-    if (null != engineCancelable && !MemberStatus.IDLE.equals(memberStatus.status)) {
+    if (null != engineCancelable && !MemberStatus.WORKER_IDLE.equals(memberStatus.status)) {
       if (!engineCancelable.isCancelled) {
         if (engineCancelable.cancel()) {
           self ! UpdateEndStatus(-1, "canceled")
@@ -66,7 +66,7 @@ class PeaWorkerActor extends BaseActor {
   }
 
   def runSimulation(message: RunSimulationMessage): Future[String] = {
-    if (MemberStatus.IDLE.equals(memberStatus.status)) {
+    if (MemberStatus.WORKER_IDLE.equals(memberStatus.status)) {
       (compilerActor ? SimulationValidateMessage(message.simulation)).flatMap(res => {
         if (res.asInstanceOf[Boolean]) {
           runLoad(message)
@@ -80,7 +80,7 @@ class PeaWorkerActor extends BaseActor {
   }
 
   def doSingleHttpScenario(message: SingleHttpScenarioMessage): Future[String] = {
-    if (MemberStatus.IDLE.equals(memberStatus.status)) {
+    if (MemberStatus.WORKER_IDLE.equals(memberStatus.status)) {
       asura.pea.singleHttpScenario = message
       runLoad(message)
     } else {
@@ -109,7 +109,7 @@ class PeaWorkerActor extends BaseActor {
   }
 
   private def updateEndStatus(code: Int, errMsg: String): Unit = {
-    memberStatus.status = MemberStatus.IDLE
+    memberStatus.status = MemberStatus.WORKER_IDLE
     memberStatus.end = new Date().getTime
     memberStatus.code = code
     memberStatus.errMsg = errMsg
@@ -117,7 +117,7 @@ class PeaWorkerActor extends BaseActor {
   }
 
   private def updateRunningStatus(runId: String): Unit = {
-    memberStatus.status = MemberStatus.RUNNING
+    memberStatus.status = MemberStatus.WORKER_RUNNING
     memberStatus.runId = runId
     memberStatus.start = new Date().getTime
     memberStatus.end = 0L

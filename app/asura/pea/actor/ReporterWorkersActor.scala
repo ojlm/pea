@@ -20,6 +20,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 // FIXME: assume that all workers are still idle
+// TODO: WatchDog for worker status
 class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
 
   implicit val ec = context.dispatcher
@@ -29,7 +30,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     val workersStatus = mutable.Map[String, JobWorkerStatus]()
     workers.foreach(worker => workersStatus += (worker.toAddress -> JobWorkerStatus()))
     ReporterJobStatus(
-      status = MemberStatus.RUNNING, // only `running` or `finished`
+      status = MemberStatus.REPORTER_RUNNING, // only `running` or `finished`
       runId = runId,
       start = System.currentTimeMillis(),
       end = 0L,
@@ -55,13 +56,19 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       stopSelf()
   }
 
+  /**
+    * worker status flow: 'idle'(initial) -> 'running' -> 'idle'
+    */
   def handleWorkerStatusChangeEvent(worker: PeaMember, workerStatus: MemberStatus): Unit = {
     // worker should only be idle
-    if (MemberStatus.IDLE.equals(workerStatus.status)) {
-      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.GATHERING, workerStatus.errMsg))
+    if (MemberStatus.WORKER_RUNNING.equals(workerStatus.status)) {
+      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
+    } else if (MemberStatus.WORKER_IDLE.equals(workerStatus.status)) {
+      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_GATHERING, workerStatus.errMsg))
       gatherSimulationLog(worker)
     } else {
-      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.IIL, workerStatus.status))
+      // code should not run here
+      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, workerStatus.status))
     }
     self ! PushStatusToZk
   }
@@ -69,11 +76,11 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   private def dealServiceResponse(worker: PeaMember, futureRes: Future[ApiRes]): Unit = {
     futureRes.map(res => {
       if (!ApiCode.OK.equals(res.code)) { // something wrong after idle status checked
-        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.IIL, res.msg))
+        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, res.msg))
       }
     }).recover {
       case t: Throwable =>
-        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.IIL, t.getMessage))
+        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, t.getMessage))
     }
   }
 
@@ -115,10 +122,10 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       PeaService.downloadSimulationLog(worker, runId)
     }
     futureFile.map(_ => {
-      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.FINISHED))
-      if (jobStatus.workers.forall(s => !MemberStatus.IDLE.equals(s._2.status))) {
+      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_FINISHED))
+      if (jobStatus.workers.forall(s => !MemberStatus.WORKER_IDLE.equals(s._2.status))) {
         jobStatus.end = System.currentTimeMillis()
-        jobStatus.status = MemberStatus.REPORTING
+        jobStatus.status = MemberStatus.REPORTER_REPORTING
         self ! GenerateReport
       }
       self ! PushStatusToZk
@@ -128,7 +135,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   def generateReport(): Unit = {
     GatlingRunnerActor.generateReport(runId)
       .map(_ => {
-        jobStatus.status = MemberStatus.FINISHED
+        jobStatus.status = MemberStatus.REPORTER_FINISHED
         self ! PushStatusToZk
         context.system.scheduler.scheduleOnce(10 seconds) {
           // destroy self after 10 seconds

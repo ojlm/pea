@@ -77,7 +77,7 @@ class GatlingApi @Inject()(
   }
 
   def getSimulationLog(runId: String) = Action {
-    Ok.sendFile(new File(s"${PeaConfig.resultsFolder}/${runId}/simulation.log"), false)
+    Ok.sendFile(new File(s"${PeaConfig.resultsFolder}${File.separator}${runId}${File.separator}simulation.log"), false)
   }
 
   def stringToActorEventFlow[T <: AnyRef](workActor: ActorRef, msgClass: Class[T]): Flow[String, String, NotUsed] = {

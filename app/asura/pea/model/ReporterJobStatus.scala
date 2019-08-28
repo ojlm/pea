@@ -6,7 +6,7 @@ import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 import scala.collection.mutable
 
 case class ReporterJobStatus(
-                              var status: String = MemberStatus.RUNNING,
+                              var status: String = MemberStatus.REPORTER_RUNNING,
                               var runId: String = StringUtils.EMPTY,
                               var start: Long = 0L,
                               var end: Long = 0L,
@@ -17,7 +17,7 @@ object ReporterJobStatus {
 
   // the worker status can only be one of `running`, `ill` and `finished`.
   case class JobWorkerStatus(
-                              status: String = MemberStatus.RUNNING,
+                              status: String = MemberStatus.WORKER_RUNNING,
                               errMsg: String = null,
                             )
 
