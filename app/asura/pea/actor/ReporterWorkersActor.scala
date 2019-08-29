@@ -63,7 +63,8 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       generateReport()
     case PushStatusToZk =>
       pushJobStatusToZk()
-    case _ =>
+    case msg: Any =>
+      log.warning(s"Unsupported message type: ${msg}")
       stopSelf()
   }
 
@@ -71,6 +72,11 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     * worker status flow: 'idle'(initial) -> 'running' -> 'idle'
     */
   def handleWorkerStatusChangeEvent(worker: PeaMember, workerStatus: MemberStatus): Unit = {
+    log.debug(
+      s"worker(${worker.toAddress}) status: ${workerStatus.status}, " +
+        s"start: ${workerStatus.start}, end: ${workerStatus.end}, " +
+        s"runId: ${workerStatus.runId}"
+    )
     // worker should only be idle
     if (MemberStatus.WORKER_RUNNING.equals(workerStatus.status)) {
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
