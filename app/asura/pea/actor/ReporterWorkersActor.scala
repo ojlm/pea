@@ -131,7 +131,9 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
           new String(nodeCache.getCurrentData.getData, StandardCharsets.UTF_8),
           classOf[MemberStatus]
         )
-        self ! JobWorkerStatusChange(worker, memberStatus)
+        if (runId.equals(memberStatus.runId)) { // filter events that not belong to this job
+          self ! JobWorkerStatusChange(worker, memberStatus)
+        }
       }
     })
   }
