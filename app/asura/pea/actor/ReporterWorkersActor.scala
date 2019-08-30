@@ -53,7 +53,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       watchWorkersAndSendLoad(msg)
     case DownloadSimulationFinished(worker, _) =>
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_FINISHED))
-      if (jobStatus.workers.forall(s => MemberStatus.REPORTER_WORKER_FINISHED.equals(s._2.status))) {
+      if (jobStatus.workers.forall(s => MemberStatus.isWorkerOver(s._2.status))) {
         jobStatus.end = System.currentTimeMillis()
         jobStatus.status = MemberStatus.REPORTER_REPORTING
         self ! GenerateReport

@@ -33,4 +33,8 @@ object MemberStatus {
   val REPORTER_WORKER_IIL = "ill"
   val REPORTER_WORKER_GATHERING = "gathering"
   val REPORTER_WORKER_FINISHED = REPORTER_FINISHED
+
+  def isWorkerOver(status: String): Boolean = {
+    REPORTER_WORKER_IIL.equals(status) || REPORTER_WORKER_FINISHED.equals(status)
+  }
 }
