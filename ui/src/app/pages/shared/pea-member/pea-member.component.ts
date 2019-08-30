@@ -47,7 +47,6 @@ export class PeaMemberComponent implements OnDestroy {
   ) { }
 
   handleMonitorData(data: MonitorData) {
-    console.log(data)
     this.complete = data.complete
     this.start = new Date(data.start).toLocaleString()
     this.run = `${data.run} seconds`

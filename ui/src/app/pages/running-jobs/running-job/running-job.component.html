@@ -1,0 +1,12 @@
+<div>
+  <div>
+    <span>{{job.runId}}</span>
+    <span>{{job.status}}</span>
+    <span>{{startTime}}</span>
+  </div>
+  <div>
+    <div class="member" *ngFor="let item of members">
+      <app-pea-member [data]="item"></app-pea-member>
+    </div>
+  </div>
+</div>

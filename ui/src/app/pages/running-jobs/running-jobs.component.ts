@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core'
+import { Router } from '@angular/router'
 import { HomeService } from 'src/app/api/home.service'
 
 @Component({
@@ -12,10 +13,11 @@ export class RunningJobsComponent implements OnInit {
 
   constructor(
     private homeService: HomeService,
+    private router: Router,
   ) { }
 
   open(item: string) {
-
+    this.router.navigateByUrl(`/jobs/${item}`)
   }
 
   ngOnInit() {
