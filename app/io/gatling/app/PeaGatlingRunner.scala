@@ -16,7 +16,6 @@ import asura.pea.model.SimulationModel
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.commons.util.DefaultClock
-import io.gatling.commons.util.PathHelper._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
 import io.gatling.core.config.{GatlingConfiguration, GatlingFiles}
@@ -25,6 +24,7 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.controller.{Controller, ControllerCommand}
 import io.gatling.core.scenario.{Scenario, SimulationParams}
 import io.gatling.core.stats.writer.RunMessage
+import sbt.io.FileFilter
 
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -131,28 +131,32 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
 
   def replaceReportLogo(runId: String): Unit = {
     try {
-      val indexFile = (GatlingFiles.resultDirectory(runId)(configuration) / "index.html").toFile
-      if (indexFile.exists()) {
-        val tmpFile = new File(s"${indexFile.getParent}/${indexFile.getName}.tmp")
-        val writer = new PrintWriter(tmpFile)
-        Source.fromFile(indexFile).getLines
-          .map { line =>
-            if (line.contains(originLogoHref) && StringUtils.isNotEmpty(PeaConfig.reportLogoHref)) {
-              line
-                .replace(originLogoHref, s"""href="${PeaConfig.reportLogoHref}"""")
-                .replace(originLogoTitle, s"""title=${PeaConfig.reportLogoHref}"""")
-            } else if (line.contains(descHref) && StringUtils.isNotEmpty(PeaConfig.reportDescHref)) {
-              line
-                .replace(descHref, s"""href="${PeaConfig.reportDescHref}"""")
-                .replace(descContent, PeaConfig.reportDescContent)
-            } else {
-              line
+      GatlingFiles.resultDirectory(runId)(configuration)
+        .toFile
+        .listFiles(new FileFilter {
+          override def accept(file: File): Boolean = file.exists() && file.getName.endsWith(".html")
+        })
+        .foreach(file => {
+          val tmpFile = new File(s"${file.getParent}/${file.getName}.tmp")
+          val writer = new PrintWriter(tmpFile)
+          Source.fromFile(file).getLines
+            .map { line =>
+              if (line.contains(originLogoHref) && StringUtils.isNotEmpty(PeaConfig.reportLogoHref)) {
+                line
+                  .replace(originLogoHref, s"""href="${PeaConfig.reportLogoHref}"""")
+                  .replace(originLogoTitle, s"""title=${PeaConfig.reportLogoHref}"""")
+              } else if (line.contains(descHref) && StringUtils.isNotEmpty(PeaConfig.reportDescHref)) {
+                line
+                  .replace(descHref, s"""href="${PeaConfig.reportDescHref}"""")
+                  .replace(descContent, PeaConfig.reportDescContent)
+              } else {
+                line
+              }
             }
-          }
-          .foreach(writer.println)
-        writer.close()
-        tmpFile.renameTo(indexFile)
-      }
+            .foreach(writer.println)
+          writer.close()
+          tmpFile.renameTo(file)
+        })
     } catch {
       case t: Throwable => logger.warn(LogUtils.stackTraceToString(t))
     }
@@ -180,7 +184,6 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
         false
     }
   }
-
 }
 
 object PeaGatlingRunner extends StrictLogging {
