@@ -10,7 +10,7 @@ import asura.common.actor.BaseActor
 import asura.common.model.{ApiCode, ApiRes}
 import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
-import asura.pea.actor.ReporterWorkersActor.{DownloadSimulationFinished, GenerateReport, JobWorkerStatusChange, PushStatusToZk}
+import asura.pea.actor.ReporterWorkersActor._
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 import asura.pea.model._
 import asura.pea.service.PeaService
@@ -53,12 +53,14 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       watchWorkersAndSendLoad(msg)
     case DownloadSimulationFinished(worker, _) =>
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_FINISHED))
+      self ! PushStatusToZk
+      self ! TryGenerateReport
+    case TryGenerateReport =>
       if (jobStatus.workers.forall(s => MemberStatus.isWorkerOver(s._2.status))) {
         jobStatus.end = System.currentTimeMillis()
         jobStatus.status = MemberStatus.REPORTER_REPORTING
         self ! GenerateReport
       }
-      self ! PushStatusToZk
     case GenerateReport =>
       generateReport()
     case PushStatusToZk =>
@@ -72,22 +74,28 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     * worker status flow: 'idle'(initial) -> 'running' -> 'idle'
     */
   def handleWorkerStatusChangeEvent(worker: PeaMember, workerStatus: MemberStatus): Unit = {
-    log.debug(
-      s"worker(${worker.toAddress}) status: ${workerStatus.status}, " +
-        s"start: ${workerStatus.start}, end: ${workerStatus.end}, " +
-        s"runId: ${workerStatus.runId}"
-    )
-    // worker should only be idle
-    if (MemberStatus.WORKER_RUNNING.equals(workerStatus.status)) {
-      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
-    } else if (MemberStatus.WORKER_IDLE.equals(workerStatus.status)) {
-      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_GATHERING, workerStatus.errMsg))
-      downloadSimulationLog(worker) pipeTo self
+    if (null != workerStatus) {
+      log.debug(
+        s"worker(${worker.toAddress}) status: ${workerStatus.status}, " +
+          s"start: ${workerStatus.start}, end: ${workerStatus.end}, " +
+          s"runId: ${workerStatus.runId}"
+      )
+      // worker should only be idle
+      if (MemberStatus.WORKER_RUNNING.equals(workerStatus.status)) {
+        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
+      } else if (MemberStatus.WORKER_IDLE.equals(workerStatus.status)) {
+        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_GATHERING, workerStatus.errMsg))
+        downloadSimulationLog(worker) pipeTo self
+      } else {
+        // code should not run here
+        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, workerStatus.status))
+      }
+      self ! PushStatusToZk
     } else {
-      // code should not run here
-      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, workerStatus.status))
+      jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, "Node unavailable"))
+      self ! PushStatusToZk
+      self ! TryGenerateReport
     }
-    self ! PushStatusToZk
   }
 
   private def dealServiceResponse(worker: PeaMember, futureRes: Future[ApiRes]): Future[Done] = {
@@ -127,12 +135,14 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     nodeCaches += nodeCache
     nodeCache.getListenable.addListener(new NodeCacheListener {
       override def nodeChanged(): Unit = {
-        val memberStatus = JsonUtils.parse(
-          new String(nodeCache.getCurrentData.getData, StandardCharsets.UTF_8),
-          classOf[MemberStatus]
-        )
-        if (runId.equals(memberStatus.runId)) { // filter events that not belong to this job
-          self ! JobWorkerStatusChange(worker, memberStatus)
+        val data = nodeCache.getCurrentData
+        if (null != data) {
+          val status = JsonUtils.parse(new String(data.getData, StandardCharsets.UTF_8), classOf[MemberStatus])
+          if (runId.equals(status.runId)) { // filter events that not belong to this job
+            self ! JobWorkerStatusChange(worker, status)
+          }
+        } else {
+          self ! JobWorkerStatusChange(worker, null)
         }
       }
     })
@@ -217,6 +227,8 @@ object ReporterWorkersActor {
   case object PushStatusToZk
 
   case class DownloadSimulationFinished(worker: PeaMember, file: File)
+
+  case object TryGenerateReport
 
   case object GenerateReport
 
