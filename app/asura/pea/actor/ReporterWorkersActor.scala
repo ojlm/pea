@@ -23,7 +23,6 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 // FIXME: assume that all workers are still idle
-// TODO: WatchDog for worker status
 class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
 
   implicit val ec = context.dispatcher
@@ -59,10 +58,9 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       if (jobStatus.workers.forall(s => MemberStatus.isWorkerOver(s._2.status))) {
         jobStatus.end = System.currentTimeMillis()
         jobStatus.status = MemberStatus.REPORTER_REPORTING
-        self ! GenerateReport
+        self ! PushStatusToZk
+        generateReport()
       }
-    case GenerateReport =>
-      generateReport()
     case PushStatusToZk =>
       pushJobStatusToZk()
     case msg: Any =>
@@ -229,7 +227,5 @@ object ReporterWorkersActor {
   case class DownloadSimulationFinished(worker: PeaMember, file: File)
 
   case object TryGenerateReport
-
-  case object GenerateReport
 
 }
