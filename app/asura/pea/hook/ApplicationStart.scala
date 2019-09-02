@@ -57,11 +57,6 @@ class ApplicationStart @Inject()(
   PeaConfig.defaultSimulationOutputFolder = configuration
     .getOptional[String]("pea.worker.output")
     .getOrElse(StringUtils.EMPTY)
-  if (configuration.getOptional[Boolean]("pea.simulations.compileAtStartup").getOrElse(false)) {
-    (PeaConfig.workerActor ? CompileMessage()).map(res => {
-      logger.info(s"Compiler status: ${res.asInstanceOf[CompileResponse]}")
-    })
-  }
   val enableZk = configuration.getOptional[Boolean]("pea.zk.enabled").getOrElse(false)
   if (enableZk) {
     registerToZK()
@@ -71,6 +66,13 @@ class ApplicationStart @Inject()(
   PeaConfig.reporterActor = system.actorOf(PeaReporterActor.props())
   PeaConfig.workerActor = system.actorOf(PeaWorkerActor.props())
   PeaConfig.monitorActor = system.actorOf(PeaMonitorActor.props())
+
+  // compile simulations at startup
+  if (configuration.getOptional[Boolean]("pea.simulations.compileAtStartup").getOrElse(false)) {
+    (PeaConfig.workerActor ? CompileMessage()).map(res => {
+      logger.info(s"Compiler status: ${res.asInstanceOf[CompileResponse]}")
+    })
+  }
 
   // add stop hook
   lifecycle.addStopHook { () =>
