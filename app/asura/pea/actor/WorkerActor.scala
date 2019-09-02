@@ -10,13 +10,13 @@ import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor.{CompileMessage, GetAllSimulations, SimulationValidateMessage}
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
-import asura.pea.actor.PeaWorkerActor._
+import asura.pea.actor.WorkerActor._
 import asura.pea.model.{LoadMessage, MemberStatus, RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.pea.{ErrorMessages, PeaConfig}
 
 import scala.concurrent.Future
 
-class PeaWorkerActor extends BaseActor {
+class WorkerActor extends BaseActor {
 
   var memberStatus = MemberStatus(MemberStatus.WORKER_IDLE)
 
@@ -133,9 +133,9 @@ class PeaWorkerActor extends BaseActor {
   }
 }
 
-object PeaWorkerActor {
+object WorkerActor {
 
-  def props() = Props(new PeaWorkerActor())
+  def props() = Props(new WorkerActor())
 
   case object GetNodeStatusMessage
 

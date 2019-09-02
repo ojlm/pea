@@ -3,13 +3,13 @@ package asura.pea.actor
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.{ActorClassifier, ActorEventBus, ManagedActorClassification}
 import asura.common.actor.BaseActor
-import asura.pea.actor.PeaMonitorActor.{MonitorBus, MonitorMessage, MonitorSubscriberMessage}
+import asura.pea.actor.WorkerMonitorActor.{MonitorBus, MonitorMessage, MonitorSubscriberMessage}
 import asura.pea.gatling.PeaDataWriter.MonitorData
 
 /**
   * monitor user and request counts
   */
-class PeaMonitorActor extends BaseActor {
+class WorkerMonitorActor extends BaseActor {
 
   val monitorBus = new MonitorBus(context.system)
 
@@ -22,9 +22,9 @@ class PeaMonitorActor extends BaseActor {
   }
 }
 
-object PeaMonitorActor {
+object WorkerMonitorActor {
 
-  def props() = Props(new PeaMonitorActor())
+  def props() = Props(new WorkerMonitorActor())
 
   case class MonitorSubscriberMessage(ref: ActorRef)
 

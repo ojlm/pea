@@ -12,7 +12,7 @@ import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor.GetAllSimulations
-import asura.pea.actor.PeaReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob}
+import asura.pea.actor.ReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob}
 import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, StopWorkersRequest}
 import asura.pea.service.PeaService
 import asura.play.api.BaseApi

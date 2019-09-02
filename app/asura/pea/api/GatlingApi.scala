@@ -12,9 +12,9 @@ import asura.common.model.ApiResError
 import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
-import asura.pea.actor.PeaWebMonitorActor
-import asura.pea.actor.PeaWebMonitorActor.WebMonitorController
-import asura.pea.actor.PeaWorkerActor.{GetNodeStatusMessage, StopEngine}
+import asura.pea.actor.WebWorkerMonitorActor
+import asura.pea.actor.WebWorkerMonitorActor.WebMonitorController
+import asura.pea.actor.WorkerActor.{GetNodeStatusMessage, StopEngine}
 import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
@@ -73,7 +73,7 @@ class GatlingApi @Inject()(
   def monitor() = WebSocket.acceptOrResult[String, String] { implicit req =>
     Future.successful {
       Right {
-        val actorRef = system.actorOf(PeaWebMonitorActor.props())
+        val actorRef = system.actorOf(WebWorkerMonitorActor.props())
         stringToActorEventFlow(actorRef, classOf[WebMonitorController])
       }
     }

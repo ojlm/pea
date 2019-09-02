@@ -32,9 +32,9 @@ class PeaDataWriter(clock: Clock, configuration: GatlingConfiguration) extends D
     val totalRunning = usersCounters.values.sumBy(_.activeCount)
     val totalDone = usersCounters.values.sumBy(_.doneCount)
     complete = (totalWaiting == 0L) && (totalRunning == 0L)
-    if (null != PeaConfig.monitorActor) {
+    if (null != PeaConfig.workerMonitorActor) {
       val totalCount = usersCounters.values.sumBy(_.totalUserCount.getOrElse(0L))
-      PeaConfig.monitorActor ! MonitorData(
+      PeaConfig.workerMonitorActor ! MonitorData(
         start = startUpTime,
         run = runDuration,
         complete = complete,

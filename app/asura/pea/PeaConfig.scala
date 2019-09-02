@@ -26,7 +26,7 @@ object PeaConfig {
   // system actor
   var workerActor: ActorRef = null
   var reporterActor: ActorRef = null
-  var monitorActor: ActorRef = null
+  var workerMonitorActor: ActorRef = null
 
   // node
   var address = StringUtils.EMPTY

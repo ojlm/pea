@@ -3,14 +3,14 @@ package asura.pea.actor
 import akka.actor.{ActorRef, Props}
 import asura.common.actor.{BaseActor, ItemActorEvent, SenderMessage}
 import asura.pea.PeaConfig
-import asura.pea.actor.PeaMonitorActor.{MonitorMessage, MonitorSubscriberMessage}
+import asura.pea.actor.WorkerMonitorActor.{MonitorMessage, MonitorSubscriberMessage}
 
 /**
   * subscribe to monitor event bus
   */
-class PeaWebMonitorActor() extends BaseActor {
+class WebWorkerMonitorActor() extends BaseActor {
 
-  PeaConfig.monitorActor ! MonitorSubscriberMessage(self)
+  PeaConfig.workerMonitorActor ! MonitorSubscriberMessage(self)
   var webActor: ActorRef = null
 
   override def receive: Receive = {
@@ -21,9 +21,9 @@ class PeaWebMonitorActor() extends BaseActor {
   }
 }
 
-object PeaWebMonitorActor {
+object WebWorkerMonitorActor {
 
-  def props() = Props(new PeaWebMonitorActor())
+  def props() = Props(new WebWorkerMonitorActor())
 
   case class WebMonitorController()
 

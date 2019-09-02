@@ -7,7 +7,7 @@ import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.common.util.JsonUtils
 import asura.pea.PeaConfig
-import asura.pea.actor.PeaReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob, WorkerData}
+import asura.pea.actor.ReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob, WorkerData}
 import asura.pea.model._
 import asura.pea.service.PeaService
 import asura.pea.service.PeaService.WorkersAvailable
@@ -17,7 +17,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 
-class PeaReporterActor extends BaseActor {
+class ReporterActor extends BaseActor {
 
   implicit val ec = context.dispatcher
 
@@ -80,9 +80,9 @@ class PeaReporterActor extends BaseActor {
   }
 }
 
-object PeaReporterActor {
+object ReporterActor {
 
-  def props() = Props(new PeaReporterActor())
+  def props() = Props(new ReporterActor())
 
   case class SingleHttpScenarioJob(
                                     workers: Seq[PeaMember],
