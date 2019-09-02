@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { HomeService } from 'src/app/api/home.service'
-import { PeaMember, ReporterJobStatus } from 'src/app/model/pea.model'
+import { HomeService, WorkerData } from 'src/app/api/home.service'
+import { ReporterJobStatus } from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-running-job',
@@ -13,7 +13,7 @@ export class RunningJobComponent implements OnInit, OnDestroy {
   ws: WebSocket
   runId = ''
   job: ReporterJobStatus = {}
-  members: PeaMember[] = []
+  members: WorkerData[] = []
   startTime = ''
 
   constructor(
@@ -28,7 +28,7 @@ export class RunningJobComponent implements OnInit, OnDestroy {
         this.startTime = new Date(res.data.start).toLocaleString()
         this.members = Object.keys(res.data.workers).map(key => {
           const addr = key.split(':')
-          return { address: addr[0], port: parseInt(addr[1], 10) }
+          return { member: { address: addr[0], port: parseInt(addr[1], 10) } }
         })
       })
     }

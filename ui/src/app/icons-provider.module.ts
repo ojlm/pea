@@ -10,6 +10,7 @@ import {
   NumberOutline,
   RiseOutline,
   ScanOutline,
+  StopOutline,
 } from '@ant-design/icons-angular/icons'
 import { NZ_ICONS } from 'ng-zorro-antd'
 
@@ -24,6 +25,7 @@ const icons = [
   DeleteOutline,
   RiseOutline,
   CodeOutline,
+  StopOutline,
 ]
 
 @NgModule({

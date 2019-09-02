@@ -31,6 +31,36 @@ object PeaService {
       })
   }
 
+  def stopWorker(member: PeaMember): Future[ApiResMemberStop] = {
+    HttpClient.wsClient
+      .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/stop")
+      .get()
+      .map(response => {
+        JsonUtils.parse(response.body[String], classOf[ApiResMemberStop])
+      })
+  }
+
+  def stopWorkers(workers: Seq[PeaMember]): Future[WorkersStopResponse] = {
+    val errors = mutable.Map[String, String]()
+    val futures = workers.map(member => {
+      PeaService.stopWorker(member)
+        .map(res =>
+          if (ApiCode.OK.equals(res.code)) {
+            (res.data, null)
+          } else {
+            errors += (member.toAddress -> res.msg)
+            (false, res.msg)
+          }
+        )
+        .recover {
+          case t: Throwable =>
+            errors += (member.toAddress -> t.getMessage)
+            (false, t.getMessage)
+        }
+    })
+    Future.sequence(futures).map(_ => WorkersStopResponse(errors.isEmpty, errors))
+  }
+
   def isWorkersAvailable(workers: Seq[PeaMember]): Future[WorkersAvailable] = {
     val errors = mutable.Map[String, String]()
     val futures = workers.map(member => {
@@ -41,17 +71,17 @@ object PeaService {
             if (MemberStatus.WORKER_IDLE.equals(memberStatus.status)) {
               (true, null)
             } else {
-              errors += (s"${member.toAddress}" -> memberStatus.status)
+              errors += (member.toAddress -> memberStatus.status)
               (false, memberStatus.status)
             }
           } else {
-            errors += (s"${member.toAddress}" -> res.msg)
+            errors += (member.toAddress -> res.msg)
             (false, res.msg)
           }
         )
         .recover {
           case t: Throwable =>
-            errors += (s"${member.toAddress}" -> t.getMessage)
+            errors += (member.toAddress -> t.getMessage)
             (false, t.getMessage)
         }
     })
@@ -122,5 +152,12 @@ object PeaService {
                                errors: mutable.Map[String, String],
                                var runId: String = null
                              )
+
+  case class ApiResMemberStop(code: String, msg: String, data: Boolean)
+
+  case class WorkersStopResponse(
+                                  result: Boolean,
+                                  errors: mutable.Map[String, String],
+                                )
 
 }

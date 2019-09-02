@@ -10,6 +10,7 @@
 .pea-item button {
   float: right;
   color: lightskyblue;
+  margin: 0 8px;
 }
 
 .pea-addr i {
@@ -21,5 +22,11 @@
 }
 
 .pea-hostname i {
+  color: purple;
+}
+
+.pea-status span {
+  margin-left: 12px;
+  font-weight: bold;
   color: purple;
 }

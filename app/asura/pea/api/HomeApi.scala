@@ -12,8 +12,9 @@ import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor.GetAllSimulations
-import asura.pea.actor.PeaReporterActor.{RunSimulationJob, SingleHttpScenarioJob}
-import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus}
+import asura.pea.actor.PeaReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob}
+import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, StopWorkersRequest}
+import asura.pea.service.PeaService
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
 import com.typesafe.scalalogging.StrictLogging
@@ -99,14 +100,7 @@ class HomeApi @Inject()(
   }
 
   def workers() = Action.async { implicit req =>
-    val children = try {
-      PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_WORKERS}")
-    } catch {
-      case t: Throwable =>
-        logger.warn(LogUtils.stackTraceToString(t))
-        Collections.emptyList[String]()
-    }
-    Future.successful(children.asScala.map(PeaMember(_)).filter(m => null != m)).toOkResult
+    (PeaConfig.reporterActor ? GetAllWorkers).toOkResult
   }
 
   def reporters() = Action.async { implicit req =>
@@ -136,6 +130,11 @@ class HomeApi @Inject()(
 
   def simulations() = Action(parse.byteString).async { implicit req =>
     (PeaConfig.workerActor ? GetAllSimulations).toOkResult
+  }
+
+  def stop() = Action(parse.byteString).async { implicit req =>
+    val message = req.bodyAs(classOf[StopWorkersRequest])
+    PeaService.stopWorkers(message.workers).toOkResult
   }
 
   private def loadJob(message: LoadJob): Future[Result] = {

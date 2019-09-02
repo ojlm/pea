@@ -1,8 +1,9 @@
 import { Component, Input, OnDestroy } from '@angular/core'
 import { NzMessageService } from 'ng-zorro-antd'
 import { GatlingService } from 'src/app/api/gatling.service'
+import { WorkerData } from 'src/app/api/home.service'
 import { ActorEvent, ActorEventType } from 'src/app/model/api.model'
-import { MonitorData, PeaMember, PeaUserCounters, RequestCounters, TotalCounters } from 'src/app/model/pea.model'
+import { JobWorkerStatus, MonitorData, PeaUserCounters, RequestCounters, TotalCounters } from 'src/app/model/pea.model'
 
 
 @Component({
@@ -16,6 +17,7 @@ export class PeaMemberComponent implements OnDestroy {
   complete = false
   start = ''
   run = ''
+  status: JobWorkerStatus = {}
   global: RequestCounters = {}
   total: TotalCounters = {}
   users: UserCountersItem[] = []
@@ -23,8 +25,9 @@ export class PeaMemberComponent implements OnDestroy {
   errors: ErrorsCountItem[] = []
 
   @Input()
-  set data(member: PeaMember) {
-    this.ws = this.gatlingService.monitor(member)
+  set data(data: WorkerData) {
+    this.status = data.status
+    this.ws = this.gatlingService.monitor(data.member)
     this.ws.onopen = (event) => { }
     this.ws.onmessage = (event) => {
       if (event.data) {

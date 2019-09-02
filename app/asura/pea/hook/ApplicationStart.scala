@@ -51,9 +51,6 @@ class ApplicationStart @Inject()(
   PeaConfig.reportDescContent = configuration
     .getOptional[String]("pea.results.report.desc.content")
     .getOrElse(null)
-  PeaConfig.reporterActor = system.actorOf(PeaReporterActor.props())
-  PeaConfig.workerActor = system.actorOf(PeaWorkerActor.props())
-  PeaConfig.monitorActor = system.actorOf(PeaMonitorActor.props())
   PeaConfig.defaultSimulationSourceFolder = configuration
     .getOptional[String]("pea.worker.source")
     .getOrElse(StringUtils.EMPTY)
@@ -69,6 +66,11 @@ class ApplicationStart @Inject()(
   if (enableZk) {
     registerToZK()
   }
+
+  // init global actors
+  PeaConfig.reporterActor = system.actorOf(PeaReporterActor.props())
+  PeaConfig.workerActor = system.actorOf(PeaWorkerActor.props())
+  PeaConfig.monitorActor = system.actorOf(PeaMonitorActor.props())
 
   // add stop hook
   lifecycle.addStopHook { () =>

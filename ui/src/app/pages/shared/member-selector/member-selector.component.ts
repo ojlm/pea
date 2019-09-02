@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core'
 import { TranslateService } from '@ngx-translate/core'
-import { HomeService } from 'src/app/api/home.service'
+import { HomeService, WorkerData } from 'src/app/api/home.service'
 import { PeaMember } from 'src/app/model/pea.model'
 
 @Component({
@@ -18,17 +18,17 @@ export class MemberSelectorComponent implements OnInit, AfterViewInit {
   ]
 
   list: TransferMember[] = []
-  _data: PeaMember[] = []
+  _data: WorkerData[] = []
 
   @Input()
-  set data(value: PeaMember[]) {
+  set data(value: WorkerData[]) {
     if (value) this._data = value
   }
   get data() {
     return this._data
   }
   @Output()
-  dataChange = new EventEmitter<PeaMember[]>()
+  dataChange = new EventEmitter<WorkerData[]>()
   @HostListener('window:resize')
   resizeBy() {
     this.refreshTransferWidth()
@@ -47,9 +47,12 @@ export class MemberSelectorComponent implements OnInit, AfterViewInit {
   change(ret: {}): void {
     this._data = this.list.filter(item => item.direction === 'right').map(item => {
       return {
-        address: item.address,
-        port: item.port,
-        hostname: item.hostname
+        member: {
+          address: item.member.address,
+          port: item.member.port,
+          hostname: item.member.hostname
+        },
+        status: item.status
       }
     })
     this.dataChange.emit(this._data)
@@ -77,7 +80,7 @@ export class MemberSelectorComponent implements OnInit, AfterViewInit {
   }
 }
 
-export interface TransferMember extends PeaMember {
+export interface TransferMember extends WorkerData {
   direction?: string
   checked?: boolean
   hide?: boolean

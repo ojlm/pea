@@ -5,9 +5,9 @@
     <ng-template #render let-item>
       <span class="item">
         <i nz-icon nzType="number" nzTheme="outline"></i>
-        <span>{{item.address}}:{{item.port}}</span>
+        <span>{{item.member.address}}:{{item.member.port}}</span>
       </span>
-      <span class="hostname">{{item.hostname}}</span>
+      <span class="hostname">{{item.member.hostname}}</span>
     </ng-template>
   </nz-transfer>
 </div>

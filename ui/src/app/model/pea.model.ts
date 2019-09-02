@@ -37,6 +37,10 @@ export interface RequestCounters {
 export interface JobWorkerStatus {
   status?: string
   errMsg?: string
+  runId?: string
+  start?: number
+  end?: number
+  code?: number
 }
 
 export interface ReporterJobStatus {

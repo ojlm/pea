@@ -3,11 +3,10 @@ import { Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { NzModalService } from 'ng-zorro-antd'
 import { Observable } from 'rxjs'
-import { HomeService } from 'src/app/api/home.service'
+import { HomeService, WorkerData } from 'src/app/api/home.service'
 import { ApiRes } from 'src/app/model/api.model'
 import {
   HttpMethods,
-  PeaMember,
   RunSimulationJob,
   SimulationModel,
   SingleHttpScenarioJob,
@@ -34,7 +33,7 @@ export class LetsShootComponent implements OnInit {
   }
 
   simulation: SimulationModel = {}
-  selectedWorkers: PeaMember[] = []
+  selectedWorkers: WorkerData[] = []
 
   headersStr = ''
 
@@ -88,12 +87,12 @@ export class LetsShootComponent implements OnInit {
         }
       }
       return {
-        workers: this.selectedWorkers,
+        workers: this.selectedWorkers.map(item => item.member),
         request: this.innerRequest
       }
     } else if (this.tabIndex === 1) {
       return {
-        workers: this.selectedWorkers,
+        workers: this.selectedWorkers.map(item => item.member),
         request: {
           simulation: this.simulation.name
         }

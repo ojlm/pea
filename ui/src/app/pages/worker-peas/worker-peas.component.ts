@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core'
-import { NzDrawerService } from 'ng-zorro-antd'
-import { HomeService } from 'src/app/api/home.service'
-import { PeaMember } from 'src/app/model/pea.model'
+import { NzDrawerService, NzMessageService, NzModalService } from 'ng-zorro-antd'
+import { HomeService, WorkerData } from 'src/app/api/home.service'
 import { getDefaultDrawerWidth } from 'src/app/util/drawer'
 
 import { PeaMemberComponent } from '../shared/pea-member/pea-member.component'
@@ -14,14 +13,16 @@ import { PeaMemberComponent } from '../shared/pea-member/pea-member.component'
 export class WorkerPeasComponent implements OnInit {
 
   drawerWidth = getDefaultDrawerWidth()
-  items: PeaMember[] = []
+  items: WorkerData[] = []
 
   constructor(
     private homeService: HomeService,
+    private messageService: NzMessageService,
+    private modalService: NzModalService,
     private drawerService: NzDrawerService,
   ) { }
 
-  monitor(item: PeaMember) {
+  monitor(item: WorkerData) {
     this.drawerService.create({
       nzWidth: this.drawerWidth,
       nzContent: PeaMemberComponent,
@@ -32,6 +33,20 @@ export class WorkerPeasComponent implements OnInit {
         padding: '4px'
       },
       nzClosable: false,
+    })
+  }
+
+  stop(item: WorkerData) {
+    this.homeService.stopWorkers([item.member]).subscribe(res => {
+      if (res.data.result) {
+        this.messageService.success('OK')
+      } else {
+        this.modalService.create({
+          nzTitle: 'Fail',
+          nzContent: JSON.stringify(res.data.errors),
+          nzClosable: true
+        })
+      }
     })
   }
 

@@ -4,13 +4,19 @@
       <div class="pea-item">
         <span class="pea-addr">
           <i nz-icon nzType="number" nzTheme="outline"></i>
-          <span>{{item.address}}:{{item.port}}</span>
+          <span>{{item.member.address}}:{{item.member.port}}</span>
         </span>
         <span class="pea-hostname">
           <i nz-icon nzType="desktop" nzTheme="outline"></i>
-          <span>{{item.hostname}}</span>
+          <span>{{item.member.hostname}}</span>
         </span>
-        <button nz-button nzType="dashed" nzSize="small" (click)="monitor(item)">
+        <span *ngIf="item.status" class="pea-status">
+          <span>{{item.status.status}}</span>
+        </span>
+        <button nz-button nzType="dashed" nzSize="small" title="Stop" (click)="stop(item)">
+          <i nz-icon nzType="stop" nzTheme="outline"></i>
+        </button>
+        <button nz-button nzType="dashed" nzSize="small" title="Monitor" (click)="monitor(item)">
           <i nz-icon nzType="scan" nzTheme="outline"></i>
         </button>
       </div>

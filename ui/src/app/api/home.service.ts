@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core'
 
 import { ApiRes } from '../model/api.model'
 import {
+  JobWorkerStatus,
   PeaMember,
   ReporterJobStatus,
   RunSimulationJob,
@@ -32,7 +33,11 @@ export class HomeService extends BaseService {
   }
 
   getWorkers() {
-    return this.http.get<ApiRes<PeaMember[]>>(`${this.API_BASE}/workers`)
+    return this.http.get<ApiRes<WorkerData[]>>(`${this.API_BASE}/workers`)
+  }
+
+  stopWorkers(workers: PeaMember[]) {
+    return this.http.post<ApiRes<WorkersStopResponse>>(`${this.API_BASE}/stop`, { workers: workers })
   }
 
   getSimulations() {
@@ -46,4 +51,15 @@ export class HomeService extends BaseService {
   runSimulationJob(load: RunSimulationJob) {
     return this.http.post<ApiRes<WorkersAvailable>>(`${this.API_BASE}/simulation`, load)
   }
+
+}
+
+export interface WorkerData {
+  member?: PeaMember
+  status?: JobWorkerStatus
+}
+
+export interface WorkersStopResponse {
+  result: boolean
+  errors: object
 }
