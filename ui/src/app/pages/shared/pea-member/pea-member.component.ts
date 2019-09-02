@@ -5,10 +5,10 @@ import { WorkerData } from 'src/app/api/home.service'
 import { ActorEvent, ActorEventType } from 'src/app/model/api.model'
 import { JobWorkerStatus, MonitorData, PeaUserCounters, RequestCounters, TotalCounters } from 'src/app/model/pea.model'
 
-
 @Component({
   selector: 'app-pea-member',
   templateUrl: './pea-member.component.html',
+  styleUrls: ['./pea-member.component.css']
 })
 export class PeaMemberComponent implements OnDestroy {
 

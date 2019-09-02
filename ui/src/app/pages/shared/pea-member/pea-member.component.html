@@ -1,78 +1,98 @@
 <div *ngIf="start">
-  <div class="time">
+  <div class="title">
     <span>
-      <span>{{'item.start'|translate}}</span>
-      <span>{{start}}</span>
+      <span class="label">{{'item.start'|translate}}: </span>
+      <span class="value">{{start}}</span>
     </span>
-    <span>
-      <span>{{'item.during'|translate}}</span>
-      <span>{{run}}</span>
+    <span class="margin">
+      <span class="label">{{'item.during'|translate}}: </span>
+      <span class="value">{{run}}</span>
     </span>
-  </div>
-  <div class="global" nz-row nzGutter="4">
-    <div nz-col nzSpan="12">
-      <nz-statistic [nzValue]="global.successfulCount" [nzTitle]="'item.successful.count'|translate">
-      </nz-statistic>
-    </div>
-    <div nz-col nzSpan="12">
-      <nz-statistic [nzValue]="global.failedCount" [nzTitle]="'item.fail.count'|translate">
-      </nz-statistic>
-    </div>
-  </div>
-  <div class="total">
+    <nz-divider nzType="vertical"></nz-divider>
     <span>
-      <span>{{'item.total'|translate}}</span>
-      <span>{{total.total}}</span>
+      <span class="label">{{'item.successful.count'|translate}}: </span>
+      <span class="value">{{global.successfulCount}}</span>
     </span>
-    <span>
-      <span>{{'item.waiting'|translate}}</span>
-      <span>{{total.waiting}}</span>
-    </span>
-    <span>
-      <span>{{'item.active'|translate}}</span>
-      <span>{{total.active}}</span>
+    <span class="margin">
+      <span class="label">{{'item.fail.count'|translate}}: </span>
+      <span class="value">{{global.failedCount}}</span>
     </span>
   </div>
-  <div class="users">
-    <div *ngFor="let item of users">
-      <span>{{item.name}}</span>
-      <span>
-        <span>{{'item.total'|translate}}</span>
-        <span>{{item.counters.total}}</span>
-      </span>
-      <span>
-        <span>{{'item.waiting'|translate}}</span>
-        <span>{{item.counters.waiting}}</span>
-      </span>
-      <span>
-        <span>{{'item.active'|translate}}</span>
-        <span>{{item.counters.active}}</span>
-      </span>
-      <span>
-        <span>{{'item.done'|translate}}</span>
-        <span>{{item.counters.done}}</span>
-      </span>
-      <span>{{item.counters.percent}}</span>
-    </div>
+  <div class="title">
+    <span>
+      <span class="label">{{'item.total'|translate}}: </span>
+      <span class="value">{{total.total}}</span>
+    </span>
+    <span class="margin">
+      <span class="label">{{'item.done'|translate}}: </span>
+      <span class="value">{{total.done}}</span>
+    </span>
+    <span class="margin">
+      <span class="label">{{'item.active'|translate}}: </span>
+      <span class="value">{{total.active}}</span>
+    </span>
+    <span class="margin">
+      <span class="label">{{'item.waiting'|translate}}: </span>
+      <span class="value">{{total.waiting}}</span>
+    </span>
   </div>
-  <div class="requests">
-    <div *ngFor="let item of requests">
-      <span>{{item.name}}</span>
-      <span>
-        <span>{{'item.successful.count'|translate}}</span>
-        <span>{{item.counters.successfulCount}}</span>
-      </span>
-      <span>
-        <span>{{'item.fail.count'|translate}}</span>
-        <span>{{item.counters.failedCount}}</span>
-      </span>
-    </div>
+  <div class="table">
+    <nz-table nzSize="small" [nzShowPagination]="false" [nzFrontPagination]="false" [nzData]="users">
+      <thead>
+        <tr>
+          <th>{{'item.user'|translate}}</th>
+          <th>{{'item.total'|translate}}</th>
+          <th>{{'item.done'|translate}}</th>
+          <th>{{'item.active'|translate}}</th>
+          <th>{{'item.waiting'|translate}}</th>
+          <th>{{'item.percent'|translate}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of users">
+          <td>{{item.name}}</td>
+          <td>{{item.counters.total}}</td>
+          <td>{{item.counters.done}}</td>
+          <td>{{item.counters.active}}</td>
+          <td>{{item.counters.waiting}}</td>
+          <td>{{item.counters.percent}}%</td>
+        </tr>
+      </tbody>
+    </nz-table>
   </div>
-  <div class="errors">
-    <div *ngFor="let item of errors">
-      <span>{{item.name}}</span>
-      <span>{{item.count}}</span>
-    </div>
+  <div class="table">
+    <nz-table nzSize="small" [nzShowPagination]="false" [nzFrontPagination]="false" [nzData]="requests">
+      <thead>
+        <tr>
+          <th>{{'item.request'|translate}}</th>
+          <th>{{'item.successful.count'|translate}}</th>
+          <th>{{'item.fail.count'|translate}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of requests">
+          <td>{{item.name}}</td>
+          <td>{{item.counters.successfulCount}}</td>
+          <td>{{item.counters.failedCount}}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+  <div *ngIf="errors&&errors.length>0" class="table">
+    <nz-table nzSize="small" [nzShowPagination]="false" [nzFrontPagination]="false" [nzData]="errors">
+      <thead>
+        <tr>
+          <th>{{'item.error'|translate}}</th>
+          <th>{{'item.count'|translate}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of errors">
+          <td style="color:red;">{{item.name}}</td>
+          <td>{{item.count}}</td>
+        </tr>
+      </tbody>
+    </nz-table>
   </div>
 </div>
 <nz-empty *ngIf="!start"></nz-empty>

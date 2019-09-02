@@ -10,7 +10,6 @@ import { ReporterJobStatus } from 'src/app/model/pea.model'
 })
 export class RunningJobComponent implements OnInit, OnDestroy {
 
-  ws: WebSocket
   runId = ''
   job: ReporterJobStatus = {}
   members: WorkerData[] = []
@@ -20,6 +19,10 @@ export class RunningJobComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private homeService: HomeService,
   ) { }
+
+  memberAddr(item: WorkerData) {
+    return `${item.member.address}:${item.member.port}`
+  }
 
   loadJobDetails() {
     if (this.runId) {
@@ -42,9 +45,5 @@ export class RunningJobComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.ws) {
-      this.ws.close()
-      this.ws = null
-    }
   }
 }

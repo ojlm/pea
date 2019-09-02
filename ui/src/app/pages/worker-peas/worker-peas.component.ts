@@ -30,7 +30,7 @@ export class WorkerPeasComponent implements OnInit {
         data: item
       },
       nzBodyStyle: {
-        padding: '4px'
+        padding: '16px'
       },
       nzClosable: false,
     })

@@ -1,11 +1,25 @@
 <div>
-  <div>
-    <span>{{job.runId}}</span>
-    <span>{{job.status}}</span>
-    <span>{{startTime}}</span>
+  <div class="title">
+    <span class="item">
+      <i nz-icon nzType="number" nzTheme="outline"></i>
+      <span>{{job.runId}}</span>
+    </span>
+    <span class="item time">
+      <i nz-icon nzType="schedule" nzTheme="outline"></i>
+      <span>{{startTime}}</span>
+    </span>
+    <span class="item status">
+      <i nz-icon nzType="radar-chart" nzTheme="outline"></i>
+      <span>{{job.status}}</span>
+    </span>
   </div>
   <div>
     <div class="member" *ngFor="let item of members">
+      <nz-divider [nzText]="addrTpl" nzOrientation="left">
+        <ng-template #addrTpl>
+          <span style="font-size:smaller;color:rebeccapurple;">{{memberAddr(item)}}</span>
+        </ng-template>
+      </nz-divider>
       <app-pea-member [data]="item"></app-pea-member>
     </div>
   </div>

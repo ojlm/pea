@@ -19,6 +19,7 @@ export interface TotalCounters {
   total?: number
   waiting?: number
   active?: number
+  done?: number
 }
 
 export interface PeaUserCounters {

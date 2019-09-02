@@ -1,0 +1,26 @@
+.title {
+  padding-left: 8px;
+}
+
+.label {
+  color: lightslategray;
+  font-weight: 500;
+}
+
+.value {
+  color: lightslategrey;
+  font-weight: 500;
+}
+
+.margin {
+  margin-left: 16px;
+}
+
+.table {
+  margin-top: 8px;
+}
+
+.table th {
+  padding: 0px;
+  color: lightslategray;
+}

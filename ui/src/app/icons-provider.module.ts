@@ -8,8 +8,10 @@ import {
   MenuFoldOutline,
   MenuUnfoldOutline,
   NumberOutline,
+  RadarChartOutline,
   RiseOutline,
   ScanOutline,
+  ScheduleOutline,
   StopOutline,
 } from '@ant-design/icons-angular/icons'
 import { NZ_ICONS } from 'ng-zorro-antd'
@@ -26,6 +28,8 @@ const icons = [
   RiseOutline,
   CodeOutline,
   StopOutline,
+  ScheduleOutline,
+  RadarChartOutline,
 ]
 
 @NgModule({
