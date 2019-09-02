@@ -30,6 +30,7 @@ class PeaDataWriter(clock: Clock, configuration: GatlingConfiguration) extends D
     val runDuration = (clock.nowMillis - startUpTime) / 1000
     val totalWaiting = usersCounters.values.sumBy(_.waitingCount)
     val totalRunning = usersCounters.values.sumBy(_.activeCount)
+    val totalDone = usersCounters.values.sumBy(_.doneCount)
     complete = (totalWaiting == 0L) && (totalRunning == 0L)
     if (null != PeaConfig.monitorActor) {
       val totalCount = usersCounters.values.sumBy(_.totalUserCount.getOrElse(0L))
@@ -37,7 +38,7 @@ class PeaDataWriter(clock: Clock, configuration: GatlingConfiguration) extends D
         start = startUpTime,
         run = runDuration,
         complete = complete,
-        total = TotalCounters(totalCount, totalWaiting, totalRunning),
+        total = TotalCounters(totalCount, totalWaiting, totalRunning, totalDone),
         users = PeaDataWriter.getPeaUserCounters(usersCounters),
         requests = requestsCounters,
         global = globalRequestCounters,
@@ -109,6 +110,7 @@ object PeaDataWriter {
                             total: Long,
                             waiting: Long,
                             active: Long,
+                            done: Long,
                           )
 
   case class MonitorData(
