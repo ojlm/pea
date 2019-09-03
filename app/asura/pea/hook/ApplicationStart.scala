@@ -10,7 +10,7 @@ import akka.stream.ActorMaterializer
 import asura.common.util.{JsonUtils, LogUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.CompilerActor.CompileMessage
-import asura.pea.actor.{WorkerMonitorActor, ReporterActor, WorkerActor}
+import asura.pea.actor.{CompilerMonitorActor, ReporterActor, WorkerActor, WorkerMonitorActor}
 import asura.pea.compiler.CompileResponse
 import asura.pea.http.HttpClient
 import asura.pea.model.{MemberStatus, PeaMember}
@@ -66,6 +66,7 @@ class ApplicationStart @Inject()(
   PeaConfig.reporterActor = system.actorOf(ReporterActor.props())
   PeaConfig.workerActor = system.actorOf(WorkerActor.props())
   PeaConfig.workerMonitorActor = system.actorOf(WorkerMonitorActor.props())
+  PeaConfig.compilerMonitorActor = system.actorOf(CompilerMonitorActor.props())
 
   // compile simulations at startup
   if (configuration.getOptional[Boolean]("pea.simulations.compileAtStartup").getOrElse(false)) {

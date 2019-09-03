@@ -5,7 +5,8 @@ import java.net.URLClassLoader
 import java.nio.file.{Files, Paths}
 import java.util.Optional
 
-import asura.common.util.LogUtils
+import asura.common.util.{LogUtils, XtermUtils}
+import asura.pea.PeaConfig
 import com.typesafe.scalalogging.{Logger, StrictLogging}
 import sbt.internal.inc.classpath.ClasspathUtilities
 import sbt.internal.inc.{Locate, LoggedReporter, AnalysisStore => _, CompilerCache => _, _}
@@ -48,9 +49,24 @@ class ZincCompilerInstance(
           } else {
             logger.error(wrapSbt(message))
           }
-        case Level.Warn => logger.warn(wrapSbt(message))
-        case Level.Info => logger.info(wrapSbt(message))
-        case Level.Debug => logger.debug(wrapSbt(message))
+          if (null != PeaConfig.compilerMonitorActor) {
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("error")} ${message}"
+          }
+        case Level.Warn =>
+          logger.warn(wrapSbt(message))
+          if (null != PeaConfig.compilerMonitorActor) {
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.yellowWrap("warn")} ${message}"
+          }
+        case Level.Info =>
+          logger.info(wrapSbt(message))
+          if (null != PeaConfig.compilerMonitorActor) {
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("info")} ${message}"
+          }
+        case Level.Debug =>
+          logger.debug(wrapSbt(message))
+          if (null != PeaConfig.compilerMonitorActor) {
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.blueWrap("debug")} ${message}"
+          }
       }
   }
 

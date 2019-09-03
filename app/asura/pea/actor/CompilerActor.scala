@@ -9,6 +9,8 @@ import asura.pea.compiler.{CompileResponse, ScalaCompiler}
 import asura.pea.model.SimulationModel
 import io.gatling.app.PeaGatlingRunner
 
+import scala.concurrent.{ExecutionContext, Future}
+
 class CompilerActor extends BaseActor {
 
   import CompilerActor._
@@ -24,7 +26,14 @@ class CompilerActor extends BaseActor {
       sender() ! Simulations(last, simulations)
     case msg: CompileMessage =>
       if (COMPILE_STATUS_IDLE == status) {
-        ScalaCompiler.doCompile(msg).map(response => {
+        val pullFutureCode = if (msg.pull) CompilerActor.runGitPull() else Future.successful(0)
+        pullFutureCode.flatMap(code => {
+          if (0 == code) {
+            ScalaCompiler.doCompile(msg)
+          } else {
+            Future.successful(CompileResponse(false, "Run git pull fail."))
+          }
+        }).map(response => {
           if (response.success) {
             last = System.currentTimeMillis()
             val f = StringUtils.notEmptyElse(msg.outputFolder, PeaConfig.defaultSimulationOutputFolder)
@@ -35,6 +44,10 @@ class CompilerActor extends BaseActor {
       } else {
         sender() ! CompileResponse(false, "Compiler is running.")
       }
+    case msg: AsyncCompileMessage =>
+      sender() ! true
+      val pullFutureCode = if (msg.pull) CompilerActor.runGitPull() else Future.successful(0)
+      pullFutureCode.map(code => if (0 == code) ScalaCompiler.doCompile(CompileMessage()))
     case SimulationValidateMessage(simulation) =>
       sender() ! simulations.find(_.name.equals(simulation)).nonEmpty
     case _ =>
@@ -51,8 +64,14 @@ object CompilerActor {
   case class CompileMessage(
                              srcFolder: String = PeaConfig.defaultSimulationSourceFolder,
                              outputFolder: String = PeaConfig.defaultSimulationOutputFolder,
-                             verbose: Boolean = false
+                             verbose: Boolean = false,
+                             pull: Boolean = false, // run git pull before compile
                            )
+
+  // respond immediately
+  case class AsyncCompileMessage(
+                                  pull: Boolean = false, // run git pull before compile
+                                )
 
   case class SimulationValidateMessage(simulation: String)
 
@@ -60,4 +79,10 @@ object CompilerActor {
 
   case class Simulations(last: Long, simulations: Seq[SimulationModel])
 
+  def runGitPull(): Future[Int] = {
+    implicit val ec = ExecutionContext.global
+    // TODO
+    // ProcessUtils.execAsync()
+    Future.successful(0)
+  }
 }

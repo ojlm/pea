@@ -25,6 +25,6 @@ object WebWorkerMonitorActor {
 
   def props() = Props(new WebWorkerMonitorActor())
 
-  case class WebMonitorController()
+  case class WebWorkerMonitorOptions()
 
 }

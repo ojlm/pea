@@ -13,7 +13,7 @@ import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor.GetAllSimulations
 import asura.pea.actor.ReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob}
-import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, StopWorkersRequest}
+import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, WorkersRequest}
 import asura.pea.service.PeaService
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
@@ -133,8 +133,13 @@ class HomeApi @Inject()(
   }
 
   def stop() = Action(parse.byteString).async { implicit req =>
-    val message = req.bodyAs(classOf[StopWorkersRequest])
+    val message = req.bodyAs(classOf[WorkersRequest])
     PeaService.stopWorkers(message.workers).toOkResult
+  }
+
+  def compile() = Action(parse.byteString).async { implicit req =>
+    val message = req.bodyAs(classOf[WorkersRequest])
+    PeaService.compileWorkers(message.workers).toOkResult
   }
 
   private def loadJob(message: LoadJob): Future[Result] = {

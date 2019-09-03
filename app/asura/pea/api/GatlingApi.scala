@@ -12,9 +12,11 @@ import asura.common.model.ApiResError
 import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
-import asura.pea.actor.WebWorkerMonitorActor
-import asura.pea.actor.WebWorkerMonitorActor.WebMonitorController
+import asura.pea.actor.CompilerActor.AsyncCompileMessage
+import asura.pea.actor.WebCompilerMonitorActor.WebCompilerMonitorOptions
+import asura.pea.actor.WebWorkerMonitorActor.WebWorkerMonitorOptions
 import asura.pea.actor.WorkerActor.{GetNodeStatusMessage, StopEngine}
+import asura.pea.actor.{WebCompilerMonitorActor, WebWorkerMonitorActor}
 import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
@@ -74,7 +76,23 @@ class GatlingApi @Inject()(
     Future.successful {
       Right {
         val actorRef = system.actorOf(WebWorkerMonitorActor.props())
-        stringToActorEventFlow(actorRef, classOf[WebMonitorController])
+        stringToActorEventFlow(actorRef, classOf[WebWorkerMonitorOptions])
+      }
+    }
+  }
+
+  def compile() = Action(parse.byteString).async { implicit req =>
+    checkWorkerEnable {
+      val message = req.bodyAs(classOf[AsyncCompileMessage])
+      (PeaConfig.workerActor ? message).toOkResult
+    }
+  }
+
+  def compiler() = WebSocket.acceptOrResult[String, String] { implicit req =>
+    Future.successful {
+      Right {
+        val actorRef = system.actorOf(WebCompilerMonitorActor.props())
+        stringToActorEventFlow(actorRef, classOf[WebCompilerMonitorOptions])
       }
     }
   }

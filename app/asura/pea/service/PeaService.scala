@@ -31,34 +31,52 @@ object PeaService {
       })
   }
 
-  def stopWorker(member: PeaMember): Future[ApiResMemberStop] = {
+  def stopWorker(member: PeaMember): Future[MemberApiBoolRes] = {
     HttpClient.wsClient
       .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/stop")
       .get()
       .map(response => {
-        JsonUtils.parse(response.body[String], classOf[ApiResMemberStop])
+        JsonUtils.parse(response.body[String], classOf[MemberApiBoolRes])
       })
   }
 
-  def stopWorkers(workers: Seq[PeaMember]): Future[WorkersStopResponse] = {
+  def stopWorkers(workers: Seq[PeaMember]): Future[WorkersBoolResponse] = {
+    buildWorkersBoolResponse(workers, PeaService.stopWorker)
+  }
+
+  def compile(member: PeaMember): Future[MemberApiBoolRes] = {
+    HttpClient.wsClient
+      .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/compile")
+      .get()
+      .map(response => {
+        JsonUtils.parse(response.body[String], classOf[MemberApiBoolRes])
+      })
+  }
+
+  def compileWorkers(workers: Seq[PeaMember]): Future[WorkersBoolResponse] = {
+    buildWorkersBoolResponse(workers, PeaService.compile)
+  }
+
+  private def buildWorkersBoolResponse(
+                                        workers: Seq[PeaMember],
+                                        func: PeaMember => Future[MemberApiBoolRes]
+                                      ): Future[WorkersBoolResponse] = {
     val errors = mutable.Map[String, String]()
     val futures = workers.map(member => {
-      PeaService.stopWorker(member)
-        .map(res =>
-          if (ApiCode.OK.equals(res.code)) {
-            (res.data, null)
-          } else {
-            errors += (member.toAddress -> res.msg)
-            (false, res.msg)
-          }
-        )
-        .recover {
-          case t: Throwable =>
-            errors += (member.toAddress -> t.getMessage)
-            (false, t.getMessage)
+      func(member).map(res =>
+        if (ApiCode.OK.equals(res.code)) {
+          (res.data, null)
+        } else {
+          errors += (member.toAddress -> res.msg)
+          (false, res.msg)
         }
+      ).recover {
+        case t: Throwable =>
+          errors += (member.toAddress -> t.getMessage)
+          (false, t.getMessage)
+      }
     })
-    Future.sequence(futures).map(_ => WorkersStopResponse(errors.isEmpty, errors))
+    Future.sequence(futures).map(_ => WorkersBoolResponse(errors.isEmpty, errors))
   }
 
   def isWorkersAvailable(workers: Seq[PeaMember]): Future[WorkersAvailable] = {
@@ -153,9 +171,9 @@ object PeaService {
                                var runId: String = null
                              )
 
-  case class ApiResMemberStop(code: String, msg: String, data: Boolean)
+  case class MemberApiBoolRes(code: String, msg: String, data: Boolean)
 
-  case class WorkersStopResponse(
+  case class WorkersBoolResponse(
                                   result: Boolean,
                                   errors: mutable.Map[String, String],
                                 )

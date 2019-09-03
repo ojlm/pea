@@ -3,35 +3,31 @@ package asura.pea.actor
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.{ActorClassifier, ActorEventBus, ManagedActorClassification}
 import asura.common.actor.BaseActor
-import asura.pea.actor.WorkerMonitorActor.{MonitorMessage, MonitorSubscriberMessage, WorkerMonitorBus}
-import asura.pea.gatling.PeaDataWriter.MonitorData
+import asura.pea.actor.CompilerMonitorActor.{CompilerMonitorBus, MonitorMessage, MonitorSubscriberMessage}
 
-/**
-  * monitor user and request counts
-  */
-class WorkerMonitorActor extends BaseActor {
+class CompilerMonitorActor extends BaseActor {
 
-  val monitorBus = new WorkerMonitorBus(context.system)
+  val monitorBus = new CompilerMonitorBus(context.system)
 
   override def receive: Receive = {
     case MonitorSubscriberMessage(ref) =>
       monitorBus.subscribe(ref, self)
-    case data: MonitorData =>
+    case data: String =>
       monitorBus.publish(MonitorMessage(self, data))
     case message: Any =>
       log.warning(s"Unknown message type ${message}")
   }
 }
 
-object WorkerMonitorActor {
+object CompilerMonitorActor {
 
-  def props() = Props(new WorkerMonitorActor())
+  def props() = Props(new CompilerMonitorActor())
 
   case class MonitorSubscriberMessage(ref: ActorRef)
 
-  case class MonitorMessage(ref: ActorRef, data: MonitorData)
+  case class MonitorMessage(ref: ActorRef, data: String)
 
-  class WorkerMonitorBus(val system: ActorSystem) extends ActorEventBus with ActorClassifier with ManagedActorClassification {
+  class CompilerMonitorBus(val system: ActorSystem) extends ActorEventBus with ActorClassifier with ManagedActorClassification {
 
     override type Event = MonitorMessage
 
