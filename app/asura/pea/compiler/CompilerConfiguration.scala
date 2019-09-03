@@ -3,7 +3,7 @@ package asura.pea.compiler
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Path, Paths}
 
-import asura.pea.actor.CompilerActor.CompileMessage
+import asura.pea.actor.CompilerActor.SyncCompileMessage
 
 case class CompilerConfiguration(
                                   simulationsDirectory: Path,
@@ -14,7 +14,7 @@ case class CompilerConfiguration(
 
 object CompilerConfiguration {
 
-  def fromCompileMessage(message: CompileMessage): CompilerConfiguration = {
+  def fromCompileMessage(message: SyncCompileMessage): CompilerConfiguration = {
     CompilerConfiguration(
       Paths.get(message.srcFolder).toAbsolutePath(),
       Paths.get(message.outputFolder).toAbsolutePath(),

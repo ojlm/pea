@@ -9,7 +9,7 @@ import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import asura.common.util.{JsonUtils, LogUtils, StringUtils}
 import asura.pea.PeaConfig
-import asura.pea.actor.CompilerActor.CompileMessage
+import asura.pea.actor.CompilerActor.SyncCompileMessage
 import asura.pea.actor.{CompilerMonitorActor, ReporterActor, WorkerActor, WorkerMonitorActor}
 import asura.pea.compiler.CompileResponse
 import asura.pea.http.HttpClient
@@ -70,7 +70,7 @@ class ApplicationStart @Inject()(
 
   // compile simulations at startup
   if (configuration.getOptional[Boolean]("pea.simulations.compileAtStartup").getOrElse(false)) {
-    (PeaConfig.workerActor ? CompileMessage()).map(res => {
+    (PeaConfig.workerActor ? SyncCompileMessage()).map(res => {
       logger.info(s"Compiler status: ${res.asInstanceOf[CompileResponse]}")
     })
   }

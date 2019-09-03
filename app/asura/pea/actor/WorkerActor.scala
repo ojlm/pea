@@ -8,7 +8,7 @@ import akka.pattern.{ask, pipe}
 import asura.common.actor.BaseActor
 import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
-import asura.pea.actor.CompilerActor.{AsyncCompileMessage, CompileMessage, GetAllSimulations, SimulationValidateMessage}
+import asura.pea.actor.CompilerActor._
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.WorkerActor._
 import asura.pea.model.{LoadMessage, MemberStatus, RunSimulationMessage, SingleHttpScenarioMessage}
@@ -32,7 +32,7 @@ class WorkerActor extends BaseActor {
       sender() ! memberStatus
     case GetAllSimulations =>
       (compilerActor ? GetAllSimulations) pipeTo sender()
-    case msg: CompileMessage | AsyncCompileMessage =>
+    case msg: CompileMessage =>
       (compilerActor ? msg) pipeTo sender()
     case msg: SingleHttpScenarioMessage =>
       doSingleHttpScenario(msg) pipeTo sender()

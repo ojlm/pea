@@ -3,7 +3,7 @@ package asura.pea.compiler
 import java.io.File
 
 import asura.common.util.ProcessUtils
-import asura.pea.actor.CompilerActor.CompileMessage
+import asura.pea.actor.CompilerActor.SyncCompileMessage
 import sbt.internal.inc.{AnalysisStore => _, CompilerCache => _}
 import xsbti.compile.{FileAnalysisStore => _, ScalaInstance => _}
 
@@ -22,7 +22,7 @@ object ScalaCompiler {
 
   val compiler = ZincCompilerInstance.build(classpath)
 
-  def doCompile(msg: CompileMessage): Future[CompileResponse] = {
+  def doCompile(msg: SyncCompileMessage): Future[CompileResponse] = {
     doCompile(CompilerConfiguration.fromCompileMessage(msg))
   }
 
@@ -39,7 +39,7 @@ object ScalaCompiler {
     }
   }
 
-  def getGatlingCmd(message: CompileMessage): String = {
+  def getGatlingCmd(message: SyncCompileMessage): String = {
     val cmd = s"java -Dfile.encoding=UTF-8 -cp ${classpath} " +
       s"io.gatling.compiler.ZincCompiler " +
       s"-sf ${message.srcFolder} " +
@@ -48,7 +48,7 @@ object ScalaCompiler {
     cmd
   }
 
-  def doGatlingCompileWithErrors(message: CompileMessage): Future[CompileResponse] = {
+  def doGatlingCompileWithErrors(message: SyncCompileMessage): Future[CompileResponse] = {
     implicit val ec = ExecutionContext.global
     val errors = StringBuilder.newBuilder
     val futureCode = ProcessUtils.execAsync(
@@ -65,7 +65,7 @@ object ScalaCompiler {
   }
 
   def doGatlingCompile(
-                        message: CompileMessage,
+                        message: SyncCompileMessage,
                         stdout: String => Unit = (_) => {},
                         stderr: String => Unit = (_) => {},
                       ): Future[Int] = {

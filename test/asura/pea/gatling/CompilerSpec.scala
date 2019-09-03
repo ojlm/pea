@@ -2,7 +2,7 @@ package asura.pea.gatling
 
 import asura.common.util.FutureUtils.RichFuture
 import asura.pea.IDEPathHelper
-import asura.pea.actor.CompilerActor.CompileMessage
+import asura.pea.actor.CompilerActor.SyncCompileMessage
 import asura.pea.compiler.ScalaCompiler
 import com.typesafe.scalalogging.StrictLogging
 
@@ -10,7 +10,7 @@ object CompilerSpec extends StrictLogging {
 
   def main(args: Array[String]): Unit = {
 
-    val compileMessage = CompileMessage(
+    val compileMessage = SyncCompileMessage(
       srcFolder = s"${IDEPathHelper.projectRootDir}/test/simulations",
       outputFolder = s"${IDEPathHelper.projectRootDir}/logs/output",
       verbose = false,

@@ -24,7 +24,7 @@ class CompilerActor extends BaseActor {
   override def receive: Receive = {
     case GetAllSimulations =>
       sender() ! Simulations(last, simulations)
-    case msg: CompileMessage =>
+    case msg: SyncCompileMessage =>
       if (COMPILE_STATUS_IDLE == status) {
         val pullFutureCode = if (msg.pull) CompilerActor.runGitPull() else Future.successful(0)
         pullFutureCode.flatMap(code => {
@@ -47,7 +47,7 @@ class CompilerActor extends BaseActor {
     case msg: AsyncCompileMessage =>
       sender() ! true
       val pullFutureCode = if (msg.pull) CompilerActor.runGitPull() else Future.successful(0)
-      pullFutureCode.map(code => if (0 == code) ScalaCompiler.doCompile(CompileMessage()))
+      pullFutureCode.map(code => if (0 == code) ScalaCompiler.doCompile(SyncCompileMessage()))
     case SimulationValidateMessage(simulation) =>
       sender() ! simulations.find(_.name.equals(simulation)).nonEmpty
     case _ =>
@@ -61,17 +61,19 @@ object CompilerActor {
   val COMPILE_STATUS_IDLE = 0
   val COMPILE_STATUS_RUNNING = 1
 
-  case class CompileMessage(
-                             srcFolder: String = PeaConfig.defaultSimulationSourceFolder,
-                             outputFolder: String = PeaConfig.defaultSimulationOutputFolder,
-                             verbose: Boolean = false,
-                             pull: Boolean = false, // run git pull before compile
-                           )
+  trait CompileMessage
+
+  case class SyncCompileMessage(
+                                 srcFolder: String = PeaConfig.defaultSimulationSourceFolder,
+                                 outputFolder: String = PeaConfig.defaultSimulationOutputFolder,
+                                 verbose: Boolean = false,
+                                 pull: Boolean = false, // run git pull before compile
+                               ) extends CompileMessage
 
   // respond immediately
   case class AsyncCompileMessage(
                                   pull: Boolean = false, // run git pull before compile
-                                )
+                                ) extends CompileMessage
 
   case class SimulationValidateMessage(simulation: String)
 
