@@ -10,10 +10,9 @@ lazy val pea = Project("pea", file("."))
 val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.1.2" exclude("io.gatling", "gatling-app")
 val gatlingCompiler = "io.gatling" % "gatling-compiler" % "3.1.2"
 val curator = "org.apache.curator" % "curator-recipes" % "2.12.0"
-val asuraCommon = "cc.akkaha" %% "asura-common" % "0.5.0"
-val asuraPlay = "cc.akkaha" %% "asura-play" % "0.5.0"
+val asuraPlay = "cc.akkaha" %% "asura-play" % "0.6.0"
 
-libraryDependencies ++= Seq(gatling, gatlingCompiler, curator, asuraCommon, asuraPlay)
+libraryDependencies ++= Seq(gatling, gatlingCompiler, curator, asuraPlay)
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
 
 // release

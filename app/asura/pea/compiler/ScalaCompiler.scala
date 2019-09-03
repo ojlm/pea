@@ -57,7 +57,8 @@ object ScalaCompiler {
       (stderr: String) => {
         errors.append(stderr).append("\n")
         ()
-      }
+      },
+      None
     ).get
     futureCode.map(code => {
       CompileResponse(code == 0, errors.toString)
@@ -70,6 +71,6 @@ object ScalaCompiler {
                         stderr: String => Unit = (_) => {},
                       ): Future[Int] = {
     implicit val ec = ExecutionContext.global
-    ProcessUtils.execAsync(getGatlingCmd(message), stdout, stderr).get
+    ProcessUtils.execAsync(getGatlingCmd(message), stdout, stderr, None).get
   }
 }
