@@ -54,7 +54,10 @@ class CompilerActor extends BaseActor {
       pullFutureCode.map(code => {
         if (0 == code && COMPILE_STATUS_IDLE == status) {
           status = COMPILE_STATUS_RUNNING
-          ScalaCompiler.doCompile(SyncCompileMessage()).map(_ => status = COMPILE_STATUS_IDLE)
+          ScalaCompiler.doCompile(SyncCompileMessage()).map(_ => {
+            last = System.currentTimeMillis()
+            status = COMPILE_STATUS_IDLE
+          })
         }
       })
     case SimulationValidateMessage(simulation) =>
