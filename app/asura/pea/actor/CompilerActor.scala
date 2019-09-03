@@ -98,7 +98,7 @@ object CompilerActor {
     ProcessUtils.execAsync(
       "git pull",
       (stdout: String) => if (null != PeaConfig.compilerMonitorActor) {
-        PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("info")} ${stdout}"
+        PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("info")} ${stdout}"
       },
       (stderr: String) => if (null != PeaConfig.compilerMonitorActor) {
         PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("error")} ${stderr}"
