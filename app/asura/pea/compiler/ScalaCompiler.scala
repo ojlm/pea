@@ -2,7 +2,8 @@ package asura.pea.compiler
 
 import java.io.File
 
-import asura.common.util.ProcessUtils
+import asura.common.util.{ProcessUtils, XtermUtils}
+import asura.pea.PeaConfig
 import asura.pea.actor.CompilerActor.SyncCompileMessage
 import sbt.internal.inc.{AnalysisStore => _, CompilerCache => _}
 import xsbti.compile.{FileAnalysisStore => _, ScalaInstance => _}
@@ -32,7 +33,11 @@ object ScalaCompiler {
       if (null != compiler) {
         compiler.doCompile(config)
       } else {
-        CompileResponse(false, "Uninitialized compiler")
+        val errMsg = "Uninitialized compiler"
+        if (null != PeaConfig.compilerMonitorActor) {
+          PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("error")} ${errMsg}"
+        }
+        CompileResponse(false, errMsg)
       }
     }.recover {
       case t: Throwable => CompileResponse(false, t.getMessage)
