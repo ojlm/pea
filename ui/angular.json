@@ -30,7 +30,8 @@
             ],
             "styles": [
               "src/theme.less",
-              "src/styles.css"
+              "src/styles.css",
+              "./node_modules/xterm/dist/xterm.css"
             ],
             "scripts": []
           },

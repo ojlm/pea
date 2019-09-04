@@ -44,7 +44,8 @@ export class WorkerPeasComponent implements OnInit {
         this.modalService.create({
           nzTitle: 'Fail',
           nzContent: JSON.stringify(res.data.errors),
-          nzClosable: true
+          nzClosable: true,
+          nzOkDisabled: true,
         })
       }
     })

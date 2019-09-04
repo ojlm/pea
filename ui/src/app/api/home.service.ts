@@ -37,7 +37,11 @@ export class HomeService extends BaseService {
   }
 
   stopWorkers(workers: PeaMember[]) {
-    return this.http.post<ApiRes<WorkersStopResponse>>(`${this.API_BASE}/stop`, { workers: workers })
+    return this.http.post<ApiRes<WorkersBoolResponse>>(`${this.API_BASE}/stop`, { workers: workers })
+  }
+
+  compile(workers: PeaMember[]) {
+    return this.http.post<ApiRes<WorkersBoolResponse>>(`${this.API_BASE}/compile`, { workers: workers })
   }
 
   getSimulations() {
@@ -59,7 +63,7 @@ export interface WorkerData {
   status?: JobWorkerStatus
 }
 
-export interface WorkersStopResponse {
+export interface WorkersBoolResponse {
   result: boolean
   errors: object
 }

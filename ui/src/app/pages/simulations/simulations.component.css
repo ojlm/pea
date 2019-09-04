@@ -1,0 +1,35 @@
+.check-all {
+  border-bottom: 1px solid rgb(233, 233, 233);
+  margin-bottom: 4px;
+  padding-left: 4px;
+  padding-bottom: 4px;
+}
+
+.tool {
+  float: right;
+}
+
+.tool>button {
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.worker {
+  padding: 4px 0;
+  padding-left: 4px;
+  cursor: pointer;
+}
+
+.worker:hover {
+  background-color: lightpink;
+}
+
+.item i {
+  color: lightseagreen;
+}
+
+.hostname {
+  margin-left: 4px;
+  color: lightgray;
+  font-size: small;
+}

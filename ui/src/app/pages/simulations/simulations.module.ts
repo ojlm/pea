@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core'
 
 import { SharedModule } from '../shared/shared.module'
+import { CompilerOutputComponent } from './compiler-output/compiler-output.component'
 import { SimulationsComponent } from './simulations.component'
 import { SimulationsRoutingModule } from './simulations.routing.module'
 
@@ -11,6 +12,7 @@ import { SimulationsRoutingModule } from './simulations.routing.module'
   ],
   declarations: [
     SimulationsComponent,
+    CompilerOutputComponent,
   ],
   exports: []
 })

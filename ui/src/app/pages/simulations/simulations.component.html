@@ -1,3 +1,61 @@
 <div style="height: 100%;">
-  Simulations
+  <nz-input-group style="width:100%;margin-top:4px;" [nzSize]="'default'" [nzAddOnBefore]="scriptTpl">
+    <ng-template #scriptTpl>
+      <div style="width:58px;text-align:left;">
+        <span>{{'item.script'|translate}}</span>
+      </div>
+    </ng-template>
+    <nz-select style="width: 100%;" [(ngModel)]="simulation" nzAllowClear>
+      <nz-option *ngFor="let item of simulations" [nzValue]="item" [nzLabel]="item.name" nzCustomContent>
+        <div>
+          <div class="option-title">
+            <i nz-icon nzType="code" nzTheme="outline"></i>
+            <span>{{item.name}}</span>
+          </div>
+          <div class="option-desc">{{item.description}}</div>
+        </div>
+      </nz-option>
+    </nz-select>
+  </nz-input-group>
+  <div *ngIf="simulation&&simulation.description" class="desc">{{simulation.description}}</div>
+  <!-- tool -->
+  <nz-divider style="margin:16px 0 8px 0;" [nzText]="scTpl" nzOrientation="left">
+    <ng-template #scTpl>
+      <span style="font-size:14px;">{{'tips.selectAndCompile'|translate}}</span>
+    </ng-template>
+  </nz-divider>
+  <div class="check-all">
+    <label nz-checkbox [(ngModel)]="workersAllChecked" (ngModelChange)="updateAllChecked()"
+      [nzIndeterminate]="indeterminate">
+      {{'item.checkAll'|translate}}
+    </label>
+    <span class="tool">
+      <button style="color:rebeccapurple;" nz-button nzSize="small" nzType="dashed" (click)="compile()">
+        {{'item.pullAndCompile'|translate}}
+      </button>
+    </span>
+  </div>
+  <nz-checkbox-wrapper style="width:100%;">
+    <div nz-row>
+      <div nz-col nzSpan="24" *ngFor="let item of workers" class="worker">
+        <label style="width:100%;" nz-checkbox [nzValue]="item" [(ngModel)]="item.checked"
+          (ngModelChange)="updateSingleChecked()">
+          <span class="item">
+            <i nz-icon nzType="number" nzTheme="outline"></i>
+            <span>{{item.member.address}}:{{item.member.port}}</span>
+          </span>
+          <span class="hostname">{{item.member.hostname}}</span>
+        </label>
+      </div>
+    </div>
+  </nz-checkbox-wrapper>
+  <!-- compiler -->
+  <nz-divider style="margin:16px 0 8px 0;" [nzText]="compilerTpl" nzOrientation="left">
+    <ng-template #compilerTpl>
+      <span style="font-size:14px;">{{'tips.compilerOutput'|translate}}</span>
+    </ng-template>
+  </nz-divider>
+  <div *ngFor="let item of compilers">
+    <app-compiler-output [data]="item"></app-compiler-output>
+  </div>
 </div>

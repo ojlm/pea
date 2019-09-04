@@ -11,6 +11,8 @@ import { BaseService } from './base.service'
 })
 export class GatlingService extends BaseService {
 
+  wsErrMsg = 'Create Websocket error, see the console for more details.'
+
   constructor(
     private http: HttpClient,
     private msgService: NzMessageService,
@@ -20,7 +22,16 @@ export class GatlingService extends BaseService {
     const ws = newWS(`${this.API_BASE}/gatling/monitor`, `${member.address}:${member.port}`)
     ws.onerror = (event) => {
       console.error(event)
-      this.msgService.warning('Create Websocket error, see the console for more details.')
+      this.msgService.warning(this.wsErrMsg)
+    }
+    return ws
+  }
+
+  compiler(member: PeaMember) {
+    const ws = newWS(`${this.API_BASE}/gatling/compiler`, `${member.address}:${member.port}`)
+    ws.onerror = (event) => {
+      console.error(event)
+      this.msgService.warning(this.wsErrMsg)
     }
     return ws
   }
