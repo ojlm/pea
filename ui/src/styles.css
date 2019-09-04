@@ -1,5 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 
+i.click-icon {
+  cursor: pointer;
+}
+
+i.click-icon:hover {
+  transform: scale(1.2);
+}
+
+i.click-icon:active {
+  font-weight: bold;
+  cursor: pointer;
+}
+
 *::-webkit-scrollbar {
   width: 5px;
   height: 5px;

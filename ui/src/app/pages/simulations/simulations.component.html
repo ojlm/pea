@@ -1,27 +1,29 @@
 <div style="height: 100%;">
-  <nz-input-group style="width:100%;margin-top:4px;" [nzSize]="'default'" [nzAddOnBefore]="scriptTpl">
+  <nz-divider style="margin:16px 0 8px 0;" [nzText]="scriptTpl" nzOrientation="left">
     <ng-template #scriptTpl>
-      <div style="width:58px;text-align:left;">
-        <span>{{'item.script'|translate}}</span>
-      </div>
+      <span style="font-size:14px;">{{'tips.simulationList'|translate}}</span>
+      <i class="click-icon reload" nz-icon nzType="sync" nzTheme="outline" (click)="loadSimulationsData()"></i>
     </ng-template>
-    <nz-select style="width: 100%;" [(ngModel)]="simulation" nzAllowClear>
-      <nz-option *ngFor="let item of simulations" [nzValue]="item" [nzLabel]="item.name" nzCustomContent>
-        <div>
-          <div class="option-title">
-            <i nz-icon nzType="code" nzTheme="outline"></i>
-            <span>{{item.name}}</span>
-          </div>
-          <div class="option-desc">{{item.description}}</div>
+  </nz-divider>
+  <nz-list [nzDataSource]="simulations" nzBordered nzSize="small" [nzRenderItem]="item">
+    <ng-template #item let-item>
+      <nz-list-item [nzActions]="[actions]">
+        <div class="sim">
+          <a (click)="edit(item)">{{item.name}}</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <span class="desc">{{item.description}}</span>
         </div>
-      </nz-option>
-    </nz-select>
-  </nz-input-group>
-  <div *ngIf="simulation&&simulation.description" class="desc">{{simulation.description}}</div>
-  <!-- tool -->
-  <nz-divider style="margin:16px 0 8px 0;" [nzText]="scTpl" nzOrientation="left">
-    <ng-template #scTpl>
+        <ng-template #actions>
+          <a (click)="edit(item)"><i nz-icon nzType="edit" nzTheme="outline"></i></a>
+        </ng-template>
+      </nz-list-item>
+    </ng-template>
+  </nz-list>
+  <!-- workers -->
+  <nz-divider style="margin:16px 0 8px 0;" [nzText]="workersTpl" nzOrientation="left">
+    <ng-template #workersTpl>
       <span style="font-size:14px;">{{'tips.selectAndCompile'|translate}}</span>
+      <i class="click-icon reload" nz-icon nzType="sync" nzTheme="outline" (click)="loadWorkersData()"></i>
     </ng-template>
   </nz-divider>
   <div class="check-all">

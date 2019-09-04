@@ -14,7 +14,7 @@ export class SimulationsComponent implements OnInit {
   indeterminate = true
 
   lastCompileTime = ''
-  simulation: SimulationModel = {}
+  editorBaseUrl = ''
   simulations: SimulationModel[] = []
   workers: SelectWorkerData[] = []
   compilers: SelectWorkerData[] = []
@@ -24,6 +24,13 @@ export class SimulationsComponent implements OnInit {
     private modalService: NzModalService,
     private messageService: NzMessageService,
   ) { }
+
+  edit(simulation: SimulationModel) {
+    if (this.editorBaseUrl) {
+      const url = `${this.editorBaseUrl}${simulation.name.replace(/\./g, '/')}.scala`
+      window.open(url)
+    }
+  }
 
   compile() {
     const workers = this.workers.filter(item => item.checked)
@@ -70,14 +77,23 @@ export class SimulationsComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
+  loadSimulationsData() {
     this.homeService.getSimulations().subscribe(res => {
       this.lastCompileTime = new Date(res.data.last).toLocaleString()
+      this.editorBaseUrl = res.data.editorBaseUrl
       this.simulations = res.data.simulations
     })
+  }
+
+  loadWorkersData() {
     this.homeService.getWorkers().subscribe(res => {
       this.workers = res.data
     })
+  }
+
+  ngOnInit(): void {
+    this.loadSimulationsData()
+    this.loadWorkersData()
   }
 }
 

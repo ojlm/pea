@@ -59,6 +59,7 @@ export interface SimulationModel {
 
 export interface Simulations {
   last?: number
+  editorBaseUrl?: string
   simulations?: SimulationModel[]
 }
 

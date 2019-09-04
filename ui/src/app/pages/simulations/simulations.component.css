@@ -1,3 +1,33 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+i.reload {
+  color: lightseagreen;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+i.reload:hover {
+  color: lightcoral;
+  animation: spin 1s linear infinite;
+}
+
+.sim {
+  width: 100%;
+}
+
+.sim>.desc {
+  color: lightgray;
+  font-size: small;
+}
+
 .check-all {
   border-bottom: 1px solid rgb(233, 233, 233);
   margin-bottom: 4px;

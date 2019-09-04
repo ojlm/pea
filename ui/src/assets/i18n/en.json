@@ -36,6 +36,7 @@
   "tips.jobFail": "Failed",
   "tips.selectAndCompile": "Select and Compile",
   "tips.compilerOutput": "Compiler",
+  "tips.simulationList": "Simulation List",
   "injection.rampUsers": "rampUsers",
   "injection.heavisideUsers": "heavisideUsers",
   "injection.atOnceUsers": "atOnceUsers",

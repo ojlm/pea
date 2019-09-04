@@ -13,6 +13,7 @@ import {
   ScanOutline,
   ScheduleOutline,
   StopOutline,
+  SyncOutline,
 } from '@ant-design/icons-angular/icons'
 import { NZ_ICONS } from 'ng-zorro-antd'
 
@@ -30,6 +31,7 @@ const icons = [
   StopOutline,
   ScheduleOutline,
   RadarChartOutline,
+  SyncOutline,
 ]
 
 @NgModule({
