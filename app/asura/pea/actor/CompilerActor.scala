@@ -91,7 +91,11 @@ object CompilerActor {
 
   case object GetAllSimulations
 
-  case class Simulations(last: Long, simulations: Seq[SimulationModel])
+  case class Simulations(
+                          last: Long,
+                          simulations: Seq[SimulationModel],
+                          editorBaseUrl: String = PeaConfig.webSimulationEditorBaseUrl,
+                        )
 
   def runGitPull(): Future[Int] = {
     implicit val ec = ExecutionContext.global

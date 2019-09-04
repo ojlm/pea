@@ -57,6 +57,9 @@ class ApplicationStart @Inject()(
   PeaConfig.defaultSimulationOutputFolder = configuration
     .getOptional[String]("pea.worker.output")
     .getOrElse(StringUtils.EMPTY)
+  PeaConfig.webSimulationEditorBaseUrl = configuration
+    .getOptional[String]("pea.simulations.webEditorBaseUrl")
+    .getOrElse(StringUtils.EMPTY)
   val enableZk = configuration.getOptional[Boolean]("pea.zk.enabled").getOrElse(false)
   if (enableZk) {
     registerToZK()

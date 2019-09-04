@@ -55,4 +55,5 @@ object PeaConfig {
   var workerProtocol: String = "http"
   var defaultSimulationSourceFolder: String = null
   var defaultSimulationOutputFolder: String = null
+  var webSimulationEditorBaseUrl: String = null
 }
