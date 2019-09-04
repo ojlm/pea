@@ -35,7 +35,7 @@ object ScalaCompiler {
       } else {
         val errMsg = "Uninitialized compiler"
         if (null != PeaConfig.compilerMonitorActor) {
-          PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("error")} ${errMsg}"
+          PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("[error]")} ${errMsg}"
         }
         CompileResponse(false, errMsg)
       }

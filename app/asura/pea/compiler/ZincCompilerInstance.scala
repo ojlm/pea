@@ -50,22 +50,22 @@ class ZincCompilerInstance(
             logger.error(wrapSbt(message))
           }
           if (null != PeaConfig.compilerMonitorActor) {
-            PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("error")} ${message}"
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("[error]")} ${message}"
           }
         case Level.Warn =>
           logger.warn(wrapSbt(message))
           if (null != PeaConfig.compilerMonitorActor) {
-            PeaConfig.compilerMonitorActor ! s"${XtermUtils.yellowWrap("warn")} ${message}"
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.yellowWrap("[warn ]")} ${message}"
           }
         case Level.Info =>
           logger.info(wrapSbt(message))
           if (null != PeaConfig.compilerMonitorActor) {
-            PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("info")} ${message}"
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("[info ]")} ${message}"
           }
         case Level.Debug =>
           logger.debug(wrapSbt(message))
           if (null != PeaConfig.compilerMonitorActor) {
-            PeaConfig.compilerMonitorActor ! s"${XtermUtils.blueWrap("debug")} ${message}"
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.blueWrap("[debug]")} ${message}"
           }
       }
   }

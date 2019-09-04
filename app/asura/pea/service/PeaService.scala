@@ -11,6 +11,7 @@ import asura.common.model.{ApiCode, ApiRes}
 import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig._
+import asura.pea.actor.CompilerActor.AsyncCompileMessage
 import asura.pea.http.HttpClient
 import asura.pea.model.{MemberStatus, PeaMember, RunSimulationMessage, SingleHttpScenarioMessage}
 import com.typesafe.scalalogging.Logger
@@ -47,7 +48,7 @@ object PeaService {
   def compile(member: PeaMember): Future[MemberApiBoolRes] = {
     HttpClient.wsClient
       .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/compile")
-      .get()
+      .post(JsonUtils.stringify(AsyncCompileMessage(pull = true)))
       .map(response => {
         JsonUtils.parse(response.body[String], classOf[MemberApiBoolRes])
       })
