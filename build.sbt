@@ -1,7 +1,8 @@
 lazy val commonSettings = Seq(
   organization := "cc.akkaha",
-  version := "0.2.0-SNAPSHOT",
-  scalaVersion := "2.12.8"
+  version := "0.1.5",
+  scalaVersion := "2.12.8",
+  maintainer := "ngxcorpio@gmail.com",
 )
 
 lazy val pea = Project("pea", file("."))
