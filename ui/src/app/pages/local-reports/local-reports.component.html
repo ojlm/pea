@@ -1,7 +1,9 @@
 <nz-list [nzDataSource]="items" nzBordered [nzRenderItem]="item">
   <ng-template #item let-item>
     <nz-list-item>
-      <a (click)="open(item)">{{item}}</a>
+      <a (click)="open(item)">{{item.name}}</a>
+      <nz-divider nzType="vertical"></nz-divider>
+      <span class="desc">{{item.last}}</span>
     </nz-list-item>
   </ng-template>
 </nz-list>

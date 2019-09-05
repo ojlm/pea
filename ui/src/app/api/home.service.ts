@@ -29,7 +29,7 @@ export class HomeService extends BaseService {
   }
 
   getLocalReports() {
-    return this.http.get<ApiRes<string[]>>(`${this.API_BASE}/reports`)
+    return this.http.get<ApiRes<LocalReport[]>>(`${this.API_BASE}/reports`)
   }
 
   getWorkers() {
@@ -66,4 +66,9 @@ export interface WorkerData {
 export interface WorkersBoolResponse {
   result: boolean
   errors: object
+}
+
+export interface LocalReport {
+  name?: string
+  last?: string
 }

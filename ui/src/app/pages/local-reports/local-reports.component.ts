@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { HomeService } from 'src/app/api/home.service'
+import { HomeService, LocalReport } from 'src/app/api/home.service'
 
 @Component({
   selector: 'app-local-reports',
@@ -8,14 +8,14 @@ import { HomeService } from 'src/app/api/home.service'
 })
 export class LocalReportsComponent implements OnInit {
 
-  items: string[] = []
+  items: LocalReport[] = []
 
   constructor(
     private homeService: HomeService,
   ) { }
 
-  open(item: string) {
-    window.open(`${location.protocol}//${location.host}/report/${item}`)
+  open(item: LocalReport) {
+    window.open(`${location.protocol}//${location.host}/report/${item.name}`)
   }
 
   ngOnInit() {

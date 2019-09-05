@@ -2,7 +2,7 @@ package asura.pea.api
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.util.Collections
+import java.util.{Collections, Date}
 
 import akka.actor.ActorSystem
 import akka.pattern.ask
@@ -66,7 +66,9 @@ class HomeApi @Inject()(
     val file = new File(PeaConfig.resultsFolder)
     val files = file.listFiles()
     if (null != files) {
-      OkApiRes(ApiRes(data = files.filter(_.isDirectory).map(_.getName)))
+      OkApiRes(ApiRes(data = files.filter(_.isDirectory).sortBy(_.lastModified()).reverse.map(file => {
+        Map("name" -> file.getName, "last" -> new Date(file.lastModified()))
+      })))
     } else {
       OkApiRes(ApiRes(data = Nil))
     }
