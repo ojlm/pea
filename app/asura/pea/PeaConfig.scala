@@ -50,6 +50,7 @@ object PeaConfig {
   var reportDescHref: String = null
   var reportDescContent: String = null
   var resultsFolder: String = null
+  var resourcesFolder: String = null
 
   // worker
   var workerProtocol: String = "http"

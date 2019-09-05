@@ -45,12 +45,14 @@ object GatlingRunnerActor {
                            binariesFolder: String,
                            simulationClass: String,
                            report: Boolean = true,
-                           resultsFolder: String = PeaConfig.resultsFolder
+                           resultsFolder: String = PeaConfig.resultsFolder,
+                           resourcesFolder: String = PeaConfig.resourcesFolder,
                          ) {
 
     def toGatlingPropertiesMap: mutable.Map[String, _] = {
       val props = new GatlingPropertiesBuilder()
         .binariesDirectory(binariesFolder)
+        .resourcesDirectory(resourcesFolder)
         .resultsDirectory(resultsFolder)
         .simulationClass(simulationClass)
       if (!report) props.noReports()

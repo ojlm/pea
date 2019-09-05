@@ -57,6 +57,9 @@ class ApplicationStart @Inject()(
   PeaConfig.defaultSimulationOutputFolder = configuration
     .getOptional[String]("pea.worker.output")
     .getOrElse(StringUtils.EMPTY)
+  PeaConfig.resourcesFolder = configuration
+    .getOptional[String]("pea.worker.resources")
+    .getOrElse(StringUtils.EMPTY)
   PeaConfig.webSimulationEditorBaseUrl = configuration
     .getOptional[String]("pea.simulations.webEditorBaseUrl")
     .getOrElse(StringUtils.EMPTY)
