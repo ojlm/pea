@@ -11,7 +11,7 @@ import asura.common.model.{ApiRes, ApiResError}
 import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
-import asura.pea.actor.CompilerActor.GetAllSimulations
+import asura.pea.actor.CompilerActor.{AsyncCompileMessage, GetAllSimulations}
 import asura.pea.actor.ReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob}
 import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, WorkersRequest}
 import asura.pea.service.PeaService
@@ -139,6 +139,7 @@ class HomeApi @Inject()(
 
   def compile() = Action(parse.byteString).async { implicit req =>
     val message = req.bodyAs(classOf[WorkersRequest])
+    if (PeaConfig.enableReporter) PeaConfig.workerActor ! AsyncCompileMessage(pull = true)
     PeaService.compileWorkers(message.workers).toOkResult
   }
 
