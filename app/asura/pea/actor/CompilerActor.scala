@@ -5,7 +5,7 @@ import java.io.File
 import akka.actor.Props
 import akka.pattern.pipe
 import asura.common.actor.BaseActor
-import asura.common.util.{ProcessUtils, StringUtils, XtermUtils}
+import asura.common.util.{ProcessUtils, XtermUtils}
 import asura.pea.PeaConfig
 import asura.pea.compiler.{CompileResponse, ScalaCompiler}
 import asura.pea.model.SimulationModel
@@ -36,15 +36,7 @@ class CompilerActor extends BaseActor {
           } else {
             Future.successful(CompileResponse(false, "Run git pull fail."))
           }
-        }).map(response => {
-          status = COMPILE_STATUS_IDLE
-          if (response.success) {
-            last = System.currentTimeMillis()
-            val f = StringUtils.notEmptyElse(msg.outputFolder, PeaConfig.defaultSimulationOutputFolder)
-            this.simulations = PeaGatlingRunner.getSimulationClasses(f)
-          }
-          response
-        }) pipeTo sender()
+        }).map(dealCompileResponse) pipeTo sender()
       } else {
         sender() ! CompileResponse(true, "Compiler is running.")
       }
@@ -54,15 +46,21 @@ class CompilerActor extends BaseActor {
       pullFutureCode.map(code => {
         if (0 == code && COMPILE_STATUS_IDLE == status) {
           status = COMPILE_STATUS_RUNNING
-          ScalaCompiler.doCompile(SyncCompileMessage()).map(_ => {
-            last = System.currentTimeMillis()
-            status = COMPILE_STATUS_IDLE
-          })
+          ScalaCompiler.doCompile(SyncCompileMessage()).map(dealCompileResponse)
         }
       })
     case SimulationValidateMessage(simulation) =>
       sender() ! simulations.find(_.name.equals(simulation)).nonEmpty
     case _ =>
+  }
+
+  private def dealCompileResponse(response: CompileResponse): CompileResponse = {
+    status = COMPILE_STATUS_IDLE
+    if (response.success) {
+      last = System.currentTimeMillis()
+      this.simulations = PeaGatlingRunner.getSimulationClasses(PeaConfig.defaultSimulationOutputFolder)
+    }
+    response
   }
 }
 

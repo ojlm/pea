@@ -18,7 +18,7 @@ import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
-import io.gatling.core.config.{GatlingConfiguration, GatlingFiles}
+import io.gatling.core.config.{GatlingConfiguration, GatlingFiles, GatlingPropertiesBuilder}
 import io.gatling.core.controller.inject.Injector
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.controller.{Controller, ControllerCommand}
@@ -205,10 +205,17 @@ object PeaGatlingRunner extends StrictLogging {
     new PeaGatlingRunner(config, true).generateReport(runId)
   }
 
+  // This is only for function below
+  private val defaultGatlingProps = new GatlingPropertiesBuilder()
+    .binariesDirectory(PeaConfig.defaultSimulationOutputFolder)
+    .resourcesDirectory(PeaConfig.resourcesFolder)
+    .resultsDirectory(PeaConfig.resultsFolder)
+    .build
+
   def getSimulationClasses(binariesDirectory: String = PeaConfig.defaultSimulationOutputFolder): Seq[SimulationModel] = {
     try {
       // to instantiate PeaSimulation below
-      io.gatling.core.Predef._configuration = GatlingConfiguration.load()
+      io.gatling.core.Predef._configuration = GatlingConfiguration.load(defaultGatlingProps)
       SimulationClassLoader(Paths.get(binariesDirectory))
         .simulationClasses
         .map(clazz => {
