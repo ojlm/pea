@@ -60,7 +60,7 @@ export class MemberSelectorComponent implements OnInit, AfterViewInit {
 
   refreshTransferWidth() {
     if (this.container) {
-      const width = (this.container.offsetWidth - 48) / 2
+      const width = (this.container.offsetWidth - 52) / 2
       this.listStyle = { 'width.px': width, 'height.px': 300 }
     }
   }

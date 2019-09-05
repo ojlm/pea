@@ -38,6 +38,7 @@ export class LetsShootComponent implements OnInit {
   headersStr = ''
 
   lastCompileTime = ''
+  editorBaseUrl = ''
   simulations: SimulationModel[] = []
 
   constructor(
@@ -47,14 +48,21 @@ export class LetsShootComponent implements OnInit {
     private router: Router,
   ) { }
 
+  edit() {
+    if (this.editorBaseUrl && this.simulation.name) {
+      const url = `${this.editorBaseUrl}${this.simulation.name.replace(/\./g, '/')}.scala`
+      window.open(url)
+    }
+  }
+
   run() {
     let response: Observable<ApiRes<WorkersAvailable>>
     if (this.tabIndex === 0) {
       this.loading = true
-      response = this.homeService.runSingleHttpScenarioJob(this.buildLoadJob())
+      response = this.homeService.runSimulationJob(this.buildLoadJob())
     } else if (this.tabIndex === 1) {
       this.loading = true
-      response = this.homeService.runSimulationJob(this.buildLoadJob())
+      response = this.homeService.runSingleHttpScenarioJob(this.buildLoadJob())
     }
     response.subscribe(res => {
       this.loading = false
@@ -79,6 +87,13 @@ export class LetsShootComponent implements OnInit {
 
   buildLoadJob(): SingleHttpScenarioJob | RunSimulationJob {
     if (this.tabIndex === 0) {
+      return {
+        workers: this.selectedWorkers.map(item => item.member),
+        request: {
+          simulation: this.simulation.name
+        }
+      }
+    } else if (this.tabIndex === 1) {
       if (this.headersStr) {
         try {
           this.innerRequest.request.headers = JSON.parse(this.headersStr)
@@ -90,20 +105,21 @@ export class LetsShootComponent implements OnInit {
         workers: this.selectedWorkers.map(item => item.member),
         request: this.innerRequest
       }
-    } else if (this.tabIndex === 1) {
-      return {
-        workers: this.selectedWorkers.map(item => item.member),
-        request: {
-          simulation: this.simulation.name
-        }
-      }
     }
   }
 
-  ngOnInit(): void {
+  loadSimulations() {
     this.homeService.getSimulations().subscribe(res => {
       this.lastCompileTime = new Date(res.data.last).toLocaleString()
+      this.editorBaseUrl = res.data.editorBaseUrl
       this.simulations = res.data.simulations
+      if (!this.simulation.name && this.simulations.length > 0) {
+        this.simulation = this.simulations[0]
+      }
     })
+  }
+
+  ngOnInit(): void {
+    this.loadSimulations()
   }
 }

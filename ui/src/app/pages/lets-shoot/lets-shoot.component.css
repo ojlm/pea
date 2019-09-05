@@ -16,15 +16,21 @@
 }
 
 .desc {
+  cursor: pointer;
   margin-top: 4px;
   font-size: small;
   color: lightslategray;
   border: 1px solid lightgray;
   border-radius: 4px;
   padding: 8px;
+  min-height: 120px;
   max-height: 200px;
   overflow: auto;
   white-space: normal;
   word-break: break-all;
   word-wrap: break-word;
+}
+
+.desc:hover {
+  color: lightseagreen;
 }
