@@ -25,6 +25,7 @@
   "item.checkAll": "Check all",
   "item.compile": "Compile",
   "item.pullAndCompile": "Pull&Compile",
+  "item.help": "Help",
   "tips.buildRequest": "Build Request",
   "tips.selectWorkers": "Select Workers",
   "tips.runJob": "Run Job",

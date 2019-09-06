@@ -25,6 +25,7 @@
   "item.checkAll": "选择所有",
   "item.compile": "编译",
   "item.pullAndCompile": "更新&编译",
+  "item.help": "帮助",
   "tips.buildRequest": "构建请求",
   "tips.selectWorkers": "选择节点",
   "tips.runJob": "执行任务",

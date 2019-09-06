@@ -3,7 +3,7 @@
     [nzTrigger]="null">
     <div class="sidebar-logo">
       <a href="https://docs.asura.pro/#/zh-cn/pea/" target="_blank">
-        <img src="https://ng.ant.design/assets/img/logo.svg" alt="logo">
+        <img src="./assets/img/logo.gif" alt="logo">
         <h1>Gatling Pea</h1>
       </a>
     </div>
@@ -42,6 +42,9 @@
       <div class="app-header">
         <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
           <i class="trigger" nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
+        </span>
+        <span class="header-help">
+          <a href="https://docs.asura.pro/#/zh-cn/pea/" target="_blank">{{'item.help'|translate}}</a>
         </span>
       </div>
     </nz-header>

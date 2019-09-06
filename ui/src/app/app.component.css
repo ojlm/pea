@@ -24,6 +24,11 @@
   transition: all .3s, padding 0s;
 }
 
+.header-help {
+  float: right;
+  margin-right: 48px;
+}
+
 .trigger:hover {
   color: #1890ff;
 }
@@ -39,6 +44,7 @@
 }
 
 .sidebar-logo img {
+  border-radius: 16px;
   display: inline-block;
   height: 32px;
   width: 32px;
@@ -47,7 +53,7 @@
 
 .sidebar-logo h1 {
   display: inline-block;
-  margin: 0 0 0 20px;
+  margin: 0 0 0 16px;
   color: orange;
   font-weight: 600;
   font-size: 14px;
