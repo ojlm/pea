@@ -1,4 +1,11 @@
 {
+  "menu.dashboard": "面板",
+  "menu.runningJobs": "运行中的任务",
+  "menu.workerPeas": "所有节点",
+  "menu.shoot": "开火 ❛‿❛‧‧)nnn",
+  "menu.simulations": "脚本",
+  "menu.reports": "报告",
+  "menu.localReports": "本地报告",
   "btn.add": "添加",
   "btn.remove": "移除",
   "btn.run": "执行",

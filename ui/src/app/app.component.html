@@ -8,30 +8,30 @@
       </a>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-submenu nzOpen nzTitle="Dashboard" nzIcon="dashboard">
+      <li nz-submenu nzOpen [nzTitle]="'menu.dashboard'|translate" nzIcon="dashboard">
         <ul>
           <li nz-menu-item nzMatchRouter>
-            <a routerLink="/jobs">Running Jobs</a>
+            <a routerLink="/jobs">{{'menu.runningJobs'|translate}}</a>
           </li>
           <li nz-menu-item nzMatchRouter>
-            <a routerLink="/peas">Worker Peas</a>
+            <a routerLink="/peas">{{'menu.workerPeas'|translate}}</a>
           </li>
           <li nz-menu-item nzMatchRouter>
-            <a routerLink="/shoot">Let's Shoot</a>
+            <a routerLink="/shoot">{{'menu.shoot'|translate}}</a>
           </li>
         </ul>
       </li>
-      <li nz-submenu nzOpen nzTitle="Simulations" nzIcon="code">
+      <li nz-submenu nzOpen [nzTitle]="'menu.simulations'|translate" nzIcon="code">
         <ul>
           <li nz-menu-item nzMatchRouter>
-            <a routerLink="/simulations">Simulations</a>
+            <a routerLink="/simulations">{{'menu.simulations'|translate}}</a>
           </li>
         </ul>
       </li>
-      <li nz-submenu nzOpen nzTitle="Reports" nzIcon="dot-chart">
+      <li nz-submenu nzOpen [nzTitle]="'menu.reports'|translate" nzIcon="dot-chart">
         <ul>
           <li nz-menu-item nzMatchRouter>
-            <a routerLink="/reports">Local Reports</a>
+            <a routerLink="/reports">{{'menu.localReports'|translate}}</a>
           </li>
         </ul>
       </li>
@@ -45,6 +45,7 @@
         </span>
         <span class="header-help">
           <a href="https://docs.asura.pro/#/zh-cn/pea/" target="_blank">{{'item.help'|translate}}</a>
+          <button nz-button nzSize="small" nzType="default" (click)="changeLang()">{{lang}}</button>
         </span>
       </div>
     </nz-header>

@@ -34,3 +34,19 @@
 .desc:hover {
   color: lightseagreen;
 }
+
+.btn-shoot {
+  padding: 2px;
+  cursor: pointer;
+  border: 1px solid lightgrey;
+  box-shadow: 0px 0px 5px lightgrey;
+}
+
+.btn-shoot:hover {
+  box-shadow: 0px 0px 5px lightcoral;
+  transform: scale(1.1);
+}
+
+.btn-shoot img {
+  height: 36px;
+}

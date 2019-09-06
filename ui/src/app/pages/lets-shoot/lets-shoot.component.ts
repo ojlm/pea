@@ -56,6 +56,7 @@ export class LetsShootComponent implements OnInit {
   }
 
   run() {
+    if (this.loading) return
     let response: Observable<ApiRes<WorkersAvailable>>
     if (this.tabIndex === 0) {
       this.loading = true

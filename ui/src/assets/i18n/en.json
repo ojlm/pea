@@ -1,4 +1,11 @@
 {
+  "menu.dashboard": "Dashboard",
+  "menu.runningJobs": "Running Jobs",
+  "menu.workerPeas": "Worker Peas",
+  "menu.shoot": "Let's Shoot",
+  "menu.simulations": "Simulations",
+  "menu.reports": "Simulations",
+  "menu.localReports": "Local Reports",
   "btn.add": "Add",
   "btn.remove": "Remove",
   "btn.run": "Run",

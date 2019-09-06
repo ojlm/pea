@@ -26,7 +26,11 @@
 
 .header-help {
   float: right;
-  margin-right: 48px;
+  margin-right: 32px;
+}
+
+.header-help button {
+  margin-left: 4px;
 }
 
 .trigger:hover {

@@ -70,8 +70,8 @@
   <app-member-selector [(data)]="selectedWorkers"></app-member-selector>
   <nz-divider style="width:100%;" [nzText]="'tips.runJob'|translate" nzOrientation="left"></nz-divider>
   <div style="padding:0 16px 16px 0;float:right;">
-    <button type="button" nz-button nzType="primary" [nzSize]="'default'" [nzLoading]="loading" (click)="run()">
-      <span>{{'btn.run'|translate}}</span>
-    </button>
+    <div class="btn-shoot" (click)="run()">
+      <img class="shoot-img" src="./assets/img/shoot.jpg">
+    </div>
   </div>
 </div>
