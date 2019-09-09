@@ -1,4 +1,4 @@
-package simulations
+package asura.pea.simulations
 
 import asura.pea.gatling.PeaSimulation
 import io.gatling.core.Predef._

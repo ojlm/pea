@@ -1,9 +1,11 @@
 package asura.pea.gatling
 
 import asura.common.util.FutureUtils.RichFuture
+import asura.common.util.StringUtils
 import asura.pea.IDEPathHelper
 import asura.pea.actor.GatlingRunnerActor
 import asura.pea.actor.GatlingRunnerActor.StartMessage
+import asura.pea.simulations.DubboGreetingSimulation
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.concurrent.ExecutionContext.global
@@ -17,9 +19,10 @@ object RunnerSpec extends StrictLogging {
   def run(): Unit = {
     val message = StartMessage(
       IDEPathHelper.binariesFolder.toAbsolutePath.toString,
-      "simulations.BasicSimulation",
+      classOf[DubboGreetingSimulation].getName,
       true,
       IDEPathHelper.resultsFolder.toAbsolutePath.toString,
+      StringUtils.EMPTY,
     )
     val code = GatlingRunnerActor.start(message)(global)
     logger.info(s"Exit: ${code}")
