@@ -1,27 +1,21 @@
 package asura.pea.dubbo
 
-import asura.pea.dubbo.action.DubboActionBuilder
 import asura.pea.dubbo.check.DubboCheckSupport
+import asura.pea.dubbo.protocol.{DubboProtocol, DubboProtocolBuilder}
+import asura.pea.dubbo.request.DubboDslBuilder
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.session.{Expression, Session}
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.session.Session
 
 trait DubboDsl extends DubboCheckSupport {
 
-  case class DubboProcessBuilder[A](
-                                     requestName: Expression[String],
-                                     f: (Session) => A,
-                                     checks: List[DubboCheck] = Nil,
-                                     threadPoolSize: Int = 200,
-                                   ) extends DubboCheckSupport {
+  def dubbo(implicit configuration: GatlingConfiguration) = DubboProtocolBuilder(configuration)
 
-    def check(dubboChecks: DubboCheck*): DubboProcessBuilder[A] = copy[A](checks = checks ::: dubboChecks.toList)
+  implicit def protocolBuilder2Protocol(builder: DubboProtocolBuilder): DubboProtocol = builder.build
 
-    def threadPoolSize(threadPoolSize: Int): DubboProcessBuilder[A] = copy[A](threadPoolSize = threadPoolSize)
-
-    def build(): ActionBuilder = DubboActionBuilder[A](requestName, f, checks, threadPoolSize)
+  def invoke[T, R](clazz: Class[T])(func: (T, Session) => R): DubboDslBuilder[T, R] = {
+    DubboDslBuilder(clazz, func)
   }
 
-  def dubbo[A](requestName: Expression[String], f: (Session) => A) = DubboProcessBuilder(requestName, f)
-
-  implicit def dubboProcessBuilder2ActionBuilder[A](builder: DubboProcessBuilder[A]): ActionBuilder = builder.build()
+  implicit def dubboDslBuilder2ActionBuilder[T, R](builder: DubboDslBuilder[T, R]): ActionBuilder = builder.build()
 }

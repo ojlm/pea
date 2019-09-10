@@ -2,6 +2,7 @@ package asura.pea.dubbo.protocol
 
 import java.util.concurrent.Executors
 
+import asura.pea.dubbo.request.ReferenceConfigCache
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.{Protocol, ProtocolKey}
@@ -23,6 +24,8 @@ case class DubboProtocol(
 
 object DubboProtocol {
 
+  def apply(configuration: GatlingConfiguration): DubboProtocol = DubboProtocol()
+
   val DubboProtocolKey: ProtocolKey[DubboProtocol, DubboComponents] = new ProtocolKey[DubboProtocol, DubboComponents] {
 
     def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[DubboProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
@@ -33,6 +36,7 @@ object DubboProtocol {
       dubboProtocol => {
         val executor = Executors.newFixedThreadPool(dubboProtocol.threads)
         coreComponents.actorSystem.registerOnTermination {
+          ReferenceConfigCache.clear()
           executor.shutdown()
         }
         val executionContext = ExecutionContext.fromExecutor(executor)

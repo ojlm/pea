@@ -1,33 +1,30 @@
 package asura.pea.dubbo.action
 
-import java.util.concurrent.ExecutorService
-
-import asura.pea.dubbo.DubboCheck
-import com.fasterxml.jackson.databind.ObjectMapper
+import asura.pea.dubbo.protocol.{DubboComponents, DubboProtocol}
+import asura.pea.dubbo.request.ReferenceConfigCache
+import asura.pea.dubbo.{DubboCheck, DubboResponse}
 import io.gatling.commons.stats.{KO, OK}
 import io.gatling.commons.util.Clock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{Action, ExitableAction}
 import io.gatling.core.check.Check
-import io.gatling.core.session.{Expression, Session}
+import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class DubboAction[A](
-                      requestName: Expression[String],
-                      f: (Session) => A,
-                      val executor: ExecutorService,
-                      val objectMapper: ObjectMapper,
-                      checks: List[DubboCheck],
-                      coreComponents: CoreComponents,
-                      throttled: Boolean,
-                      val next: Action,
-                    ) extends ExitableAction with NameGen {
-
-  implicit val ec = ExecutionContext.fromExecutor(executor)
+class DubboAction[T, R](
+                         clazz: Class[T],
+                         func: (T, Session) => R,
+                         checks: List[DubboCheck[R]],
+                         dubboComponents: DubboComponents,
+                         coreComponents: CoreComponents,
+                         throttled: Boolean,
+                         val next: Action,
+                         actionProtocol: Option[DubboProtocol] = None,
+                       ) extends ExitableAction with NameGen {
 
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
@@ -35,29 +32,28 @@ class DubboAction[A](
 
   override def name: String = genName("dubboRequest")
 
+  implicit val ec = dubboComponents.executionContext
+  val requestName = clazz.getName()
+  val service: T = ReferenceConfigCache.get(clazz, dubboComponents.dubboProtocol, actionProtocol)
+
   override def execute(session: Session): Unit = {
-    recover(session) {
-      requestName(session).map { reqName =>
-        val startTime = System.currentTimeMillis()
-        Future(f(session)).onComplete {
-          case Success(value) =>
-            val endTime = System.currentTimeMillis()
-            val resultJson = objectMapper.writeValueAsString(value)
-            val (newSession, error) = Check.check(resultJson, session, checks)
-            error match {
-              case None =>
-                statsEngine.logResponse(session, reqName, startTime, endTime, OK, None, None)
-                throttle(newSession)
-              case Some(failure) =>
-                statsEngine.logResponse(session, reqName, startTime, endTime, KO, None, Option(failure.message))
-                throttle(session.markAsFailed)
-            }
-          case Failure(t) =>
-            val endTime = System.currentTimeMillis()
-            statsEngine.logResponse(session, reqName, startTime, endTime, KO, None, Option(t.getMessage))
+    val startTime = System.currentTimeMillis()
+    Future(func(service, session)).onComplete {
+      case Success(value) =>
+        val endTime = System.currentTimeMillis()
+        val (newSession, error) = Check.check(DubboResponse(value), session, checks)
+        error match {
+          case None =>
+            statsEngine.logResponse(session, requestName, startTime, endTime, OK, None, None)
+            throttle(newSession)
+          case Some(failure) =>
+            statsEngine.logResponse(session, requestName, startTime, endTime, KO, None, Option(failure.message))
             throttle(session.markAsFailed)
         }
-      }
+      case Failure(t) =>
+        val endTime = System.currentTimeMillis()
+        statsEngine.logResponse(session, requestName, startTime, endTime, KO, None, Option(t.getMessage))
+        throttle(session.markAsFailed)
     }
   }
 

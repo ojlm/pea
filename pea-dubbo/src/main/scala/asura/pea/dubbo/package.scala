@@ -4,5 +4,7 @@ import io.gatling.core.check.Check
 
 package object dubbo {
 
-  type DubboCheck = Check[String]
+  case class DubboResponse[T](value: T)
+
+  type DubboCheck[T] = Check[DubboResponse[T]]
 }
