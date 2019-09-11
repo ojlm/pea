@@ -15,10 +15,10 @@ import io.gatling.core.util.NameGen
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class DubboAction[T, R](
+class DubboAction[T, V](
                          clazz: Class[T],
-                         func: (T, Session) => R,
-                         checks: List[DubboCheck[R]],
+                         func: (T, Session) => V,
+                         checks: List[DubboCheck[V]],
                          dubboComponents: DubboComponents,
                          coreComponents: CoreComponents,
                          throttled: Boolean,

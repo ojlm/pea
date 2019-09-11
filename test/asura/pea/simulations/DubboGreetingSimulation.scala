@@ -23,10 +23,12 @@ class DubboGreetingSimulation extends PeaSimulation {
         service.sayHello("pea")
       }.check(simple { response =>
         response.value == "hi, pea"
-      })
+      }).check(
+        jsonPath("$").is("hi, pea")
+      )
     )
 
   setUp(
-    scn.inject(atOnceUsers(10))
+    scn.inject(atOnceUsers(10000))
   ).protocols(dubboProtocol)
 }

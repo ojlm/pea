@@ -8,10 +8,10 @@ import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session.Session
 import io.gatling.core.structure.ScenarioContext
 
-case class DubboActionBuilder[T, R](
+case class DubboActionBuilder[T, V](
                                      clazz: Class[T],
-                                     func: (T, Session) => R,
-                                     checks: List[DubboCheck[R]],
+                                     func: (T, Session) => V,
+                                     checks: List[DubboCheck[V]],
                                      protocol: Option[DubboProtocol] = None,
                                    ) extends ActionBuilder {
 
@@ -21,6 +21,6 @@ case class DubboActionBuilder[T, R](
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val dubboComponents = components(protocolComponentsRegistry)
-    new DubboAction[T, R](clazz, func, checks, dubboComponents, coreComponents, throttled, next, protocol)
+    new DubboAction[T, V](clazz, func, checks, dubboComponents, coreComponents, throttled, next, protocol)
   }
 }

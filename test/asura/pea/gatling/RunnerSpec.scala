@@ -24,7 +24,7 @@ object RunnerSpec extends StrictLogging {
       IDEPathHelper.resultsFolder.toAbsolutePath.toString,
       StringUtils.EMPTY,
     )
-    val code = GatlingRunnerActor.start(message)(global)
+    val code = GatlingRunnerActor.start(message)(global).result.await.code
     logger.info(s"Exit: ${code}")
   }
 

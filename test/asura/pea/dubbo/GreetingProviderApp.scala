@@ -1,10 +1,10 @@
 package asura.pea.dubbo
 
+import java.util.concurrent.CountDownLatch
+
 import asura.pea.dubbo.api.GreetingService
 import asura.pea.dubbo.provider.GreetingsServiceImpl
 import com.alibaba.dubbo.config.{ApplicationConfig, RegistryConfig, ServiceConfig}
-
-import scala.io.StdIn
 
 object GreetingProviderApp extends RegistryAddressConfig {
 
@@ -16,6 +16,6 @@ object GreetingProviderApp extends RegistryAddressConfig {
     service.setRef(new GreetingsServiceImpl())
     service.export()
     println(s"${service.getInterface}: ${service.getExportedUrls}")
-    StdIn.readLine()
+    new CountDownLatch(1).await()
   }
 }

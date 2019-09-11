@@ -7,14 +7,14 @@ import asura.pea.dubbo.protocol.{DubboProtocol, ProtocolModifier}
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.session.Session
 
-case class DubboDslBuilder[T, R](
+case class DubboDslBuilder[T, V](
                                   clazz: Class[T],
-                                  func: (T, Session) => R,
-                                  checks: List[DubboCheck[R]] = Nil,
+                                  func: (T, Session) => V,
+                                  checks: List[DubboCheck[V]] = Nil,
                                   var protocol: DubboProtocol = null
                                 ) extends DubboCheckSupport with ProtocolModifier {
 
-  def check(dubboChecks: DubboCheck[R]*): DubboDslBuilder[T, R] = copy[T, R](checks = checks ::: dubboChecks.toList)
+  def check(dubboChecks: DubboCheck[V]*): DubboDslBuilder[T, V] = copy[T, V](checks = checks ::: dubboChecks.toList)
 
-  def build(): ActionBuilder = DubboActionBuilder[T, R](clazz, func, checks, Option(protocol))
+  def build(): ActionBuilder = DubboActionBuilder[T, V](clazz, func, checks, Option(protocol))
 }
