@@ -2,7 +2,7 @@ package asura.pea.compiler
 
 import java.io.File
 
-import asura.common.util.{ProcessUtils, XtermUtils}
+import asura.common.util.{ProcessUtils, StringUtils, XtermUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.CompilerActor.SyncCompileMessage
 import sbt.internal.inc.{AnalysisStore => _, CompilerCache => _}
@@ -12,11 +12,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object ScalaCompiler {
 
-  val classpath = System
-    .getProperty("java.class.path")
+  private def getFullClasspath(): String = {
+    if (StringUtils.isNotEmpty(PeaConfig.compilerExtraClasspath)) {
+      s"${System.getProperty("java.class.path")}:${PeaConfig.compilerExtraClasspath}"
+    } else {
+      System.getProperty("java.class.path")
+    }
+  }
+
+  val classpath = getFullClasspath()
     .split(File.pathSeparator)
     .filter(p => {
-      // filter idea jar
+      // filter idea_rt.jar when run in idea ide
       !p.contains("idea_rt.jar")
     })
     .mkString(File.pathSeparator)

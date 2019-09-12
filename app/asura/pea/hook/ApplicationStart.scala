@@ -42,27 +42,14 @@ class ApplicationStart @Inject()(
   PeaConfig.dispatcher = system.dispatcher
   PeaConfig.materializer = ActorMaterializer()(system)
   PeaConfig.resultsFolder = configuration.get[String]("pea.results.folder")
-  PeaConfig.reportLogoHref = configuration
-    .getOptional[String]("pea.results.report.logo.href")
-    .getOrElse(null)
-  PeaConfig.reportDescHref = configuration
-    .getOptional[String]("pea.results.report.desc.href")
-    .getOrElse(null)
-  PeaConfig.reportDescContent = configuration
-    .getOptional[String]("pea.results.report.desc.content")
-    .getOrElse(null)
-  PeaConfig.defaultSimulationSourceFolder = configuration
-    .getOptional[String]("pea.worker.source")
-    .getOrElse(StringUtils.EMPTY)
-  PeaConfig.defaultSimulationOutputFolder = configuration
-    .getOptional[String]("pea.worker.output")
-    .getOrElse(StringUtils.EMPTY)
-  PeaConfig.resourcesFolder = configuration
-    .getOptional[String]("pea.worker.resources")
-    .getOrElse(StringUtils.EMPTY)
-  PeaConfig.webSimulationEditorBaseUrl = configuration
-    .getOptional[String]("pea.simulations.webEditorBaseUrl")
-    .getOrElse(StringUtils.EMPTY)
+  PeaConfig.reportLogoHref = getStringFromConfig("pea.results.report.logo.href")
+  PeaConfig.reportDescHref = getStringFromConfig("pea.results.report.desc.href")
+  PeaConfig.reportDescContent = getStringFromConfig("pea.results.report.desc.content")
+  PeaConfig.defaultSimulationSourceFolder = getStringFromConfig("pea.worker.source")
+  PeaConfig.defaultSimulationOutputFolder = getStringFromConfig("pea.worker.output")
+  PeaConfig.resourcesFolder = getStringFromConfig("pea.worker.resources")
+  PeaConfig.compilerExtraClasspath = getStringFromConfig("pea.worker.classpath")
+  PeaConfig.webSimulationEditorBaseUrl = getStringFromConfig("pea.simulations.webEditorBaseUrl")
   val enableZk = configuration.getOptional[Boolean]("pea.zk.enabled").getOrElse(false)
   if (enableZk) {
     registerToZK()
@@ -174,5 +161,9 @@ class ApplicationStart @Inject()(
         logger.error(LogUtils.stackTraceToString(t))
         System.exit(1)
     }
+  }
+
+  private def getStringFromConfig(key: String): String = {
+    configuration.getOptional[String](key).getOrElse(StringUtils.EMPTY)
   }
 }

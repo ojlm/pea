@@ -57,4 +57,5 @@ object PeaConfig {
   var defaultSimulationSourceFolder: String = null
   var defaultSimulationOutputFolder: String = null
   var webSimulationEditorBaseUrl: String = null
+  var compilerExtraClasspath: String = null
 }
