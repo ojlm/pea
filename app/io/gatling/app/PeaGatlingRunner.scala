@@ -27,6 +27,7 @@ import io.gatling.core.stats.writer.RunMessage
 import sbt.io.FileFilter
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.io.Source
@@ -97,8 +98,8 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
         }
       } catch {
         case t: Throwable =>
-          if (cancelled) { // if the engine is stopped by hand, ignore the exception
-            logger.error("Run crashed", t)
+          logger.error("Run crashed", t)
+          if (!cancelled) { // if the engine is stopped by hand, ignore the exception
             errMsg = t.getMessage
           }
           null
@@ -213,21 +214,23 @@ object PeaGatlingRunner extends StrictLogging {
     .build
 
   def getSimulationClasses(binariesDirectory: String = PeaConfig.defaultSimulationOutputFolder): Seq[SimulationModel] = {
-    try {
-      // to instantiate PeaSimulation below
-      io.gatling.core.Predef._configuration = GatlingConfiguration.load(defaultGatlingProps)
-      SimulationClassLoader(Paths.get(binariesDirectory))
-        .simulationClasses
-        .map(clazz => {
+    val simulations = ArrayBuffer[SimulationModel]()
+    // to instantiate PeaSimulation below
+    io.gatling.core.Predef._configuration = GatlingConfiguration.load(defaultGatlingProps)
+    SimulationClassLoader(Paths.get(binariesDirectory))
+      .simulationClasses
+      .foreach(clazz => {
+        try {
           val description = if (classOf[PeaSimulation].isAssignableFrom(clazz)) {
             clazz.asInstanceOf[Class[PeaSimulation]].newInstance().description
           } else {
             StringUtils.EMPTY
           }
-          SimulationModel(clazz.getName, description)
-        })
-    } catch {
-      case t: Throwable => logger.warn(LogUtils.stackTraceToString(t)); Nil
-    }
+          simulations += SimulationModel(clazz.getName, description)
+        } catch {
+          case t: Throwable => logger.warn(LogUtils.stackTraceToString(t))
+        }
+      })
+    simulations
   }
 }

@@ -58,9 +58,14 @@ class CompilerActor extends BaseActor {
     status = COMPILE_STATUS_IDLE
     if (response.success) {
       last = System.currentTimeMillis()
-      this.simulations = PeaGatlingRunner.getSimulationClasses(PeaConfig.defaultSimulationOutputFolder)
     }
+    this.simulations = PeaGatlingRunner.getSimulationClasses(PeaConfig.defaultSimulationOutputFolder)
     response
+  }
+
+  override def postStop(): Unit = {
+    super.postStop()
+    log.debug(s"${self.path} compiler stopped")
   }
 }
 

@@ -1,6 +1,7 @@
 package asura.pea.hook
 
-import java.net.{InetAddress, NetworkInterface}
+import java.io.File
+import java.net.{InetAddress, NetworkInterface, URL, URLClassLoader}
 import java.nio.charset.StandardCharsets
 import java.util
 
@@ -50,6 +51,7 @@ class ApplicationStart @Inject()(
   PeaConfig.resourcesFolder = getStringFromConfig("pea.worker.resources")
   PeaConfig.compilerExtraClasspath = getStringFromConfig("pea.worker.classpath")
   PeaConfig.webSimulationEditorBaseUrl = getStringFromConfig("pea.simulations.webEditorBaseUrl")
+  addSimulationOutputToClasspath()
   val enableZk = configuration.getOptional[Boolean]("pea.zk.enabled").getOrElse(false)
   if (enableZk) {
     registerToZK()
@@ -165,5 +167,18 @@ class ApplicationStart @Inject()(
 
   private def getStringFromConfig(key: String): String = {
     configuration.getOptional[String](key).getOrElse(StringUtils.EMPTY)
+  }
+
+  private def addSimulationOutputToClasspath(): Unit = {
+    if (StringUtils.isNotEmpty(PeaConfig.defaultSimulationOutputFolder)) {
+      try {
+        val file = new File(PeaConfig.defaultSimulationOutputFolder)
+        val method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
+        method.setAccessible(true)
+        method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
+      } catch {
+        case t: Throwable => logger.warn(LogUtils.stackTraceToString(t))
+      }
+    }
   }
 }
