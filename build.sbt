@@ -11,7 +11,8 @@ lazy val pea = Project("pea", file("."))
   .settings(publishSettings: _*)
   .dependsOn(
     peaDubbo % "compile->compile;test->test",
-  ).aggregate(peaDubbo)
+    peaGrpc % "compile->compile;test->test",
+  ).aggregate(peaDubbo, peaGrpc)
 
 // pea-app dependencies
 val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.1.2" exclude("io.gatling", "gatling-app")
@@ -33,6 +34,25 @@ lazy val peaDubbo = Project("pea-dubbo", file("pea-dubbo"))
   .settings(libraryDependencies ++= Seq(
     gatling, dubbo, curator, dubboJavassist, dubboJbossNetty, dubboSpring
   ))
+
+// pea-grpc
+val grpcNetty = "io.grpc" % "grpc-netty" % scalapb.compiler.Version.grpcJavaVersion
+val scalapbRuntime = "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
+lazy val peaGrpc = Project("pea-grpc", file("pea-grpc"))
+  .settings(commonSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(libraryDependencies ++= Seq(
+    gatling, grpcNetty, scalapbRuntime,
+  ))
+
+// options: https://github.com/thesamet/sbt-protoc
+PB.protoSources in Compile := Seq(
+  baseDirectory.value / "test/protobuf"
+)
+PB.targets in Compile := Seq(
+  scalapb.gen(grpc = true) -> baseDirectory.value / "test-generated"
+)
+unmanagedSourceDirectories in Compile += baseDirectory.value / "test-generated"
 
 // release and publish settings
 val username = "asura-pro"
