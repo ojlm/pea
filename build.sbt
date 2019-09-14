@@ -36,13 +36,18 @@ lazy val peaDubbo = Project("pea-dubbo", file("pea-dubbo"))
   ))
 
 // pea-grpc
-val grpcNetty = "io.grpc" % "grpc-netty" % scalapb.compiler.Version.grpcJavaVersion
-val scalapbRuntime = "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
+val grpcVersion = "1.22.2" // override 1.8, com.trueaccord.scalapb.compiler.Version.grpcJavaVersion
+val grpcNetty = "io.grpc" % "grpc-netty" % grpcVersion
+val scalapbRuntime = "com.trueaccord.scalapb" %% "scalapb-runtime-grpc" % com.trueaccord.scalapb.compiler.Version.scalapbVersion
+// Override the version that scalapb depends on. This adds an explicit dependency on
+// protobuf-java. This will cause sbt to evict the older version that is used by
+// scalapb-runtime.
+val protobuf = "com.google.protobuf" % "protobuf-java" % "3.7.0"
 lazy val peaGrpc = Project("pea-grpc", file("pea-grpc"))
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .settings(libraryDependencies ++= Seq(
-    gatling, grpcNetty, scalapbRuntime,
+    gatling, grpcNetty, scalapbRuntime, protobuf
   ))
 
 // options: https://github.com/thesamet/sbt-protoc
@@ -53,6 +58,7 @@ PB.targets in Compile := Seq(
   scalapb.gen(grpc = true) -> baseDirectory.value / "test-generated"
 )
 unmanagedSourceDirectories in Compile += baseDirectory.value / "test-generated"
+sourceGenerators in Compile -= (PB.generate in Compile).taskValue
 
 // release and publish settings
 val username = "asura-pro"
