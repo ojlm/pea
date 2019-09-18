@@ -17,10 +17,7 @@ case class DubboProtocol(
                           registryUrl: Option[String] = None,
                           threads: Int = 200,
                           timeout: Option[Int] = None,
-                        ) extends Protocol {
-
-  type Components = DubboComponents
-}
+                        ) extends Protocol
 
 object DubboProtocol {
 

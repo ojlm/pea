@@ -15,8 +15,9 @@ lazy val pea = Project("pea", file("."))
   ).aggregate(peaDubbo, peaGrpc)
 
 // pea-app dependencies
-val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.1.2" exclude("io.gatling", "gatling-app")
-val gatlingCompiler = "io.gatling" % "gatling-compiler" % "3.1.2"
+val gatlingVersion = "3.2.1"
+val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-app")
+val gatlingCompiler = "io.gatling" % "gatling-compiler" % gatlingVersion
 val curator = "org.apache.curator" % "curator-recipes" % "2.12.0"
 val asuraPlay = "cc.akkaha" %% "asura-play" % "0.6.0"
 

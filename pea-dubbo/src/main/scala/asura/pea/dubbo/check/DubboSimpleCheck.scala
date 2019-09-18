@@ -9,7 +9,7 @@ import io.gatling.core.session.Session
 
 final case class DubboSimpleCheck[R](func: DubboResponse[R] => Boolean) extends DubboCheck[R] {
 
-  override def check(response: DubboResponse[R], session: Session)(implicit preparedCache: JMap[Any, Any]): Validation[CheckResult] = {
+  override def check(response: DubboResponse[R], session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] = {
     if (func(response)) {
       CheckResult.NoopCheckResultSuccess
     } else {

@@ -10,7 +10,7 @@ import asura.pea.PeaConfig
 import com.typesafe.scalalogging.{Logger, StrictLogging}
 import sbt.internal.inc.classpath.ClasspathUtilities
 import sbt.internal.inc.{Locate, LoggedReporter, AnalysisStore => _, CompilerCache => _, _}
-import sbt.util.{InterfaceUtil, Level, Logger => SbtLogger}
+import sbt.util.{Level, Logger => SbtLogger}
 import xsbti.Problem
 import xsbti.compile.{CompileAnalysis, DefinesClass, PerClasspathEntryLookup, FileAnalysisStore => _, ScalaInstance => _, _}
 
@@ -24,7 +24,7 @@ class ZincCompilerInstance(
                           ) extends StrictLogging {
 
   val analysisStore = AnalysisStore.getCachedStore(FileAnalysisStore.binary(cacheFile))
-  val incrementalCompiler = new IncrementalCompilerImpl()
+  val compiler = ZincUtil.defaultIncrementalCompiler
 
   // sbt logger
   val sbtLogger = new SbtLogger {
@@ -79,17 +79,11 @@ class ZincCompilerInstance(
   val maxErrors = 100
 
   val reporter = new LoggedReporter(maxErrors, sbtLogger) {
-    override protected def logError(problem: Problem): Unit = {
-      logger.error(problem.message())
-    }
+    override protected def logError(problem: Problem): Unit = logger.error(problem.message())
 
-    override protected def logWarning(problem: Problem): Unit = {
-      logger.warn(problem.message())
-    }
+    override protected def logWarning(problem: Problem): Unit = logger.warn(problem.message())
 
-    override protected def logInfo(problem: Problem): Unit = {
-      logger.info(problem.message())
-    }
+    override protected def logInfo(problem: Problem): Unit = logger.info(problem.message())
   }
 
   val scalaCompiler = new AnalyzingCompiler(
@@ -99,17 +93,17 @@ class ZincCompilerInstance(
     onArgsHandler = _ => (),
     classLoaderCache = None
   )
-  val compilers = incrementalCompiler.compilers(scalaInstance, ClasspathOptionsUtil.boot(), None, scalaCompiler)
+  val compilers = ZincUtil.compilers(scalaInstance, ClasspathOptionsUtil.boot(), None, scalaCompiler)
   val setup =
-    incrementalCompiler.setup(
-      lookup = lookup,
-      skip = false,
-      cacheFile = cacheFile,
-      cache = CompilerCache.fresh,
-      incOptions = IncOptions.of(),
-      reporter = reporter,
-      optionProgress = None,
-      extra = Array.empty
+    Setup.of(
+      lookup, // lookup
+      false, // skip
+      cacheFile, // cacheFile
+      CompilerCache.fresh, // cache
+      IncOptions.of(), // incOptions
+      reporter, // reporter
+      Optional.empty[CompileProgress], // optionProgress
+      Array.empty // extra
     )
 
   def doCompile(config: CompilerConfiguration): CompileResponse = {
@@ -118,11 +112,22 @@ class ZincCompilerInstance(
       .deepFiles
       .collect { case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile }
       .toArray
-    val inputs = incrementalCompiler.inputs(
-      classpath = classpathFiles :+ config.binariesDirectory.toFile,
-      sources = sources,
-      classesDirectory = config.binariesDirectory.toFile,
-      scalacOptions = Array(
+    val previousResult = {
+      val analysisContents = analysisStore.get
+      if (analysisContents.isPresent) {
+        val analysisContents0 = analysisContents.get
+        val previousAnalysis = analysisContents0.getAnalysis
+        val previousSetup = analysisContents0.getMiniSetup
+        PreviousResult.of(Optional.of(previousAnalysis), Optional.of(previousSetup))
+      } else {
+        PreviousResult.of(Optional.empty[CompileAnalysis], Optional.empty[MiniSetup])
+      }
+    }
+    val options = CompileOptions.of(
+      classpathFiles :+ config.binariesDirectory.toFile, // classpath
+      sources, // sources
+      config.binariesDirectory.toFile, // classesDirectory
+      Array(
         "-encoding",
         config.encoding,
         "-target:jvm-1.8",
@@ -131,26 +136,15 @@ class ZincCompilerInstance(
         "-unchecked",
         "-language:implicitConversions",
         "-language:postfixOps"
-      ) ++ config.extraScalacOptions,
-      javacOptions = Array.empty,
-      maxErrors,
-      sourcePositionMappers = Array.empty,
-      order = CompileOrder.Mixed,
-      compilers,
-      setup,
-      incrementalCompiler.emptyPreviousResult
+      ) ++ config.extraScalacOptions, // scalacOptions
+      Array.empty, // javacOptions
+      maxErrors, // maxErrors
+      identity, // sourcePositionMappers
+      CompileOrder.Mixed, // order
+      Optional.empty[File] // temporaryClassesDirectory
     )
-    val newInputs =
-      InterfaceUtil.toOption(analysisStore.get()) match {
-        case Some(analysisContents) =>
-          val previousAnalysis = analysisContents.getAnalysis
-          val previousSetup = analysisContents.getMiniSetup
-          val previousResult = PreviousResult.of(Optional.of(previousAnalysis), Optional.of(previousSetup))
-          inputs.withPreviousResult(previousResult)
-        case _ =>
-          inputs
-      }
-    val newResult = incrementalCompiler.compile(newInputs, sbtLogger)
+    val inputs = Inputs.of(compilers, options, setup, previousResult)
+    val newResult = compiler.compile(inputs, sbtLogger)
     analysisStore.set(AnalysisContents.create(newResult.analysis(), newResult.setup()))
     CompileResponse(true, null, newResult.hasModified)
   }

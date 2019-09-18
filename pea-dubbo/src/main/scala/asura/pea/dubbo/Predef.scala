@@ -1,3 +1,5 @@
 package asura.pea.dubbo
 
-object Predef extends DubboDsl
+import asura.pea.dubbo.check.DubboCheckSupport
+
+object Predef extends DubboDsl with DubboCheckSupport

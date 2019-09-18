@@ -1,13 +1,12 @@
 package asura.pea.dubbo
 
-import asura.pea.dubbo.check.DubboCheckSupport
 import asura.pea.dubbo.protocol.{DubboProtocol, DubboProtocolBuilder}
 import asura.pea.dubbo.request.DubboDslBuilder
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 
-trait DubboDsl extends DubboCheckSupport {
+trait DubboDsl {
 
   def dubbo(implicit configuration: GatlingConfiguration) = DubboProtocolBuilder(configuration)
 

@@ -41,7 +41,7 @@ class DubboAction[T, V](
     Future(func(service, session)).onComplete {
       case Success(value) =>
         val endTime = System.currentTimeMillis()
-        val (newSession, error) = Check.check(DubboResponse(value), session, checks)
+        val (newSession, error) = Check.check(DubboResponse(value), session, checks, preparedCache = null)
         error match {
           case None =>
             statsEngine.logResponse(session, requestName, startTime, endTime, OK, None, None)

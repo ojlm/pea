@@ -1,7 +1,8 @@
 package asura.pea.dubbo.check
 
 import asura.pea.dubbo.{DubboCheck, DubboResponse}
-import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
+import com.fasterxml.jackson.databind.JsonNode
+import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.check.{CheckBuilder, CheckMaterializer, FindCheckBuilder, ValidatorCheckBuilder}
 import io.gatling.core.json.JsonParsers
 
@@ -23,5 +24,5 @@ trait DubboCheckSupport {
   implicit def findCheckBuilder2DubboCheck[A, P, X, V](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, DubboCheck[V], DubboResponse[V], P]): DubboCheck[V] =
     findCheckBuilder.find.exists
 
-  implicit def dubboJsonPathCheckMaterializer[V](implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, DubboCheck[V], DubboResponse[V], Any] = new DubboJsonPathCheckMaterializer[V](jsonParsers)
+  implicit def dubboJsonPathCheckMaterializer[V](implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, DubboCheck[V], DubboResponse[V], JsonNode] = new DubboJsonPathCheckMaterializer[V](jsonParsers)
 }
