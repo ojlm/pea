@@ -5,7 +5,7 @@ import asura.common.util.StringUtils
 import asura.pea.IDEPathHelper
 import asura.pea.actor.GatlingRunnerActor
 import asura.pea.actor.GatlingRunnerActor.StartMessage
-import asura.pea.simulations.DubboGreetingSimulation
+import asura.pea.simulations.GrpcHelloSimulation
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.concurrent.ExecutionContext.global
@@ -19,7 +19,7 @@ object RunnerSpec extends StrictLogging {
   def run(): Unit = {
     val message = StartMessage(
       IDEPathHelper.binariesFolder.toAbsolutePath.toString,
-      classOf[DubboGreetingSimulation].getName,
+      classOf[GrpcHelloSimulation].getName,
       true,
       IDEPathHelper.resultsFolder.toAbsolutePath.toString,
       StringUtils.EMPTY,

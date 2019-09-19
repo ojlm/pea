@@ -1,13 +1,15 @@
 package asura.pea.grpc.action
 
-import asura.pea.grpc.GrpcCheck
+import asura.pea.grpc.check.{GrpcCheck, ResponseExtract}
 import asura.pea.grpc.request.HeaderPair
 import io.gatling.core.action.Action
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.check.{MultipleFindCheckBuilder, ValidatorCheckBuilder}
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.grpc.{Channel, Metadata}
 
+import scala.collection.breakOut
 import scala.concurrent.Future
 
 case class GrpcActionBuilder[Req, Res](
@@ -25,4 +27,19 @@ case class GrpcActionBuilder[Req, Res](
 
   def check(checks: GrpcCheck[Res]*) =
     copy(checks = this.checks ::: checks.toList)
+
+  private def mapToList[T, U](s: Seq[T])(f: T => U) = s.map[U, List[U]](f)(breakOut)
+
+  // In fact they can be added to checks using .check, but the type Res cannot be inferred there
+  def extract[X](f: Res => Option[X])(ts: (ValidatorCheckBuilder[ResponseExtract, Res, X] => GrpcCheck[Res])*) = {
+    val e = ResponseExtract.extract(f)
+    copy(checks = checks ::: mapToList(ts)(_.apply(e)))
+  }
+
+  def exists[X](f: Res => Option[X]) = extract(f)(_.exists.build(ResponseExtract.materializer))
+
+  def extractMultiple[X](f: Res => Option[Seq[X]])(ts: (MultipleFindCheckBuilder[ResponseExtract, Res, X] => GrpcCheck[Res])*) = {
+    val e = ResponseExtract.extractMultiple[Res, X](f)
+    copy(checks = checks ::: mapToList(ts)(_.apply(e)))
+  }
 }
