@@ -19,11 +19,11 @@ package io.gatling.app
 import scala.Console._
 import scala.annotation.tailrec
 import scala.io.StdIn
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.commons.util.StringHelper._
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.config.{GatlingConfiguration, GatlingFiles}
 import io.gatling.core.scenario.Simulation
 
 case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)
@@ -46,7 +46,7 @@ object Selection {
             if (configuration.core.directory.reportsOnly.isDefined) {
               Nil
             } else {
-              SimulationClassLoader(GatlingFiles.binariesDirectory(configuration)).simulationClasses.sortBy(_.getName)
+              SimulationClassLoader().simulationClasses.sortBy(_.getName)
             }
 
           singleSimulationFromConfig(simulationClasses, userDefinedSimulationClass)
@@ -136,4 +136,5 @@ object Selection {
     private def defaultOutputDirectoryBaseName(clazz: Class[Simulation], configuration: GatlingConfiguration) =
       configuration.core.outputDirectoryBaseName.getOrElse(clazz.getSimpleName.clean)
   }
+
 }

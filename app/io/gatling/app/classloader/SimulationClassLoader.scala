@@ -20,15 +20,22 @@ import java.io.File
 import java.lang.reflect.Modifier
 import java.nio.file.Path
 
-import scala.util.Properties
-
+import asura.pea.PeaConfig
+import asura.pea.compiler.ReloadableClassLoader
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.scenario.Simulation
 
+import scala.util.Properties
+
 private[app] object SimulationClassLoader {
 
-  def apply(binariesDirectory: Path): SimulationClassLoader =
-    new SimulationClassLoader(selectClassLoaderImplementation(binariesDirectory), binariesDirectory)
+  //  def apply(binariesDirectory: Path): SimulationClassLoader =
+  //    new SimulationClassLoader(selectClassLoaderImplementation(binariesDirectory), binariesDirectory)
+
+  def apply(binariesDirectory: String = PeaConfig.defaultSimulationOutputFolder): SimulationClassLoader = {
+    val reloadCl = new ReloadableClassLoader(getClass.getClassLoader, binariesDirectory)
+    new SimulationClassLoader(reloadCl, binariesDirectory)
+  }
 
   private def selectClassLoaderImplementation(binariesDirectory: Path): ClassLoader =
     if (isInClasspath(binariesDirectory)) getClass.getClassLoader

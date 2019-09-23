@@ -4,7 +4,6 @@
 package io.gatling.app
 
 import java.io.{File, PrintWriter}
-import java.nio.file.Paths
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.pattern.ask
@@ -216,8 +215,10 @@ object PeaGatlingRunner extends StrictLogging {
   def getSimulationClasses(binariesDirectory: String = PeaConfig.defaultSimulationOutputFolder): Seq[SimulationModel] = {
     val simulations = ArrayBuffer[SimulationModel]()
     // to instantiate PeaSimulation below
-    io.gatling.core.Predef._configuration = GatlingConfiguration.load(defaultGatlingProps)
-    SimulationClassLoader(Paths.get(binariesDirectory))
+    if (null == io.gatling.core.Predef._configuration) {
+      io.gatling.core.Predef._configuration = GatlingConfiguration.load(defaultGatlingProps)
+    }
+    SimulationClassLoader(binariesDirectory)
       .simulationClasses
       .foreach(clazz => {
         try {
