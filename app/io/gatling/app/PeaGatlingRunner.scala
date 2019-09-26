@@ -10,7 +10,9 @@ import akka.pattern.ask
 import asura.common.util.{LogUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.{GatlingResult, PeaGatlingRunResult}
+import asura.pea.dubbo.protocol.DubboProtocol
 import asura.pea.gatling.{PeaDataWritersStatsEngine, PeaSimulation}
+import asura.pea.grpc.protocol.GrpcProtocol
 import asura.pea.model.SimulationModel
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.app.classloader.SimulationClassLoader
@@ -21,8 +23,10 @@ import io.gatling.core.config.{GatlingConfiguration, GatlingFiles, GatlingProper
 import io.gatling.core.controller.inject.Injector
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.controller.{Controller, ControllerCommand}
+import io.gatling.core.protocol.Protocols
 import io.gatling.core.scenario.{Scenario, SimulationParams}
 import io.gatling.core.stats.writer.RunMessage
+import io.gatling.http.protocol.HttpProtocol
 import sbt.io.FileFilter
 
 import scala.collection.mutable
@@ -222,16 +226,46 @@ object PeaGatlingRunner extends StrictLogging {
       .simulationClasses
       .foreach(clazz => {
         try {
-          val description = if (classOf[PeaSimulation].isAssignableFrom(clazz)) {
-            clazz.asInstanceOf[Class[PeaSimulation]].newInstance().description
+          val model = if (classOf[PeaSimulation].isAssignableFrom(clazz)) {
+            val simulation = clazz.asInstanceOf[Class[PeaSimulation]].newInstance()
+            val params = simulation.params(io.gatling.core.Predef._configuration)
+            SimulationModel(clazz.getName, getProtocols(params), simulation.description)
           } else {
-            StringUtils.EMPTY
+            val simulation = clazz.newInstance()
+            val params = simulation.params(io.gatling.core.Predef._configuration)
+            SimulationModel(clazz.getName, getProtocols(params))
           }
-          simulations += SimulationModel(clazz.getName, description)
+          simulations += model
         } catch {
           case t: Throwable => logger.warn(LogUtils.stackTraceToString(t))
         }
       })
     simulations
+  }
+
+  private def getProtocols(params: SimulationParams): Seq[String] = {
+    val set = mutable.Set[String]()
+    if (null != params.globalProtocols && null != params.globalProtocols.protocols) {
+      parseProtocols(set, params.globalProtocols)
+    }
+    if (null != params.populationBuilders && null != params.populationBuilders) {
+      params.populationBuilders.foreach(builder => {
+        parseProtocols(set, builder.scenarioProtocols)
+      })
+    }
+    set.toSeq
+  }
+
+  private def parseProtocols(set: mutable.Set[String], protocols: Protocols): Unit = {
+    if (null != protocols && null != protocols.protocols) {
+      protocols.protocols.foreach(p => {
+        p._2 match {
+          case _: HttpProtocol => set += "http"
+          case _: DubboProtocol => set += "dubbo"
+          case _: GrpcProtocol => set += "grpc"
+          case _ => set += "unknown"
+        }
+      })
+    }
   }
 }

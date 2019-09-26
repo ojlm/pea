@@ -1,3 +1,9 @@
 package asura.pea.model
 
-case class SimulationModel(name: String, description: String)
+import asura.common.util.StringUtils
+
+case class SimulationModel(
+                            name: String,
+                            protocols: Seq[String],
+                            description: String = StringUtils.EMPTY
+                          )
