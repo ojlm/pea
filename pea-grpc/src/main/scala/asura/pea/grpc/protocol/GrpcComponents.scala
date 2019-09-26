@@ -2,17 +2,14 @@ package asura.pea.grpc.protocol
 
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
-import io.grpc.ManagedChannelBuilder
+import io.grpc.ManagedChannel
 
 case class GrpcComponents(
-                           channelBuilder: ManagedChannelBuilder[_],
+                           channel: ManagedChannel,
                          ) extends ProtocolComponents {
 
-  val channel = channelBuilder.build()
 
   override def onStart: Session => Session = ProtocolComponents.NoopOnStart
 
-  override def onExit: Session => Unit = { _ =>
-    if (null != channel) channel.shutdownNow()
-  }
+  override def onExit: Session => Unit = ProtocolComponents.NoopOnExit
 }

@@ -33,7 +33,7 @@ class GrpcHelloSimulation extends PeaSimulation {
           statusCode is Status.Code.OK,
         )
         .extract(_.reply.some)(
-          _.is("hi,m pea")
+          _.is("hi, pea")
         )
         .extractMultiple(_.reply.split(" ").toSeq.some)(
           _.count is 2,
@@ -43,6 +43,6 @@ class GrpcHelloSimulation extends PeaSimulation {
     )
 
   setUp(
-    scn.inject(atOnceUsers(1000))
+    scn.inject(atOnceUsers(10000))
   ).protocols(grpcProtocol)
 }

@@ -18,7 +18,11 @@ object GrpcProtocol {
       throw new IllegalStateException("Can't provide a default value for GrpcProtocol")
 
     override def newComponents(coreComponents: CoreComponents): GrpcProtocol => GrpcComponents = { protocol =>
-      GrpcComponents(protocol.channelBuilder)
+      val channel = protocol.channelBuilder.build()
+      coreComponents.actorSystem.registerOnTermination {
+        channel.shutdownNow()
+      }
+      GrpcComponents(channel)
     }
   }
 }
