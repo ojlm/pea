@@ -33,7 +33,7 @@ private[app] object SimulationClassLoader {
   //    new SimulationClassLoader(selectClassLoaderImplementation(binariesDirectory), binariesDirectory)
 
   def apply(binariesDirectory: String = PeaConfig.defaultSimulationOutputFolder): SimulationClassLoader = {
-    val reloadCl = new ReloadableClassLoader(getClass.getClassLoader, binariesDirectory)
+    val reloadCl = new ReloadableClassLoader(Thread.currentThread().getContextClassLoader, binariesDirectory)
     new SimulationClassLoader(reloadCl, binariesDirectory)
   }
 
