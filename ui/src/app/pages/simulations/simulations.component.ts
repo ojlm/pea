@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { NzMessageService, NzModalService } from 'ng-zorro-antd'
 import { HomeService, WorkerData } from 'src/app/api/home.service'
-import { SimulationModel } from 'src/app/model/pea.model'
+import { MemberStatus, SimulationModel } from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-simulations',
@@ -83,6 +83,14 @@ export class SimulationsComponent implements OnInit {
       this.editorBaseUrl = res.data.editorBaseUrl
       this.simulations = res.data.simulations
     })
+  }
+
+  statusColor(item: SelectWorkerData) {
+    if (MemberStatus.IDLE === item.status.status) {
+      return 'lightseagreen'
+    } else {
+      return 'lightcoral'
+    }
   }
 
   loadWorkersData() {

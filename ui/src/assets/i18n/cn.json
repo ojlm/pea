@@ -45,6 +45,7 @@
   "tips.selectAndCompile": "选择节点&编译脚本",
   "tips.compilerOutput": "编译器输出",
   "tips.simulationList": "脚本列表",
+  "tips.refreshNodes": "刷新节点状态",
   "injection.rampUsers": "线性增长",
   "injection.heavisideUsers": "阶跃函数增长",
   "injection.atOnceUsers": "一次性",

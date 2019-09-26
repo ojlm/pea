@@ -8,6 +8,11 @@
   }
 }
 
+.list {
+  max-height: 360px;
+  overflow: auto;
+}
+
 i.reload {
   color: lightseagreen;
   font-size: 14px;

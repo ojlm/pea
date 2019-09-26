@@ -1,4 +1,10 @@
 <div class="members-selector" style="width:100%;text-align:center;">
+  <div style="text-align:left;margin-bottom:4px;">
+    <span style="color:lightseagreen;">
+      <i class="click-icon" nz-icon nzType="sync" nzTheme="outline" (click)="loadData()"></i>
+      <span>{{'tips.refreshNodes'|translate}}</span>
+    </span>
+  </div>
   <nz-transfer [nzDataSource]="list" [nzRender]="render" nzShowSearch [nzTitles]="titles" [nzListStyle]="listStyle"
     [nzItemUnit]="'item.node'|translate" [nzItemsUnit]="'item.nodes'|translate" [nzFilterOption]="filterOption"
     (nzChange)="change($event)">
@@ -6,6 +12,7 @@
       <span class="item">
         <i nz-icon nzType="number" nzTheme="outline"></i>
         <span>{{item.member.address}}:{{item.member.port}}</span>
+        <span style="margin: 0 4px;" [style.color]="statusColor(item)">{{item.status.status}}</span>
       </span>
       <span class="hostname">{{item.member.hostname}}</span>
     </ng-template>

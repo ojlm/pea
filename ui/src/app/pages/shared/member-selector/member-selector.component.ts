@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core'
 import { TranslateService } from '@ngx-translate/core'
 import { HomeService, WorkerData } from 'src/app/api/home.service'
-import { PeaMember } from 'src/app/model/pea.model'
+import { MemberStatus } from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-member-selector',
@@ -40,8 +40,8 @@ export class MemberSelectorComponent implements OnInit, AfterViewInit {
     private el: ElementRef,
   ) { }
 
-  filterOption(term: string, item: PeaMember): boolean {
-    return item.address.indexOf(term) > -1 || item.port.toString().indexOf(term) > -1 || item.hostname.indexOf(term) > -1
+  filterOption(term: string, item: TransferMember): boolean {
+    return item.member.address.indexOf(term) > -1 || item.member.port.toString().indexOf(term) > -1 || item.member.hostname.indexOf(term) > -1
   }
 
   change(ret: {}): void {
@@ -65,10 +65,27 @@ export class MemberSelectorComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngOnInit(): void {
+  statusColor(item: TransferMember) {
+    if (MemberStatus.IDLE === item.status.status) {
+      return 'lightseagreen'
+    } else {
+      return 'lightcoral'
+    }
+  }
+
+  loadData() {
     this.homeService.getWorkers().subscribe(res => {
-      this.list = res.data
+      this.list = res.data.map(item => {
+        if (MemberStatus.IDLE !== item.status.status) {
+          (item as TransferMember).disabled = true
+        }
+        return item
+      })
     })
+  }
+
+  ngOnInit(): void {
+    this.loadData()
   }
 
   ngAfterViewInit(): void {
@@ -83,5 +100,5 @@ export class MemberSelectorComponent implements OnInit, AfterViewInit {
 export interface TransferMember extends WorkerData {
   direction?: string
   checked?: boolean
-  hide?: boolean
+  disabled?: boolean
 }

@@ -23,7 +23,7 @@
           <nz-option *ngFor="let item of simulations" [nzValue]="item" [nzLabel]="item.name" nzCustomContent>
             <div>
               <div class="option-title">
-                <i nz-icon nzType="code" nzTheme="outline"></i>
+                <nz-tag *ngFor="let p of item.protocols" style="margin-bottom:4px;">{{p}}</nz-tag>
                 <span>{{item.name}}</span>
               </div>
               <div class="option-desc">{{item.description}}</div>
@@ -31,7 +31,10 @@
           </nz-option>
         </nz-select>
       </nz-input-group>
-      <div *ngIf="simulation&&simulation.description" class="desc" (click)="edit()">{{simulation.description}}</div>
+      <div *ngIf="simulation&&simulation.description" class="desc" (click)="edit()">
+        <nz-tag [nzColor]="'cyan'" *ngFor="let p of simulation.protocols">{{p}}</nz-tag>
+        {{simulation.description}}
+      </div>
     </nz-tab>
     <nz-tab [nzTitle]="'item.request'|translate">
       <nz-input-group style="width:100%;" [nzAddOnBefore]="nameTpl">

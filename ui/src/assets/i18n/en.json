@@ -45,6 +45,7 @@
   "tips.selectAndCompile": "Select and Compile",
   "tips.compilerOutput": "Compiler",
   "tips.simulationList": "Simulation List",
+  "tips.refreshNodes": "Refresh Nodes",
   "injection.rampUsers": "rampUsers",
   "injection.heavisideUsers": "heavisideUsers",
   "injection.atOnceUsers": "atOnceUsers",

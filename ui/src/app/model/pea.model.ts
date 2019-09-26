@@ -54,6 +54,7 @@ export interface ReporterJobStatus {
 
 export interface SimulationModel {
   name?: string
+  protocols?: string[]
   description?: string
 }
 

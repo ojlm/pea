@@ -5,11 +5,13 @@
       <i class="click-icon reload" nz-icon nzType="sync" nzTheme="outline" (click)="loadSimulationsData()"></i>
     </ng-template>
   </nz-divider>
-  <nz-list [nzDataSource]="simulations" nzBordered nzSize="small" [nzRenderItem]="item">
+  <nz-list class="list" [nzDataSource]="simulations" nzBordered nzSize="small" [nzRenderItem]="item">
     <ng-template #item let-item>
       <nz-list-item [nzActions]="[actions]">
         <div class="sim">
           <a (click)="edit(item)">{{item.name}}</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <nz-tag *ngFor="let p of item.protocols" [nzColor]="'cyan'" style="margin:0px;padding:0px 4px;">{{p}}</nz-tag>
           <nz-divider nzType="vertical"></nz-divider>
           <span class="desc">{{item.description}}</span>
         </div>
@@ -46,6 +48,7 @@
             <i nz-icon nzType="number" nzTheme="outline"></i>
             <span>{{item.member.address}}:{{item.member.port}}</span>
           </span>
+          <span style="margin: 0 4px;" [style.color]="statusColor(item)">{{item.status.status}}</span>
           <span class="hostname">{{item.member.hostname}}</span>
         </label>
       </div>
