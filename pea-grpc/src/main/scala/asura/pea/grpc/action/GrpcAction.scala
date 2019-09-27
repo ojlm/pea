@@ -15,6 +15,8 @@ import io.gatling.core.util.NameGen
 import io.grpc.stub.MetadataUtils
 import io.grpc.{Channel, ClientInterceptors, Metadata}
 
+import scala.util.Try
+
 case class GrpcAction[Req, Res](
                                  builder: GrpcActionBuilder[Req, Res],
                                  ctx: ScenarioContext,
@@ -82,9 +84,22 @@ case class GrpcAction[Req, Res](
           case Success(value) => Some(value.getCode.toString)
           case Failure(_) => None
         },
-        checkError.map(_.message)
+        getMessage(checkError, response)
       )
       next ! newSession
     })
+  }
+
+  private def getMessage(checkError: Option[Failure], response: Try[Res]): Option[String] = {
+    if (checkError.nonEmpty) {
+      val defaultErrMsg = checkError.get.message
+      val failureMsg = response match {
+        case util.Failure(exception) => exception.getMessage
+        case _ => ""
+      }
+      Some(s"${defaultErrMsg}(${failureMsg})")
+    } else {
+      None
+    }
   }
 }
