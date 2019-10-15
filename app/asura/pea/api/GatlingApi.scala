@@ -17,6 +17,7 @@ import asura.pea.actor.WebCompilerMonitorActor.WebCompilerMonitorOptions
 import asura.pea.actor.WebWorkerMonitorActor.WebWorkerMonitorOptions
 import asura.pea.actor.WorkerActor.{GetNodeStatusMessage, StopEngine}
 import asura.pea.actor.{WebCompilerMonitorActor, WebWorkerMonitorActor}
+import asura.pea.model.ResourceModels.{ResourceCheckRequest, ResourceInfo}
 import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
@@ -108,6 +109,19 @@ class GatlingApi @Inject()(
       }
     } else {
       OkApiRes(ApiResError(s"File is not there: ${file.getAbsolutePath}"))
+    }
+  }
+
+  def checkResource() = Action(parse.byteString).async { implicit req =>
+    checkWorkerEnable {
+      val request = req.bodyAs(classOf[ResourceCheckRequest])
+      val file = new File(s"${PeaConfig.resourcesFolder}${File.separator}${request.file}")
+      val info = if (file.exists()) {
+        ResourceInfo(true, file.isDirectory, file.length(), file.lastModified())
+      } else {
+        ResourceInfo(false, false)
+      }
+      Future.successful(info).toOkResult
     }
   }
 

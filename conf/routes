@@ -20,5 +20,6 @@ POST        /api/gatling/compile                  asura.pea.api.GatlingApi.compi
 GET         /api/gatling/compiler                 asura.pea.api.GatlingApi.compiler()
 POST        /api/gatling/simulation               asura.pea.api.GatlingApi.runSimulation()
 GET         /api/gatling/simulation/:runId        asura.pea.api.GatlingApi.getSimulationLog(runId)
+POST        /api/gatling/resource/check           asura.pea.api.GatlingApi.checkResource()
 
 GET         /*file                                asura.pea.api.HomeApi.asset(file)
