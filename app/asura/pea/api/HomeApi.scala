@@ -35,7 +35,7 @@ class HomeApi @Inject()(
                          val controllerComponents: SecurityComponents,
                          val assets: Assets,
                          val errorHandler: HttpErrorHandler,
-                       ) extends BaseApi with CommonFunctions with StrictLogging {
+                       ) extends BaseApi with CommonChecks with StrictLogging {
 
   def index() = assets.at("index.html")
 
@@ -161,14 +161,6 @@ class HomeApi @Inject()(
       } else {
         FutureErrorResult("Empty request")
       }
-    }
-  }
-
-  private def checkReporterEnable(func: => Future[Result]): Future[Result] = {
-    if (PeaConfig.enableReporter) {
-      func
-    } else {
-      FutureErrorResult("Role reporter is disabled")
     }
   }
 }

@@ -17,14 +17,13 @@ import asura.pea.actor.WebCompilerMonitorActor.WebCompilerMonitorOptions
 import asura.pea.actor.WebWorkerMonitorActor.WebWorkerMonitorOptions
 import asura.pea.actor.WorkerActor.{GetNodeStatusMessage, StopEngine}
 import asura.pea.actor.{WebCompilerMonitorActor, WebWorkerMonitorActor}
-import asura.pea.model.ResourceModels.{ResourceCheckRequest, ResourceInfo}
 import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
 import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Singleton}
 import org.pac4j.play.scala.SecurityComponents
-import play.api.mvc.{Result, WebSocket}
+import play.api.mvc.WebSocket
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +34,7 @@ class GatlingApi @Inject()(
                             implicit val exec: ExecutionContext,
                             implicit val mat: Materializer,
                             val controllerComponents: SecurityComponents
-                          ) extends BaseApi with CommonFunctions with StrictLogging {
+                          ) extends BaseApi with CommonChecks with StrictLogging {
 
   def stop() = Action.async { implicit req =>
     checkWorkerEnable {
@@ -112,19 +111,6 @@ class GatlingApi @Inject()(
     }
   }
 
-  def checkResource() = Action(parse.byteString).async { implicit req =>
-    checkWorkerEnable {
-      val request = req.bodyAs(classOf[ResourceCheckRequest])
-      val file = new File(s"${PeaConfig.resourcesFolder}${File.separator}${request.file}")
-      val info = if (file.exists()) {
-        ResourceInfo(true, file.isDirectory, file.length(), file.lastModified())
-      } else {
-        ResourceInfo(false, false)
-      }
-      Future.successful(info).toOkResult
-    }
-  }
-
   def stringToActorEventFlow[T <: AnyRef](workActor: ActorRef, msgClass: Class[T]): Flow[String, String, NotUsed] = {
     val incomingMessages: Sink[String, NotUsed] =
       Flow[String].map {
@@ -139,13 +125,5 @@ class GatlingApi @Inject()(
         .map(result => JsonUtils.stringify(result))
         .keepAlive(PeaConfig.KEEP_ALIVE_INTERVAL seconds, () => StringUtils.EMPTY)
     Flow.fromSinkAndSource(incomingMessages, outgoingMessages)
-  }
-
-  def checkWorkerEnable(func: => Future[Result]): Future[Result] = {
-    if (PeaConfig.enableWorker) {
-      func
-    } else {
-      FutureErrorResult("Role worker is disabled")
-    }
   }
 }
