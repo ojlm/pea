@@ -20,8 +20,9 @@ val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVer
 val gatlingCompiler = "io.gatling" % "gatling-compiler" % gatlingVersion
 val curator = "org.apache.curator" % "curator-recipes" % "2.12.0"
 val asuraPlay = "cc.akkaha" %% "asura-play" % "0.6.0"
+val oshiCore = "com.github.oshi" % "oshi-core" % "4.0.0"
 
-libraryDependencies ++= Seq(gatling, gatlingCompiler, curator, asuraPlay)
+libraryDependencies ++= Seq(gatling, gatlingCompiler, curator, asuraPlay, oshiCore)
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
 
 // pea-dubbo dependencies, specify javassist and jbossnetty deps because of coursier dep resolve problems
