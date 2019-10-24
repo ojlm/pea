@@ -26,11 +26,18 @@ import scala.concurrent.duration._
 class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
 
   implicit val ec = context.dispatcher
+  val DEFAULT_TIME_INTERVAL = 10 seconds
   val runId = self.path.name
   val jobNode = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}/${runId}"
+  // whether worker node was started
+  val workerStartedMap = mutable.Map[String, Boolean]()
   val jobStatus = {
     val workersStatus = mutable.Map[String, JobWorkerStatus]()
-    workers.foreach(worker => workersStatus += (worker.toAddress -> JobWorkerStatus()))
+    workers.foreach(worker => {
+      val addressKey = worker.toAddress
+      workersStatus += (addressKey -> JobWorkerStatus())
+      workerStartedMap += (addressKey -> false)
+    })
     ReporterJobStatus(
       status = MemberStatus.REPORTER_RUNNING, // only `running` or `finished`
       runId = runId,
@@ -63,6 +70,8 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       }
     case PushStatusToZk =>
       pushJobStatusToZk()
+    case TryCheckWorkersIdleStatus => // check whether worker is 'idle' manually
+      tryCheckWorkersIdleStatus()
     case msg: Any =>
       log.warning(s"Unsupported message type: ${msg}")
       stopSelf()
@@ -72,23 +81,27 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     * worker status flow: 'idle'(initial) -> 'running' -> 'idle'
     */
   def handleWorkerStatusChangeEvent(worker: PeaMember, workerStatus: MemberStatus): Unit = {
+    val addressKey = worker.toAddress
+    val jobWorkerStatus = this.jobStatus.workers(addressKey)
     if (null != workerStatus) {
-      log.debug(
-        s"worker(${worker.toAddress}) status: ${workerStatus.status}, " +
-          s"start: ${workerStatus.start}, end: ${workerStatus.end}, " +
-          s"runId: ${workerStatus.runId}"
-      )
-      // worker should only be idle
-      if (MemberStatus.WORKER_RUNNING.equals(workerStatus.status)) {
-        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
-      } else if (MemberStatus.WORKER_IDLE.equals(workerStatus.status)) {
-        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_GATHERING, workerStatus.errMsg))
-        downloadSimulationLog(worker) pipeTo self
-      } else {
-        // code should not run here
-        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, workerStatus.status))
+      if (!workerStatus.status.equals(jobWorkerStatus.status)) {
+        log.debug(
+          s"worker(${addressKey}) status: ${workerStatus.status}, " +
+            s"start: ${workerStatus.start}, end: ${workerStatus.end}, " +
+            s"runId: ${workerStatus.runId}"
+        )
+        // worker should only be idle
+        if (MemberStatus.WORKER_RUNNING.equals(workerStatus.status)) {
+          jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
+        } else if (MemberStatus.WORKER_IDLE.equals(workerStatus.status)) {
+          jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_GATHERING, workerStatus.errMsg))
+          downloadSimulationLog(worker) pipeTo self
+        } else {
+          // code should not run here
+          jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, workerStatus.status))
+        }
+        self ! PushStatusToZk
       }
-      self ! PushStatusToZk
     } else {
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, "Node unavailable"))
       self ! PushStatusToZk
@@ -96,17 +109,20 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     }
   }
 
-  private def dealServiceResponse(worker: PeaMember, futureRes: Future[ApiRes]): Future[Done] = {
+  private def dealSendJobResponse(worker: PeaMember, futureRes: Future[ApiRes]): Future[Done] = {
+    val addressKey = worker.toAddress
     futureRes.map(res => {
-      if (ApiCode.OK.equals(res.code)) { // something wrong after idle status checked
-        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
-      } else {
-        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, res.msg))
+      if (ApiCode.OK.equals(res.code)) {
+        jobStatus.workers += (addressKey -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
+      } else { // something wrong after idle status checked
+        jobStatus.workers += (addressKey -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, res.msg))
       }
+      this.workerStartedMap(addressKey) = true
       Done
     }).recover {
       case t: Throwable =>
-        jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, t.getMessage))
+        jobStatus.workers += (addressKey -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, t.getMessage))
+        this.workerStartedMap(addressKey) = true
         Done
     }
   }
@@ -117,13 +133,18 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       case msg: SingleHttpScenarioMessage =>
         watchWorkerNode(worker)
         val futureRes = PeaService.sendSingleHttpScenario(worker, msg)
-        dealServiceResponse(worker, futureRes)
+        dealSendJobResponse(worker, futureRes)
       case msg: RunSimulationMessage =>
         watchWorkerNode(worker)
         val futureRes = PeaService.sendSimulation(worker, msg)
-        dealServiceResponse(worker, futureRes)
+        dealSendJobResponse(worker, futureRes)
     })
-    Future.sequence(doneFutures).map(_ => self ! PushStatusToZk)
+    Future.sequence(doneFutures).map(_ => {
+      self ! PushStatusToZk
+      context.system.scheduler.scheduleOnce(DEFAULT_TIME_INTERVAL) {
+        self ! TryCheckWorkersIdleStatus
+      }
+    })
   }
 
   def watchWorkerNode(worker: PeaMember): Unit = {
@@ -170,7 +191,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
         }
         jobStatus.status = MemberStatus.REPORTER_FINISHED
         self ! PushStatusToZk
-        context.system.scheduler.scheduleOnce(10 seconds) {
+        context.system.scheduler.scheduleOnce(DEFAULT_TIME_INTERVAL) {
           // destroy self after 10 seconds
           stopSelf()
         }
@@ -202,6 +223,35 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       .forPath(jobNode, JsonUtils.stringify(jobStatus).getBytes(StandardCharsets.UTF_8))
   }
 
+  // check if all workers are idle, because of undependable zk node cache status
+  def tryCheckWorkersIdleStatus(): Unit = {
+    val needCheckWorkers = this.workers.filter(member => {
+      val addressKey = member.toAddress
+      val jobWorkerStatus = this.jobStatus.workers(addressKey)
+      !this.workerStartedMap(addressKey) || (this.workerStartedMap(addressKey) && MemberStatus.WORKER_RUNNING.equals(jobWorkerStatus.status))
+    })
+    if (needCheckWorkers.nonEmpty) {
+      val futures = needCheckWorkers.map(member => {
+        PeaService.getMemberStatus(member)
+          .map(response => {
+            if (ApiCode.OK == response.code) {
+              self ! JobWorkerStatusChange(member, response.data)
+            } else {
+              self ! JobWorkerStatusChange(member, MemberStatus(status = MemberStatus.REPORTER_WORKER_IIL, errMsg = response.msg))
+            }
+          })
+          .recover { case t: Throwable =>
+            self ! JobWorkerStatusChange(member, MemberStatus(status = MemberStatus.REPORTER_WORKER_IIL, errMsg = t.getMessage))
+          }
+      })
+      Future.sequence(futures).map(_ => {
+        context.system.scheduler.scheduleOnce(DEFAULT_TIME_INTERVAL) {
+          self ! TryCheckWorkersIdleStatus
+        }
+      })
+    }
+  }
+
   def stopSelf(): Unit = {
     context stop self
   }
@@ -227,5 +277,7 @@ object ReporterWorkersActor {
   case class DownloadSimulationFinished(worker: PeaMember, file: File)
 
   case object TryGenerateReport
+
+  case object TryCheckWorkersIdleStatus
 
 }
