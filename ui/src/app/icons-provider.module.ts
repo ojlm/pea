@@ -5,6 +5,7 @@ import {
   DeleteOutline,
   DesktopOutline,
   DotChartOutline,
+  InfoCircleOutline,
   MenuFoldOutline,
   MenuUnfoldOutline,
   NumberOutline,
@@ -32,6 +33,7 @@ const icons = [
   ScheduleOutline,
   RadarChartOutline,
   SyncOutline,
+  InfoCircleOutline,
 ]
 
 @NgModule({

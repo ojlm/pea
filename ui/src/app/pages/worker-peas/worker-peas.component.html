@@ -2,6 +2,12 @@
   <ng-template #item let-item>
     <nz-list-item>
       <div class="pea-item">
+        <i nz-icon nzType="info-circle" nzTheme="outline" style="margin-right:4px;color:lightcoral;" nz-popover
+          nzPopoverPlacement="topLeft" [nzPopoverContent]="contentTpl">
+        </i>
+        <ng-template #contentTpl>
+          <app-oshi-info [data]="item.status.oshi"></app-oshi-info>
+        </ng-template>
         <span class="pea-addr">
           <i nz-icon nzType="number" nzTheme="outline"></i>
           <span>{{item.member.address}}:{{item.member.port}}</span>

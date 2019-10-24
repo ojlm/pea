@@ -116,6 +116,15 @@ export interface WorkersAvailable {
   runId?: string
 }
 
+export interface Oshi {
+  os?: string
+  'memory.total'?: number
+  'memory.available'?: number
+  'cpu.name'?: number
+  'cpu.physical.processor.count'?: number
+  'cpu.logical.processor.count'?: number
+}
+
 export const TimeUnit = {
   TIME_UNIT_MILLI: 'milli',
   TIME_UNIT_SECOND: 'second',

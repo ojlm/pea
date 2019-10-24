@@ -10,6 +10,12 @@
     (nzChange)="change($event)">
     <ng-template #render let-item>
       <span class="item">
+        <i nz-icon nzType="info-circle" nzTheme="outline" style="margin-right:4px;color:lightcoral;" nz-popover
+          nzPopoverPlacement="topLeft" [nzPopoverContent]="contentTpl">
+        </i>
+        <ng-template #contentTpl>
+          <app-oshi-info [data]="item.status.oshi"></app-oshi-info>
+        </ng-template>
         <i nz-icon nzType="number" nzTheme="outline"></i>
         <span>{{item.member.address}}:{{item.member.port}}</span>
         <span style="margin: 0 4px;" [style.color]="statusColor(item)">{{item.status.status}}</span>

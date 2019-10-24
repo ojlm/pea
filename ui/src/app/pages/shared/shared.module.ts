@@ -7,12 +7,14 @@ import { NgZorroAntdModule } from 'ng-zorro-antd'
 
 import { InjectionsBuilderComponent } from './injections-builder/injections-builder.component'
 import { MemberSelectorComponent } from './member-selector/member-selector.component'
+import { OshiInfoComponent } from './oshi-info/oshi-info.component'
 import { PeaMemberComponent } from './pea-member/pea-member.component'
 
 const COMPONENTS = [
   PeaMemberComponent,
   InjectionsBuilderComponent,
   MemberSelectorComponent,
+  OshiInfoComponent,
 ]
 
 const ENTRY_COMPONENTS = [

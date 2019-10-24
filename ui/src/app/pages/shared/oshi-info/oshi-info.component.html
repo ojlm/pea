@@ -1,0 +1,26 @@
+<div>
+  <div class="item">
+    <span class="label">os:</span>
+    <span class="value">{{oshi.os}}</span>
+  </div>
+  <div class="item">
+    <span class="label">cpu.name:</span>
+    <span class="value">{{oshi['cpu.name']}}</span>
+  </div>
+  <div class="item">
+    <span class="label">cpu.physical.processor.count:</span>
+    <span class="value">{{oshi['cpu.physical.processor.count']}}</span>
+  </div>
+  <div class="item">
+    <span class="label">cpu.logical.processor.count:</span>
+    <span class="value">{{oshi['cpu.logical.processor.count']}}</span>
+  </div>
+  <div class="item">
+    <span class="label">memory.total:</span>
+    <span class="value">{{formatMemorySize(oshi['memory.total'])}} GB</span>
+  </div>
+  <div class="item">
+    <span class="label">memory.available:</span>
+    <span class="value">{{formatMemorySize(oshi['memory.available'])}} GB</span>
+  </div>
+</div>
