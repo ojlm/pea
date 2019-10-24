@@ -2,24 +2,23 @@ package asura.pea.hook
 
 import java.io.File
 import java.net.{InetAddress, NetworkInterface, URL, URLClassLoader}
-import java.nio.charset.StandardCharsets
 import java.util
 
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
-import asura.common.util.{JsonUtils, LogUtils, StringUtils}
+import asura.common.util.{LogUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.CompilerActor.SyncCompileMessage
+import asura.pea.actor.WorkerActor.WatchSelf
 import asura.pea.actor.{CompilerMonitorActor, ReporterActor, WorkerActor, WorkerMonitorActor}
 import asura.pea.compiler.CompileResponse
 import asura.pea.http.HttpClient
-import asura.pea.model.{MemberStatus, PeaMember}
+import asura.pea.model.PeaMember
 import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Singleton}
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.framework.api.ACLProvider
-import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.zookeeper.data.ACL
 import org.apache.zookeeper.{CreateMode, ZooDefs}
@@ -62,6 +61,10 @@ class ApplicationStart @Inject()(
   PeaConfig.workerActor = system.actorOf(WorkerActor.props())
   PeaConfig.workerMonitorActor = system.actorOf(WorkerMonitorActor.props())
   PeaConfig.compilerMonitorActor = system.actorOf(CompilerMonitorActor.props())
+
+  if (enableZk) {
+    PeaConfig.workerActor ! WatchSelf
+  }
 
   // compile simulations at startup
   if (configuration.getOptional[Boolean]("pea.simulations.compileAtStartup").getOrElse(false)) {
@@ -123,26 +126,9 @@ class ApplicationStart @Inject()(
     PeaConfig.zkClient = builder.build()
     PeaConfig.zkClient.start()
     try {
-      var nodeCache: NodeCache = null
       if (configuration.getOptional[Boolean]("pea.zk.role.worker").getOrElse(true)) {
         PeaConfig.enableWorker = true
         PeaConfig.zkCurrWorkerPath = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_WORKERS}/${PeaConfig.zkCurrNode}"
-        val nodeData = JsonUtils.stringify(MemberStatus()).getBytes(StandardCharsets.UTF_8)
-        PeaConfig.zkClient.create()
-          .creatingParentsIfNeeded()
-          .withMode(CreateMode.EPHEMERAL)
-          .forPath(PeaConfig.zkCurrWorkerPath, nodeData)
-        nodeCache = new NodeCache(PeaConfig.zkClient, PeaConfig.zkCurrWorkerPath)
-        nodeCache.start()
-        nodeCache.getListenable.addListener(new NodeCacheListener {
-          override def nodeChanged(): Unit = {
-            val memberStatus = JsonUtils.parse(
-              new String(nodeCache.getCurrentData.getData, StandardCharsets.UTF_8),
-              classOf[MemberStatus]
-            )
-            PeaConfig.workerActor ! memberStatus
-          }
-        })
       }
       if (configuration.getOptional[Boolean]("pea.zk.role.reporter").getOrElse(false)) {
         PeaConfig.enableReporter = true
@@ -154,7 +140,6 @@ class ApplicationStart @Inject()(
       }
       lifecycle.addStopHook { () =>
         Future {
-          if (null != nodeCache) nodeCache.close()
           PeaConfig.zkClient.close()
         }
       }

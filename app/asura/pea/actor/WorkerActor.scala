@@ -13,8 +13,11 @@ import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.WorkerActor._
 import asura.pea.model.{LoadMessage, MemberStatus, RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.pea.{ErrorMessages, PeaConfig}
+import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
+import org.apache.zookeeper.CreateMode
 
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
 class WorkerActor extends BaseActor {
 
@@ -23,11 +26,15 @@ class WorkerActor extends BaseActor {
   implicit val ec = context.dispatcher
   val compilerActor = context.actorOf(CompilerActor.props())
   val gatlingRunnerActor = context.actorOf(GatlingRunnerActor.props())
+  var nodeCache: NodeCache = null
+  var isRegistering = false
   var engineCancelable: Cancellable = null
 
   override def receive: Receive = {
-    case msg: MemberStatus => // send from listener
-      log.debug(s"Current node data change to: ${msg}")
+    case WatchSelf =>
+      watchSelfNode()
+    case TryReWatchSelf =>
+      tryReWatchSelfNode()
     case GetNodeStatusMessage =>
       sender() ! memberStatus
     case GetAllSimulations =>
@@ -131,11 +138,58 @@ class WorkerActor extends BaseActor {
       .setData()
       .forPath(PeaConfig.zkCurrWorkerPath, JsonUtils.stringify(memberStatus).getBytes(StandardCharsets.UTF_8))
   }
+
+  private def tryReWatchSelfNode(): Unit = {
+    if (!isRegistering) {
+      isRegistering = true
+      val stat = PeaConfig.zkClient.checkExists().forPath(PeaConfig.zkCurrWorkerPath)
+      if (null == stat) {
+        watchSelfNode()
+      }
+      isRegistering = false
+    }
+  }
+
+  private def watchSelfNode(): Unit = {
+    val nodeData = JsonUtils.stringify(this.memberStatus).getBytes(StandardCharsets.UTF_8)
+    PeaConfig.zkClient.create()
+      .creatingParentsIfNeeded()
+      .withMode(CreateMode.EPHEMERAL)
+      .forPath(PeaConfig.zkCurrWorkerPath, nodeData)
+    if (nodeCache == null) {
+      nodeCache = new NodeCache(PeaConfig.zkClient, PeaConfig.zkCurrWorkerPath)
+      nodeCache.start(true)
+      nodeCache.getListenable.addListener(new NodeCacheListener {
+        override def nodeChanged(): Unit = {
+          val currentData = nodeCache.getCurrentData
+          if (null != currentData) {
+            val nodeData = new String(currentData.getData, StandardCharsets.UTF_8)
+            val memberStatus = JsonUtils.parse(nodeData, classOf[MemberStatus])
+            log.debug(s"Current node data change to: ${memberStatus}")
+          } else { // node was removed
+            log.debug(s"${PeaConfig.zkCurrWorkerPath} was removed, will register it self again after 10 seconds")
+            context.system.scheduler.scheduleOnce(10 seconds) {
+              self ! TryReWatchSelf
+            }
+          }
+        }
+      })
+    }
+  }
+
+  override def postStop(): Unit = {
+    super.postStop()
+    if (null != nodeCache) nodeCache.close()
+  }
 }
 
 object WorkerActor {
 
   def props() = Props(new WorkerActor())
+
+  case object WatchSelf
+
+  case object TryReWatchSelf
 
   case object GetNodeStatusMessage
 
