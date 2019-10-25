@@ -141,6 +141,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     })
     Future.sequence(doneFutures).map(_ => {
       self ! PushStatusToZk
+      self ! TryGenerateReport // condition when nodes may be ill
       context.system.scheduler.scheduleOnce(DEFAULT_TIME_INTERVAL) {
         self ! TryCheckWorkersIdleStatus
       }
