@@ -11,7 +11,7 @@ import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor._
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.WorkerActor._
-import asura.pea.model.{LoadMessage, MemberStatus, RunSimulationMessage, SingleHttpScenarioMessage}
+import asura.pea.model._
 import asura.pea.{ErrorMessages, PeaConfig}
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.apache.zookeeper.CreateMode
@@ -134,6 +134,7 @@ class WorkerActor extends BaseActor {
   }
 
   private def pushToZk(): Unit = {
+    memberStatus.oshi = OshiInfo.getOshiInfo()
     PeaConfig.zkClient
       .setData()
       .forPath(PeaConfig.zkCurrWorkerPath, JsonUtils.stringify(memberStatus).getBytes(StandardCharsets.UTF_8))

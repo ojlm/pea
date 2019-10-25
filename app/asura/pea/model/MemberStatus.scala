@@ -10,7 +10,7 @@ import asura.common.util.StringUtils
   * @param end    end time of last job
   * @param code   code of last job
   * @param errMsg error message of last job
-  * @param  oshi  Operating System and Hardware Information
+  * @param  oshi  operating system and hardware information
   */
 case class MemberStatus(
                          var status: String = MemberStatus.WORKER_IDLE,
