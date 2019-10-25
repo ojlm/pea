@@ -63,6 +63,11 @@ class DubboGreetingSimulation extends PeaSimulation {
 
 ---
 
+### 视频演示
+
+> https://www.bilibili.com/video/av73339161/
+<iframe src="//player.bilibili.com/player.html?aid=73339161&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
 ### 截图示例
 
 `创建任务`
