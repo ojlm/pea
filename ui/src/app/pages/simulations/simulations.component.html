@@ -45,6 +45,12 @@
         <label style="width:100%;" nz-checkbox [nzValue]="item" [(ngModel)]="item.checked"
           (ngModelChange)="updateSingleChecked()">
           <span class="item">
+            <i nz-icon nzType="info-circle" nzTheme="outline" style="margin-right:4px;color:lightcoral;" nz-popover
+              nzPopoverPlacement="topLeft" [nzPopoverContent]="contentTpl">
+            </i>
+            <ng-template #contentTpl>
+              <app-oshi-info [data]="item.status.oshi"></app-oshi-info>
+            </ng-template>
             <i nz-icon nzType="number" nzTheme="outline"></i>
             <span>{{item.member.address}}:{{item.member.port}}</span>
           </span>
