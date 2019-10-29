@@ -6,10 +6,12 @@ case class SingleHttpScenarioMessage(
                                       var name: String,
                                       var request: SingleRequest,
                                       var injections: Seq[Injection],
-                                      val report: Boolean = true,
+                                      var report: Boolean = true,
                                       var simulationId: String = null,
                                       var start: Long = 0L,
                                     ) extends LoadMessage {
+
+  val `type`: String = LoadTypes.SINGLE
 
   def isValid(): Exception = {
     if (null == request || StringUtils.isEmpty(request.url)) {

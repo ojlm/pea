@@ -4,10 +4,12 @@ import asura.common.util.StringUtils
 
 case class RunSimulationMessage(
                                  var simulation: String,
-                                 val report: Boolean = true,
+                                 var report: Boolean = true,
                                  var simulationId: String = null,
                                  var start: Long = 0L
                                ) extends LoadMessage {
+
+  val `type`: String = LoadTypes.SCRIPT
 
   def isValid(): Exception = {
     if (StringUtils.isEmpty(simulation)) {

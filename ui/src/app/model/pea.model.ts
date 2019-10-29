@@ -50,6 +50,7 @@ export interface ReporterJobStatus {
   start?: number
   end?: number
   workers?: { [k: string]: JobWorkerStatus }
+  load?: SingleHttpScenarioMessage & RunSimulationMessage
 }
 
 export interface SimulationModel {
@@ -84,21 +85,22 @@ export interface Injection {
   during?: During
 }
 
-export interface SingleHttpScenarioMessage {
+export interface LoadMessage {
+  simulationId?: string
+  start?: number
+  report?: boolean
+  verbose?: boolean
+  type?: string
+}
+
+export interface SingleHttpScenarioMessage extends LoadMessage {
   name?: string
   request?: SingleRequest
   injections?: Injection[]
-  report?: boolean
-  simulationId?: string
-  start?: number
-  verbose?: boolean
 }
 
-export interface RunSimulationMessage {
+export interface RunSimulationMessage extends LoadMessage {
   simulation?: string
-  report?: boolean
-  simulationId?: string
-  start?: number
 }
 
 export interface SingleHttpScenarioJob {

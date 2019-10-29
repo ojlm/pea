@@ -128,7 +128,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   }
 
   def watchWorkersAndSendLoad(load: LoadMessage): Unit = {
-    initJobNode()
+    initJobNode(load)
     val doneFutures = workers.map(worker => load match {
       case msg: SingleHttpScenarioMessage =>
         watchWorkerNode(worker)
@@ -199,7 +199,8 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       })
   }
 
-  def initJobNode(): Unit = {
+  def initJobNode(load: LoadMessage): Unit = {
+    jobStatus.load = load
     PeaConfig.zkClient.create()
       .creatingParentsIfNeeded()
       .withMode(CreateMode.EPHEMERAL)
