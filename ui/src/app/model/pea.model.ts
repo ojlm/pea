@@ -91,6 +91,7 @@ export interface SingleHttpScenarioMessage {
   report?: boolean
   simulationId?: string
   start?: number
+  verbose?: boolean
 }
 
 export interface RunSimulationMessage {

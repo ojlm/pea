@@ -18,6 +18,7 @@ POST        /api/gatling/single                   asura.pea.api.GatlingApi.singl
 GET         /api/gatling/monitor                  asura.pea.api.GatlingApi.monitor()
 POST        /api/gatling/compile                  asura.pea.api.GatlingApi.compile()
 GET         /api/gatling/compiler                 asura.pea.api.GatlingApi.compiler()
+GET         /api/gatling/response                 asura.pea.api.GatlingApi.response()
 POST        /api/gatling/simulation               asura.pea.api.GatlingApi.runSimulation()
 GET         /api/gatling/simulation/:runId        asura.pea.api.GatlingApi.getSimulationLog(runId)
 POST        /api/gatling/resource/check           asura.pea.api.ResourceApi.checkResource()

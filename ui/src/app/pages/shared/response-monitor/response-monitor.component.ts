@@ -2,40 +2,40 @@ import { AfterViewInit, Component, ElementRef, Input, OnDestroy } from '@angular
 import { NzMessageService } from 'ng-zorro-antd'
 import { Subject } from 'rxjs'
 import { GatlingService } from 'src/app/api/gatling.service'
-import { WorkerData } from 'src/app/api/home.service'
 import { XtermService } from 'src/app/api/xterm.service'
 import { ActorEvent, ActorEventType } from 'src/app/model/api.model'
+import { PeaMember } from 'src/app/model/pea.model'
 import { Terminal } from 'xterm'
 import { fit } from 'xterm/lib/addons/fit/fit'
 import { webLinksInit } from 'xterm/lib/addons/webLinks/webLinks'
 
 @Component({
-  selector: 'app-compiler-output',
-  templateUrl: './compiler-output.component.html',
-  styleUrls: ['./compiler-output.component.css']
+  selector: 'app-response-monitor',
+  templateUrl: './response-monitor.component.html',
+  styleUrls: ['./response-monitor.component.css']
 })
-export class CompilerOutputComponent implements AfterViewInit, OnDestroy {
+export class ResponseMonitorComponent implements AfterViewInit, OnDestroy {
 
-  addr = ''
   ws: WebSocket
   log: Subject<string> = new Subject()
   xterm = new Terminal(this.xtermService.getDefaultOption())
 
   @Input()
-  set data(data: WorkerData) {
-    this.addr = `${data.member.address}:${data.member.port}`
-    this.ws = this.gatlingService.compiler(data.member)
-    this.ws.onopen = (event) => { }
-    this.ws.onmessage = (event) => {
-      if (event.data) {
-        try {
-          const res = JSON.parse(event.data) as ActorEvent<string>
-          if (ActorEventType.NOTIFY === res.type) {
-            this.log.next(res.msg)
+  set data(data: PeaMember) {
+    if (data) {
+      this.ws = this.gatlingService.response(data)
+      this.ws.onopen = (event) => { }
+      this.ws.onmessage = (event) => {
+        if (event.data) {
+          try {
+            const res = JSON.parse(event.data) as ActorEvent<string>
+            if (ActorEventType.NOTIFY === res.type) {
+              this.log.next(res.msg)
+            }
+          } catch (error) {
+            this.msgService.error(error)
+            this.ws.close()
           }
-        } catch (error) {
-          this.msgService.error(error)
-          this.ws.close()
         }
       }
     }

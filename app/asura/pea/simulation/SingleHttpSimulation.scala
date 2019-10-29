@@ -1,8 +1,10 @@
 package asura.pea.simulation
 
 import asura.common.util.StringUtils
+import asura.pea.actor.ResponseMonitorActor
+import asura.pea.gatling.PeaSimulation
 import asura.pea.model.{During, Injection, SingleRequest}
-import asura.pea.singleHttpScenario
+import asura.pea.{PeaConfig, singleHttpScenario}
 import io.gatling.core.Predef._
 import io.gatling.core.controller.inject.open.OpenInjectionStep
 import io.gatling.http.Predef._
@@ -10,14 +12,27 @@ import io.gatling.http.request.builder.HttpRequestBuilder
 
 import scala.concurrent.duration._
 
-class SingleHttpSimulation extends Simulation {
+class SingleHttpSimulation extends PeaSimulation {
+
+  val KEY_BODY = "BODY"
+  val KEY_STATUS = "STATUS"
+  override val description: String = getClass.getName
 
   val scnName = StringUtils.notEmptyElse(
     singleHttpScenario.name,
     classOf[SingleHttpSimulation].getSimpleName
   )
 
-  val scn = scenario(scnName).exec(toAction(singleHttpScenario.request))
+  val scn = scenario(scnName)
+    .exec(toAction(singleHttpScenario.request))
+    .exec(session => {
+      if (singleHttpScenario.verbose && null != PeaConfig.responseMonitorActor && session.contains(KEY_BODY)) {
+        val status = session(KEY_STATUS).as[Int]
+        val response = session(KEY_BODY).as[String]
+        PeaConfig.responseMonitorActor ! ResponseMonitorActor.formatResponse(status, response)
+      }
+      session
+    })
 
   setUp(
     scn.inject(
@@ -53,9 +68,17 @@ class SingleHttpSimulation extends Simulation {
   }
 
   def toAction(request: SingleRequest): HttpRequestBuilder = {
-    http(StringUtils.notEmptyElse(request.name, "REQUEST"))
+    val builder = http(StringUtils.notEmptyElse(request.name, "REQUEST"))
       .httpRequest(request.method, request.url)
       .headers(request.getHeaders())
       .body(StringBody(request.getBody()))
+    if (singleHttpScenario.verbose) {
+      builder.check(
+        bodyString.saveAs(KEY_BODY),
+        status.saveAs(KEY_STATUS),
+      )
+    } else {
+      builder
+    }
   }
 }

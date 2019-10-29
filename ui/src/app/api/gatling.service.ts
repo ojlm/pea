@@ -35,4 +35,14 @@ export class GatlingService extends BaseService {
     }
     return ws
   }
+
+  response(member: PeaMember) {
+    const ws = newWS(`${this.API_BASE}/gatling/response`, `${member.address}:${member.port}`)
+    ws.onerror = (event) => {
+      console.error(event)
+      this.msgService.warning(this.wsErrMsg)
+    }
+    return ws
+  }
+
 }

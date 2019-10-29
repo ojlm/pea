@@ -11,7 +11,7 @@ import asura.common.util.{LogUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.CompilerActor.SyncCompileMessage
 import asura.pea.actor.WorkerActor.WatchSelf
-import asura.pea.actor.{CompilerMonitorActor, ReporterActor, WorkerActor, WorkerMonitorActor}
+import asura.pea.actor._
 import asura.pea.compiler.CompileResponse
 import asura.pea.http.HttpClient
 import asura.pea.model.PeaMember
@@ -61,6 +61,7 @@ class ApplicationStart @Inject()(
   PeaConfig.workerActor = system.actorOf(WorkerActor.props())
   PeaConfig.workerMonitorActor = system.actorOf(WorkerMonitorActor.props())
   PeaConfig.compilerMonitorActor = system.actorOf(CompilerMonitorActor.props())
+  PeaConfig.responseMonitorActor = system.actorOf(ResponseMonitorActor.props())
 
   if (enableZk) {
     PeaConfig.workerActor ! WatchSelf

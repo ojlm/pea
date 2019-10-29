@@ -39,6 +39,7 @@ export class WorkerPeasComponent implements OnInit {
   stop(item: WorkerData) {
     this.homeService.stopWorkers([item.member]).subscribe(res => {
       if (res.data.result) {
+        this.loadData()
         this.messageService.success('OK')
       } else {
         this.modalService.create({
@@ -51,9 +52,13 @@ export class WorkerPeasComponent implements OnInit {
     })
   }
 
-  ngOnInit() {
+  loadData() {
     this.homeService.getWorkers().subscribe(res => {
       this.items = res.data
     })
+  }
+
+  ngOnInit() {
+    this.loadData()
   }
 }

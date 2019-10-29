@@ -3,7 +3,14 @@ import { NzMessageService } from 'ng-zorro-antd'
 import { GatlingService } from 'src/app/api/gatling.service'
 import { WorkerData } from 'src/app/api/home.service'
 import { ActorEvent, ActorEventType } from 'src/app/model/api.model'
-import { JobWorkerStatus, MonitorData, PeaUserCounters, RequestCounters, TotalCounters } from 'src/app/model/pea.model'
+import {
+  JobWorkerStatus,
+  MonitorData,
+  PeaMember,
+  PeaUserCounters,
+  RequestCounters,
+  TotalCounters,
+} from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-pea-member',
@@ -14,9 +21,11 @@ export class PeaMemberComponent implements OnDestroy {
 
   ws: WebSocket
 
+  consoleVisible = false
   complete = false
   start = ''
   run = ''
+  member: PeaMember
   status: JobWorkerStatus = {}
   global: RequestCounters = {}
   total: TotalCounters = {}
@@ -27,6 +36,7 @@ export class PeaMemberComponent implements OnDestroy {
   @Input()
   set data(data: WorkerData) {
     this.status = data.status
+    this.member = data.member
     this.ws = this.gatlingService.monitor(data.member)
     this.ws.onopen = (event) => { }
     this.ws.onmessage = (event) => {
@@ -48,6 +58,10 @@ export class PeaMemberComponent implements OnDestroy {
     private gatlingService: GatlingService,
     private msgService: NzMessageService,
   ) { }
+
+  showConsole() {
+    this.consoleVisible = true
+  }
 
   handleMonitorData(data: MonitorData) {
     this.complete = data.complete

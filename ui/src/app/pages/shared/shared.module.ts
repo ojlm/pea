@@ -9,12 +9,14 @@ import { InjectionsBuilderComponent } from './injections-builder/injections-buil
 import { MemberSelectorComponent } from './member-selector/member-selector.component'
 import { OshiInfoComponent } from './oshi-info/oshi-info.component'
 import { PeaMemberComponent } from './pea-member/pea-member.component'
+import { ResponseMonitorComponent } from './response-monitor/response-monitor.component'
 
 const COMPONENTS = [
   PeaMemberComponent,
   InjectionsBuilderComponent,
   MemberSelectorComponent,
   OshiInfoComponent,
+  ResponseMonitorComponent,
 ]
 
 const ENTRY_COMPONENTS = [

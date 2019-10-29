@@ -46,6 +46,7 @@
   "tips.compilerOutput": "Compiler",
   "tips.simulationList": "Simulation List",
   "tips.refreshNodes": "Refresh Nodes",
+  "tips.printResponse": "Print Response",
   "injection.rampUsers": "rampUsers",
   "injection.heavisideUsers": "heavisideUsers",
   "injection.atOnceUsers": "atOnceUsers",

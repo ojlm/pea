@@ -17,6 +17,10 @@
       <span class="label">{{'item.fail.count'|translate}}: </span>
       <span class="value">{{global.failedCount}}</span>
     </span>
+    <nz-divider nzType="vertical"></nz-divider>
+    <span (click)="showConsole()" [title]="'tips.printResponse'|translate">
+      <i class="click-icon" style="color:purple;" nz-icon nzType="code" nzTheme="outline"></i>
+    </span>
   </div>
   <div class="title">
     <span>
@@ -93,6 +97,9 @@
         </tr>
       </tbody>
     </nz-table>
+  </div>
+  <div *ngIf="consoleVisible" class="console">
+    <app-response-monitor [data]="member"></app-response-monitor>
   </div>
 </div>
 <nz-empty *ngIf="!start"></nz-empty>

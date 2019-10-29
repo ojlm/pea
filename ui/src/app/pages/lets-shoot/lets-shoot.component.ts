@@ -22,7 +22,7 @@ import {
 export class LetsShootComponent implements OnInit {
 
   METHODS = [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT]
-  tabIndex = 0
+  tabIndex = 1
   loading = false
 
   innerRequest: SingleHttpScenarioMessage = {

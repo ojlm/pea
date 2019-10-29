@@ -24,3 +24,10 @@
   padding: 0px;
   color: lightslategray;
 }
+
+.console {
+  margin-top: 4px;
+  padding: 4px;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+}

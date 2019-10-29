@@ -8,7 +8,7 @@ case class SingleHttpScenarioMessage(
                                       var injections: Seq[Injection],
                                       val report: Boolean = true,
                                       var simulationId: String = null,
-                                      var start: Long = 0L
+                                      var start: Long = 0L,
                                     ) extends LoadMessage {
 
   def isValid(): Exception = {

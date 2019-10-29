@@ -66,6 +66,9 @@
           <span style="font-size:smaller;">{{'item.injections'|translate}}</span>
         </ng-template>
       </nz-divider>
+      <label style="margin-bottom:4px;color:lightseagreen;width:100%;" nz-checkbox [(ngModel)]="innerRequest.verbose">
+        <span>{{'tips.printResponse'|translate}}</span>
+      </label>
       <app-injections-builder [(data)]="innerRequest.injections"></app-injections-builder>
     </nz-tab>
   </nz-tabset>
