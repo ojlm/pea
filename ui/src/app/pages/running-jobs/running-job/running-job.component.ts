@@ -13,7 +13,6 @@ export class RunningJobComponent implements OnInit, OnDestroy {
   runId = ''
   job: ReporterJobStatus = {}
   members: WorkerData[] = []
-  startTime = ''
 
   constructor(
     private route: ActivatedRoute,
@@ -28,7 +27,6 @@ export class RunningJobComponent implements OnInit, OnDestroy {
     if (this.runId) {
       this.homeService.getJobDetails(this.runId).subscribe(res => {
         this.job = res.data
-        this.startTime = new Date(res.data.start).toLocaleString()
         this.members = Object.keys(res.data.workers).map(key => {
           const addr = key.split(':')
           return { member: { address: addr[0], port: parseInt(addr[1], 10) } }

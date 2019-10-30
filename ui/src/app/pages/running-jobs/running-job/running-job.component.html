@@ -1,18 +1,5 @@
 <div>
-  <div class="title">
-    <span class="item">
-      <i nz-icon nzType="number" nzTheme="outline"></i>
-      <span>{{job.runId}}</span>
-    </span>
-    <span class="item time">
-      <i nz-icon nzType="schedule" nzTheme="outline"></i>
-      <span>{{startTime}}</span>
-    </span>
-    <span class="item status">
-      <i nz-icon nzType="radar-chart" nzTheme="outline"></i>
-      <span>{{job.status}}</span>
-    </span>
-  </div>
+  <app-job-summary [data]="job"></app-job-summary>
   <div>
     <div class="member" *ngFor="let item of members">
       <nz-divider [nzText]="addrTpl" nzOrientation="left">

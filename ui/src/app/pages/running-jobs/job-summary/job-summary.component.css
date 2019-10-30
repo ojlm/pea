@@ -1,0 +1,50 @@
+.title {
+  font-weight: 500;
+}
+
+.item i {
+  color: lightseagreen;
+}
+
+.item span {
+  margin-left: 4px;
+}
+
+.time {
+  margin-left: 8px;
+}
+
+.status {
+  margin-left: 16px;
+  color: purple;
+}
+
+.inj-type>i {
+  color: lightseagreen;
+}
+
+.inj-type>span {
+  color: gray;
+  font-size: small;
+  padding-left: 4px;
+}
+
+.inj-sum {
+  margin-left: 4px;
+}
+
+.inj-sum>i {
+  color: lightseagreen;
+}
+
+.inj-sum>span {
+  color: gray;
+  font-size: small;
+  padding-left: 4px;
+}
+
+.injections {
+  padding-top: 4px;
+  margin-top: 4px;
+  border-top: 1px solid lightgray;
+}
