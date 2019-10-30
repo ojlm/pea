@@ -18,10 +18,11 @@ class SingleHttpSimulation extends PeaSimulation {
   val KEY_STATUS = "STATUS"
   override val description: String = getClass.getName
 
-  val scnName = StringUtils.notEmptyElse(
-    singleHttpScenario.name,
-    classOf[SingleHttpSimulation].getSimpleName
-  )
+  val scnName = if (StringUtils.isNotEmpty(singleHttpScenario.name)) {
+    singleHttpScenario.name
+  } else {
+    StringUtils.notEmptyElse(singleHttpScenario.request.name, classOf[SingleHttpSimulation].getSimpleName)
+  }
 
   val scn = scenario(scnName)
     .exec(toAction(singleHttpScenario.request))
