@@ -13,13 +13,15 @@ import asura.pea.PeaConfig
 import asura.pea.PeaConfig._
 import asura.pea.actor.CompilerActor.AsyncCompileMessage
 import asura.pea.http.HttpClient
-import asura.pea.model.{MemberStatus, PeaMember, RunSimulationMessage, SingleHttpScenarioMessage}
+import asura.pea.model._
 import com.typesafe.scalalogging.Logger
 
 import scala.collection.mutable
 import scala.concurrent.Future
 
 object PeaService {
+
+  type LoadFunction = (PeaMember, LoadMessage) => Future[ApiRes]
 
   val logger = Logger(getClass)
 
@@ -107,7 +109,7 @@ object PeaService {
     Future.sequence(futures).map(_ => WorkersAvailable(errors.isEmpty, errors))
   }
 
-  def sendSingleHttpScenario(member: PeaMember, load: SingleHttpScenarioMessage): Future[ApiRes] = {
+  def sendSingleHttpScenario(member: PeaMember, load: LoadMessage): Future[ApiRes] = {
     HttpClient.wsClient
       .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/single")
       .post(JsonUtils.stringify(load))
@@ -116,9 +118,18 @@ object PeaService {
       })
   }
 
-  def sendSimulation(member: PeaMember, load: RunSimulationMessage): Future[ApiRes] = {
+  def sendSimulation(member: PeaMember, load: LoadMessage): Future[ApiRes] = {
     HttpClient.wsClient
       .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/simulation")
+      .post(JsonUtils.stringify(load))
+      .map(response => {
+        JsonUtils.parse(response.body[String], classOf[ApiRes])
+      })
+  }
+
+  def sendProgram(member: PeaMember, load: LoadMessage): Future[ApiRes] = {
+    HttpClient.wsClient
+      .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/program")
       .post(JsonUtils.stringify(load))
       .map(response => {
         JsonUtils.parse(response.body[String], classOf[ApiRes])

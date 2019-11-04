@@ -18,7 +18,7 @@ import asura.pea.actor.WebResponseMonitorActor.WebResponseMonitorOptions
 import asura.pea.actor.WebWorkerMonitorActor.WebWorkerMonitorOptions
 import asura.pea.actor.WorkerActor.{GetNodeStatusMessage, StopEngine}
 import asura.pea.actor.{WebCompilerMonitorActor, WebResponseMonitorActor, WebWorkerMonitorActor}
-import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
+import asura.pea.model.{RunProgramMessage, RunSimulationMessage, SingleHttpScenarioMessage}
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
 import com.typesafe.scalalogging.StrictLogging
@@ -64,6 +64,18 @@ class GatlingApi @Inject()(
   def runSimulation() = Action(parse.byteString).async { implicit req =>
     checkWorkerEnable {
       val message = req.bodyAs(classOf[RunSimulationMessage])
+      val exception = message.isValid()
+      if (null != exception) {
+        Future.failed(exception)
+      } else {
+        (PeaConfig.workerActor ? message).toOkResult
+      }
+    }
+  }
+
+  def runProgram() = Action(parse.byteString).async { implicit req =>
+    checkWorkerEnable {
+      val message = req.bodyAs(classOf[RunProgramMessage])
       val exception = message.isValid()
       if (null != exception) {
         Future.failed(exception)

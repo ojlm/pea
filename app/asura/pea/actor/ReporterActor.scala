@@ -7,7 +7,7 @@ import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.common.util.JsonUtils
 import asura.pea.PeaConfig
-import asura.pea.actor.ReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob, WorkerData}
+import asura.pea.actor.ReporterActor._
 import asura.pea.model._
 import asura.pea.service.PeaService
 import asura.pea.service.PeaService.WorkersAvailable
@@ -29,6 +29,8 @@ class ReporterActor extends BaseActor {
       checkAndStartJob(workers, request) pipeTo sender()
     case RunSimulationJob(workers, request) =>
       checkAndStartJob(workers, request) pipeTo sender()
+    case msg: RunProgramJob =>
+      checkAndStartJobs(msg) pipeTo sender()
     case GetAllWorkers =>
       sender() ! getWorkersData()
     case message: Any =>
@@ -74,6 +76,21 @@ class ReporterActor extends BaseActor {
       })
   }
 
+  private def checkAndStartJobs(message: LoadJob): Future[WorkersAvailable] = {
+    val workers = message.jobs.map(_.worker)
+    PeaService.isWorkersAvailable(workers)
+      .map(res => {
+        if (res.available) {
+          val start = System.currentTimeMillis()
+          message.simulationId = PeaConfig.hostname
+          message.start = start
+          res.runId = PeaService.generateRunId(PeaConfig.hostname, start)
+          context.actorOf(ReporterWorkersActor.props(workers), res.runId) ! message
+        }
+        res
+      })
+  }
+
   override def postStop(): Unit = {
     super.postStop()
     if (null != this.workersCache) this.workersCache.close()
@@ -85,14 +102,20 @@ object ReporterActor {
   def props() = Props(new ReporterActor())
 
   case class SingleHttpScenarioJob(
-                                    workers: Seq[PeaMember],
-                                    request: SingleHttpScenarioMessage,
+                                    override val workers: Seq[PeaMember],
+                                    override val request: SingleHttpScenarioMessage,
                                   ) extends LoadJob
 
   case class RunSimulationJob(
-                               workers: Seq[PeaMember],
-                               request: RunSimulationMessage,
+                               override val workers: Seq[PeaMember],
+                               override val request: RunSimulationMessage,
                              ) extends LoadJob
+
+  case class RunProgramJob(
+                            override val jobs: Seq[SingleJob]
+                          ) extends LoadJob {
+    val `type`: String = LoadTypes.PROGRAM
+  }
 
   case object GetAllWorkers
 

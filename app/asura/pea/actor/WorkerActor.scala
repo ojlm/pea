@@ -10,6 +10,7 @@ import asura.common.util.{JsonUtils, StringUtils}
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor._
 import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
+import asura.pea.actor.ProgramRunnerActor.ProgramResult
 import asura.pea.actor.WorkerActor._
 import asura.pea.model._
 import asura.pea.{ErrorMessages, PeaConfig}
@@ -26,6 +27,7 @@ class WorkerActor extends BaseActor {
   implicit val ec = context.dispatcher
   val compilerActor = context.actorOf(CompilerActor.props())
   val gatlingRunnerActor = context.actorOf(GatlingRunnerActor.props())
+  val programRunnerActor = context.actorOf(ProgramRunnerActor.props())
   var nodeCache: NodeCache = null
   var isRegistering = false
   var engineCancelable: Cancellable = null
@@ -45,6 +47,8 @@ class WorkerActor extends BaseActor {
       doSingleHttpScenario(msg) pipeTo sender()
     case msg: RunSimulationMessage =>
       runSimulation(msg) pipeTo sender()
+    case msg: RunProgramMessage =>
+      runProgram(msg) pipeTo sender()
     case StopEngine =>
       sender() ! tryStopEngine()
     case UpdateRunningStatus(runId) =>
@@ -70,6 +74,31 @@ class WorkerActor extends BaseActor {
       }
     }
     result
+  }
+
+  def runProgram(message: RunProgramMessage): Future[String] = {
+    if (MemberStatus.WORKER_IDLE.equals(memberStatus.status)) {
+      val futureRunResult = (programRunnerActor ? message).asInstanceOf[Future[ProgramResult]]
+      futureRunResult.map(runResult => {
+        engineCancelable = new Cancellable {
+          override def cancel(): Boolean = {
+            self ! UpdateEndStatus(-1, "Program is canceled")
+            runResult.cancel.cancel()
+          }
+
+          override def isCancelled: Boolean = false
+        }
+        self ! UpdateRunningStatus(runResult.runId)
+        runResult.result.map(code => {
+          self ! UpdateEndStatus(code, null)
+        }).recover {
+          case t: Throwable => t.getMessage
+        }
+        runResult.runId
+      })
+    } else {
+      ErrorMessages.error_BusyStatus.toFutureFail
+    }
   }
 
   def runSimulation(message: RunSimulationMessage): Future[String] = {

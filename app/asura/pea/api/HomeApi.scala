@@ -12,7 +12,7 @@ import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor.{AsyncCompileMessage, GetAllSimulations}
-import asura.pea.actor.ReporterActor.{GetAllWorkers, RunSimulationJob, SingleHttpScenarioJob}
+import asura.pea.actor.ReporterActor.{GetAllWorkers, RunProgramJob, RunSimulationJob, SingleHttpScenarioJob}
 import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, WorkersRequest}
 import asura.pea.service.PeaService
 import asura.play.api.BaseApi
@@ -130,6 +130,13 @@ class HomeApi @Inject()(
     }
   }
 
+  def runProgram() = Action(parse.byteString).async { implicit req =>
+    checkReporterEnable {
+      val message = req.bodyAs(classOf[RunProgramJob])
+      loadJob(message)
+    }
+  }
+
   def simulations() = Action(parse.byteString).async { implicit req =>
     (PeaConfig.workerActor ? GetAllSimulations).toOkResult
   }
@@ -148,18 +155,27 @@ class HomeApi @Inject()(
   private def loadJob(message: LoadJob): Future[Result] = {
     val workers = message.workers
     val request = message.request
-    if (null == workers || workers.isEmpty) {
-      FutureErrorResult("Empty workers")
-    } else {
-      if (null != request) {
-        val exception = request.isValid()
-        if (null != exception) {
-          Future.failed(exception)
-        } else {
-          (PeaConfig.reporterActor ? message).toOkResult
-        }
+    val jobs = message.jobs
+    if (null == jobs || jobs.isEmpty) {
+      if (null == workers || workers.isEmpty) {
+        FutureErrorResult("Empty workers")
       } else {
-        FutureErrorResult("Empty request")
+        if (null != request) {
+          val exception = request.isValid()
+          if (null != exception) {
+            Future.failed(exception)
+          } else {
+            (PeaConfig.reporterActor ? message).toOkResult
+          }
+        } else {
+          FutureErrorResult("Empty request")
+        }
+      }
+    } else {
+      if (jobs.forall(job => null == job.request.isValid())) {
+        (PeaConfig.reporterActor ? message).toOkResult
+      } else {
+        FutureErrorResult("Invalid request body")
       }
     }
   }

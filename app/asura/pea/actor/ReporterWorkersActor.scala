@@ -10,10 +10,12 @@ import asura.common.actor.BaseActor
 import asura.common.model.{ApiCode, ApiRes}
 import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
+import asura.pea.actor.ReporterActor.RunProgramJob
 import asura.pea.actor.ReporterWorkersActor._
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 import asura.pea.model._
 import asura.pea.service.PeaService
+import asura.pea.service.PeaService.LoadFunction
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.apache.zookeeper.CreateMode
 
@@ -47,6 +49,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     )
   }
   val nodeCaches = ArrayBuffer[NodeCache]()
+  var jobType: String = null
 
   override def receive: Receive = {
     case msg: ReporterJobStatus =>
@@ -54,9 +57,14 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     case JobWorkerStatusChange(worker, memberStatus) =>
       handleWorkerStatusChangeEvent(worker, memberStatus)
     case msg: SingleHttpScenarioMessage =>
-      watchWorkersAndSendLoad(msg)
+      jobType = msg.`type`
+      sendMessageAndWatch(msg, PeaService.sendSingleHttpScenario)
     case msg: RunSimulationMessage =>
-      watchWorkersAndSendLoad(msg)
+      jobType = msg.`type`
+      sendMessageAndWatch(msg, PeaService.sendSimulation)
+    case msg: RunProgramJob =>
+      jobType = msg.`type`
+      sendJobAndWatch(msg, PeaService.sendProgram)
     case DownloadSimulationFinished(worker, _) =>
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_FINISHED))
       self ! PushStatusToZk
@@ -64,9 +72,15 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     case TryGenerateReport =>
       if (jobStatus.workers.forall(s => MemberStatus.isWorkerOver(s._2.status))) {
         jobStatus.end = System.currentTimeMillis()
-        jobStatus.status = MemberStatus.REPORTER_REPORTING
-        self ! PushStatusToZk
-        generateReport()
+        if (needDownloadAndGenerateReport()) {
+          jobStatus.status = MemberStatus.REPORTER_REPORTING
+          self ! PushStatusToZk
+          generateReport()
+        } else {
+          jobStatus.status = MemberStatus.REPORTER_FINISHED
+          self ! PushStatusToZk
+          tryStopSelfAfterTimeout()
+        }
       }
     case PushStatusToZk =>
       pushJobStatusToZk()
@@ -94,8 +108,12 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
         if (MemberStatus.WORKER_RUNNING.equals(workerStatus.status)) {
           jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.WORKER_RUNNING, null))
         } else if (MemberStatus.WORKER_IDLE.equals(workerStatus.status)) {
-          jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_GATHERING, workerStatus.errMsg))
-          downloadSimulationLog(worker) pipeTo self
+          if (needDownloadAndGenerateReport()) {
+            jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_GATHERING, workerStatus.errMsg))
+            downloadSimulationLog(worker) pipeTo self
+          } else {
+            skipDownloadSimulationLog(worker, workerStatus)
+          }
         } else {
           // code should not run here
           jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_IIL, workerStatus.status))
@@ -127,25 +145,47 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     }
   }
 
-  def watchWorkersAndSendLoad(load: LoadMessage): Unit = {
+  def needDownloadAndGenerateReport(): Boolean = {
+    !LoadTypes.PROGRAM.equals(this.jobType)
+  }
+
+  def skipDownloadSimulationLog(worker: PeaMember, workerStatus: MemberStatus): Unit = {
+    jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_FINISHED, workerStatus.errMsg))
+    self ! PushStatusToZk
+    self ! TryGenerateReport
+  }
+
+  def afterSendLoads(list: Seq[Done]): Unit = {
+    self ! PushStatusToZk
+    self ! TryGenerateReport // condition when nodes may be ill
+    context.system.scheduler.scheduleOnce(DEFAULT_TIME_INTERVAL) {
+      self ! TryCheckWorkersIdleStatus
+    }
+  }
+
+  // workers with the same message
+  def sendMessageAndWatch(msg: LoadMessage, func: LoadFunction): Unit = {
+    initJobNode(msg)
+    val doneFutures = workers.map(worker => {
+      watchWorkerNode(worker)
+      val futureRes = func(worker, msg)
+      dealSendJobResponse(worker, futureRes)
+    })
+    Future.sequence(doneFutures).map(afterSendLoads)
+  }
+
+  // workers with different message
+  def sendJobAndWatch(load: LoadJob, func: LoadFunction): Unit = {
     initJobNode(load)
-    val doneFutures = workers.map(worker => load match {
-      case msg: SingleHttpScenarioMessage =>
-        watchWorkerNode(worker)
-        val futureRes = PeaService.sendSingleHttpScenario(worker, msg)
-        dealSendJobResponse(worker, futureRes)
-      case msg: RunSimulationMessage =>
-        watchWorkerNode(worker)
-        val futureRes = PeaService.sendSimulation(worker, msg)
-        dealSendJobResponse(worker, futureRes)
+    val doneFutures = load.jobs.map(job => {
+      watchWorkerNode(job.worker)
+      val msg = job.request
+      msg.simulationId = load.simulationId
+      msg.start = load.start
+      val futureRes = func(job.worker, msg)
+      dealSendJobResponse(job.worker, futureRes)
     })
-    Future.sequence(doneFutures).map(_ => {
-      self ! PushStatusToZk
-      self ! TryGenerateReport // condition when nodes may be ill
-      context.system.scheduler.scheduleOnce(DEFAULT_TIME_INTERVAL) {
-        self ! TryCheckWorkersIdleStatus
-      }
-    })
+    Future.sequence(doneFutures).map(afterSendLoads)
   }
 
   def watchWorkerNode(worker: PeaMember): Unit = {
@@ -192,14 +232,11 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
         }
         jobStatus.status = MemberStatus.REPORTER_FINISHED
         self ! PushStatusToZk
-        context.system.scheduler.scheduleOnce(DEFAULT_TIME_INTERVAL) {
-          // destroy self after 10 seconds
-          stopSelf()
-        }
+        tryStopSelfAfterTimeout()
       })
   }
 
-  def initJobNode(load: LoadMessage): Unit = {
+  def initJobNode(load: Any): Unit = {
     jobStatus.load = load
     PeaConfig.zkClient.create()
       .creatingParentsIfNeeded()
@@ -251,6 +288,12 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
           self ! TryCheckWorkersIdleStatus
         }
       })
+    }
+  }
+
+  def tryStopSelfAfterTimeout(): Unit = {
+    context.system.scheduler.scheduleOnce(DEFAULT_TIME_INTERVAL) {
+      stopSelf()
     }
   }
 
