@@ -1,6 +1,6 @@
 package asura.pea.model
 
-case class SingleJob(
-                      worker: PeaMember,
-                      request: RunProgramMessage
-                    )
+trait SingleJob {
+  val worker: PeaMember
+  val request: LoadMessage
+}

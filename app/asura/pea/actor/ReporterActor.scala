@@ -112,7 +112,7 @@ object ReporterActor {
                              ) extends LoadJob
 
   case class RunProgramJob(
-                            override val jobs: Seq[SingleJob]
+                            override val jobs: Seq[SingleRunProgramJob]
                           ) extends LoadJob {
     val `type`: String = LoadTypes.PROGRAM
   }
