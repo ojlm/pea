@@ -19,6 +19,7 @@ import asura.pea.actor.WebWorkerMonitorActor.WebWorkerMonitorOptions
 import asura.pea.actor.WorkerActor.{GetNodeStatusMessage, StopEngine}
 import asura.pea.actor.{WebCompilerMonitorActor, WebResponseMonitorActor, WebWorkerMonitorActor}
 import asura.pea.model.{RunProgramMessage, RunSimulationMessage, SingleHttpScenarioMessage}
+import asura.pea.util.SimulationLogUtils
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
 import com.typesafe.scalalogging.StrictLogging
@@ -120,7 +121,7 @@ class GatlingApi @Inject()(
   }
 
   def getSimulationLog(runId: String) = Action {
-    val file = new File(s"${PeaConfig.resultsFolder}${File.separator}${runId}${File.separator}simulation.log")
+    val file = new File(SimulationLogUtils.simulationLogFile(runId))
     logger.debug(s"Downloading file(${file.exists()}): ${file.getAbsolutePath}")
     if (file.exists()) {
       if (file.getAbsolutePath.startsWith(PeaConfig.resultsFolder)) {

@@ -17,6 +17,7 @@ object PeaConfig {
   val PATH_WORKERS = "workers"
   val PATH_REPORTERS = "reporters"
   val PATH_JOBS = "jobs"
+  val SIMULATION_LOG_FILE = "simulation.log"
 
   implicit val DEFAULT_ACTOR_ASK_TIMEOUT: Timeout = 10 minutes
   implicit var system: ActorSystem = _

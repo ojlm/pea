@@ -50,6 +50,8 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   }
   val nodeCaches = ArrayBuffer[NodeCache]()
   var jobType: String = null
+  // does generate report
+  var report: Boolean = true
 
   override def receive: Receive = {
     case msg: ReporterJobStatus =>
@@ -64,6 +66,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       sendMessageAndWatch(msg, PeaService.sendSimulation)
     case msg: RunProgramJob =>
       jobType = msg.`type`
+      report = msg.report
       sendJobAndWatch(msg, PeaService.sendProgram)
     case DownloadSimulationFinished(worker, _) =>
       jobStatus.workers += (worker.toAddress -> JobWorkerStatus(MemberStatus.REPORTER_WORKER_FINISHED))
@@ -146,7 +149,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   }
 
   def needDownloadAndGenerateReport(): Boolean = {
-    !LoadTypes.PROGRAM.equals(this.jobType)
+    this.report
   }
 
   def skipDownloadSimulationLog(worker: PeaMember, workerStatus: MemberStatus): Unit = {
@@ -219,21 +222,28 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   }
 
   def generateReport(): Unit = {
-    GatlingRunnerActor.generateReport(runId)
-      .recover {
-        case t: Throwable => log.warning(LogUtils.stackTraceToString(t)); -1
-      }
-      .map(code => {
-        code match {
-          case -1 => log.debug("[GenerateReport]:Exception")
-          case 0 => log.debug("[GenerateReport]:Success")
-          case 1 => log.debug("[GenerateReport]:InvalidArguments")
-          case 2 => log.debug("[GenerateReport]:AssertionsFailed")
+    if (LoadTypes.PROGRAM.equals(this.jobType)) { // program
+      // do not aggregate just download worker's simulation log
+      jobStatus.status = MemberStatus.REPORTER_FINISHED
+      self ! PushStatusToZk
+      tryStopSelfAfterTimeout()
+    } else { // gatling
+      GatlingRunnerActor.generateReport(runId)
+        .recover {
+          case t: Throwable => log.warning(LogUtils.stackTraceToString(t)); -1
         }
-        jobStatus.status = MemberStatus.REPORTER_FINISHED
-        self ! PushStatusToZk
-        tryStopSelfAfterTimeout()
-      })
+        .map(code => {
+          code match {
+            case -1 => log.debug("[GenerateReport]:Exception")
+            case 0 => log.debug("[GenerateReport]:Success")
+            case 1 => log.debug("[GenerateReport]:InvalidArguments")
+            case 2 => log.debug("[GenerateReport]:AssertionsFailed")
+          }
+          jobStatus.status = MemberStatus.REPORTER_FINISHED
+          self ! PushStatusToZk
+          tryStopSelfAfterTimeout()
+        })
+    }
   }
 
   def initJobNode(load: Any): Unit = {

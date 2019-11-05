@@ -4,11 +4,13 @@ import asura.common.util.StringUtils
 
 case class RunProgramMessage(
                               var program: String,
-                              var report: Boolean = false,
+                              var reportStdout: Boolean = false,
+                              var reportStderr: Boolean = true,
                               var simulationId: String = null,
-                              var start: Long = 0L
+                              var start: Long = 0L,
                             ) extends LoadMessage {
 
+  var report: Boolean = true
   val `type`: String = LoadTypes.PROGRAM
 
   def isValid(): Exception = {
