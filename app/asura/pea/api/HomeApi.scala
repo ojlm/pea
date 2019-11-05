@@ -13,6 +13,7 @@ import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor.{AsyncCompileMessage, GetAllSimulations}
 import asura.pea.actor.ReporterActor.{GetAllWorkers, RunProgramJob, RunSimulationJob, SingleHttpScenarioJob}
+import asura.pea.api.util.ResultUtils
 import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, WorkersRequest}
 import asura.pea.service.PeaService
 import asura.play.api.BaseApi
@@ -45,10 +46,16 @@ class HomeApi @Inject()(
     if (resource.contains(".")) assets.at(resource) else index
   }
 
-  def report(filePath: String) = Action {
-    val file = new File(s"${PeaConfig.resultsFolder}/${filePath}")
+  def report(path: String) = Action {
+    val absolutePath = s"${PeaConfig.resultsFolder}${File.separator}${path}"
+    val file = new File(absolutePath)
     if (file.isDirectory) {
-      TemporaryRedirect(s"/report/${filePath}/index.html")
+      val indexFile = new File(s"${absolutePath}${File.separator}index.html")
+      if (indexFile.exists()) {
+        TemporaryRedirect(s"/report/${path}/index.html")
+      } else {
+        ResultUtils.filesEntity(path, file.listFiles())
+      }
     } else {
       if (file.exists()) {
         if (file.getAbsolutePath.startsWith(PeaConfig.resultsFolder)) {
