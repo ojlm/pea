@@ -22,7 +22,7 @@ import {
 export class LetsShootComponent implements OnInit {
 
   METHODS = [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT]
-  tabIndex = 1
+  tabIndex = 0
   loading = false
 
   innerRequest: SingleHttpScenarioMessage = {
@@ -60,10 +60,10 @@ export class LetsShootComponent implements OnInit {
     let response: Observable<ApiRes<WorkersAvailable>>
     if (this.tabIndex === 0) {
       this.loading = true
-      response = this.homeService.runSimulationJob(this.buildLoadJob())
+      response = this.homeService.runSingleHttpScenarioJob(this.buildLoadJob())
     } else if (this.tabIndex === 1) {
       this.loading = true
-      response = this.homeService.runSingleHttpScenarioJob(this.buildLoadJob())
+      response = this.homeService.runSimulationJob(this.buildLoadJob())
     }
     response.subscribe(res => {
       this.loading = false
@@ -88,13 +88,6 @@ export class LetsShootComponent implements OnInit {
 
   buildLoadJob(): SingleHttpScenarioJob | RunSimulationJob {
     if (this.tabIndex === 0) {
-      return {
-        workers: this.selectedWorkers.map(item => item.member),
-        request: {
-          simulation: this.simulation.name
-        }
-      }
-    } else if (this.tabIndex === 1) {
       if (this.headersStr) {
         try {
           this.innerRequest.request.headers = JSON.parse(this.headersStr)
@@ -105,6 +98,13 @@ export class LetsShootComponent implements OnInit {
       return {
         workers: this.selectedWorkers.map(item => item.member),
         request: this.innerRequest
+      }
+    } else if (this.tabIndex === 1) {
+      return {
+        workers: this.selectedWorkers.map(item => item.member),
+        request: {
+          simulation: this.simulation.name
+        }
       }
     }
   }

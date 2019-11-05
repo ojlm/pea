@@ -2,40 +2,6 @@
   <nz-divider [nzText]="'tips.buildRequest'|translate" nzOrientation="left"></nz-divider>
   <nz-tabset nzAnimated="false" nzSize="small" nzType="card" nzTabPosition="top" nzTabBarGutter="4"
     [(nzSelectedIndex)]="tabIndex">
-    <nz-tab [nzTitle]="'item.script'|translate">
-      <div>
-        <span style="color:lightseagreen;">
-          <i class="click-icon" nz-icon nzType="sync" nzTheme="outline" (click)="loadSimulations()"></i>
-          <span>{{'tips.lastCompileTime'|translate}}: </span>
-        </span>
-        <span style="margin-left:4px;font-size:small;color:lightcoral;">
-          <i nz-icon nzType="number" nzTheme="outline"></i>
-          <span>{{lastCompileTime}}</span>
-        </span>
-      </div>
-      <nz-input-group style="width:100%;margin-top:4px;" [nzSize]="'default'" [nzAddOnBefore]="scriptTpl">
-        <ng-template #scriptTpl>
-          <div style="width:58px;text-align:left;">
-            <span>{{'item.script'|translate}}</span>
-          </div>
-        </ng-template>
-        <nz-select style="width: 100%;" [(ngModel)]="simulation" nzAllowClear>
-          <nz-option *ngFor="let item of simulations" [nzValue]="item" [nzLabel]="item.name" nzCustomContent>
-            <div>
-              <div class="option-title">
-                <nz-tag *ngFor="let p of item.protocols" style="margin-bottom:4px;">{{p}}</nz-tag>
-                <span>{{item.name}}</span>
-              </div>
-              <div class="option-desc">{{item.description}}</div>
-            </div>
-          </nz-option>
-        </nz-select>
-      </nz-input-group>
-      <div *ngIf="simulation&&simulation.description" class="desc" (click)="edit()">
-        <nz-tag [nzColor]="'cyan'" *ngFor="let p of simulation.protocols">{{p}}</nz-tag>
-        {{simulation.description}}
-      </div>
-    </nz-tab>
     <nz-tab [nzTitle]="'item.request'|translate">
       <nz-input-group style="width:100%;" [nzAddOnBefore]="nameTpl">
         <ng-template #nameTpl>
@@ -70,6 +36,40 @@
         <span>{{'tips.printResponse'|translate}}</span>
       </label>
       <app-injections-builder [(data)]="innerRequest.injections"></app-injections-builder>
+    </nz-tab>
+    <nz-tab [nzTitle]="'item.script'|translate">
+      <div>
+        <span style="color:lightseagreen;">
+          <i class="click-icon" nz-icon nzType="sync" nzTheme="outline" (click)="loadSimulations()"></i>
+          <span>{{'tips.lastCompileTime'|translate}}: </span>
+        </span>
+        <span style="margin-left:4px;font-size:small;color:lightcoral;">
+          <i nz-icon nzType="number" nzTheme="outline"></i>
+          <span>{{lastCompileTime}}</span>
+        </span>
+      </div>
+      <nz-input-group style="width:100%;margin-top:4px;" [nzSize]="'default'" [nzAddOnBefore]="scriptTpl">
+        <ng-template #scriptTpl>
+          <div style="width:58px;text-align:left;">
+            <span>{{'item.script'|translate}}</span>
+          </div>
+        </ng-template>
+        <nz-select style="width: 100%;" [(ngModel)]="simulation" nzAllowClear>
+          <nz-option *ngFor="let item of simulations" [nzValue]="item" [nzLabel]="item.name" nzCustomContent>
+            <div>
+              <div class="option-title">
+                <nz-tag *ngFor="let p of item.protocols" style="margin-bottom:4px;">{{p}}</nz-tag>
+                <span>{{item.name}}</span>
+              </div>
+              <div class="option-desc">{{item.description}}</div>
+            </div>
+          </nz-option>
+        </nz-select>
+      </nz-input-group>
+      <div *ngIf="simulation&&simulation.description" class="desc" (click)="edit()">
+        <nz-tag [nzColor]="'cyan'" *ngFor="let p of simulation.protocols">{{p}}</nz-tag>
+        {{simulation.description}}
+      </div>
     </nz-tab>
   </nz-tabset>
   <nz-divider [nzText]="'tips.selectWorkers'|translate" nzOrientation="left"></nz-divider>
