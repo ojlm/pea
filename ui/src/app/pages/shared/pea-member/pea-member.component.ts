@@ -5,6 +5,7 @@ import { WorkerData } from 'src/app/api/home.service'
 import { ActorEvent, ActorEventType } from 'src/app/model/api.model'
 import {
   JobWorkerStatus,
+  LoadTypes,
   MonitorData,
   PeaMember,
   PeaUserCounters,
@@ -33,11 +34,27 @@ export class PeaMemberComponent implements OnDestroy {
   requests: RequestCountersItem[] = []
   errors: ErrorsCountItem[] = []
 
+  @Input() type = ''
   @Input()
   set data(data: WorkerData) {
     this.status = data.status
     this.member = data.member
-    this.ws = this.gatlingService.monitor(data.member)
+    if (data) {
+      if (LoadTypes.PROGRAM === this.type) {
+        this.showConsole()
+      } else {
+        this.startGatlingMonitor()
+      }
+    }
+  }
+
+  constructor(
+    private gatlingService: GatlingService,
+    private msgService: NzMessageService,
+  ) { }
+
+  startGatlingMonitor() {
+    this.ws = this.gatlingService.monitor(this.member)
     this.ws.onopen = (event) => { }
     this.ws.onmessage = (event) => {
       if (event.data) {
@@ -54,10 +71,13 @@ export class PeaMemberComponent implements OnDestroy {
     }
   }
 
-  constructor(
-    private gatlingService: GatlingService,
-    private msgService: NzMessageService,
-  ) { }
+  memberAddr() {
+    if (this.member) {
+      return `${this.member.address}:${this.member.port}`
+    } else {
+      return ''
+    }
+  }
 
   showConsole() {
     this.consoleVisible = true

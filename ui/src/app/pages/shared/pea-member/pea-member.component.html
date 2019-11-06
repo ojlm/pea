@@ -1,3 +1,14 @@
+<nz-divider [nzText]="addrTpl" nzOrientation="left">
+  <ng-template #addrTpl>
+    <span style="font-size:smaller;color:rebeccapurple;">
+      <span>{{memberAddr()}}</span>
+      <nz-divider nzType="vertical"></nz-divider>
+      <span (click)="showConsole()" [title]="'tips.printResponse'|translate">
+        <i class="click-icon" nz-icon nzType="code" nzTheme="outline"></i>
+      </span>
+    </span>
+  </ng-template>
+</nz-divider>
 <div *ngIf="start">
   <div class="title">
     <span>
@@ -16,10 +27,6 @@
     <span class="margin">
       <span class="label">{{'item.fail.count'|translate}}: </span>
       <span class="value">{{global.failedCount}}</span>
-    </span>
-    <nz-divider nzType="vertical"></nz-divider>
-    <span (click)="showConsole()" [title]="'tips.printResponse'|translate">
-      <i class="click-icon" style="color:purple;" nz-icon nzType="code" nzTheme="outline"></i>
     </span>
   </div>
   <div class="title">
@@ -98,8 +105,7 @@
       </tbody>
     </nz-table>
   </div>
-  <div *ngIf="consoleVisible" class="console">
-    <app-response-monitor [data]="member"></app-response-monitor>
-  </div>
 </div>
-<nz-empty *ngIf="!start"></nz-empty>
+<div *ngIf="consoleVisible" class="console">
+  <app-response-monitor [data]="member"></app-response-monitor>
+</div>

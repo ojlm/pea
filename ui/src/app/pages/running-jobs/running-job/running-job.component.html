@@ -2,12 +2,7 @@
   <app-job-summary [data]="job"></app-job-summary>
   <div>
     <div class="member" *ngFor="let item of members">
-      <nz-divider [nzText]="addrTpl" nzOrientation="left">
-        <ng-template #addrTpl>
-          <span style="font-size:smaller;color:rebeccapurple;">{{memberAddr(item)}}</span>
-        </ng-template>
-      </nz-divider>
-      <app-pea-member [data]="item"></app-pea-member>
+      <app-pea-member [type]="load.type" [data]="item"></app-pea-member>
     </div>
   </div>
 </div>

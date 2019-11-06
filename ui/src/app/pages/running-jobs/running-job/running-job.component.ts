@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { HomeService, WorkerData } from 'src/app/api/home.service'
-import { ReporterJobStatus } from 'src/app/model/pea.model'
+import { ReporterJobStatus, UnionLoadMessage } from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-running-job',
@@ -13,20 +13,17 @@ export class RunningJobComponent implements OnInit, OnDestroy {
   runId = ''
   job: ReporterJobStatus = {}
   members: WorkerData[] = []
-
+  load: UnionLoadMessage = {}
   constructor(
     private route: ActivatedRoute,
     private homeService: HomeService,
   ) { }
 
-  memberAddr(item: WorkerData) {
-    return `${item.member.address}:${item.member.port}`
-  }
-
   loadJobDetails() {
     if (this.runId) {
       this.homeService.getJobDetails(this.runId).subscribe(res => {
         this.job = res.data
+        this.load = res.data.load || {}
         this.members = Object.keys(res.data.workers).map(key => {
           const addr = key.split(':')
           return { member: { address: addr[0], port: parseInt(addr[1], 10) } }

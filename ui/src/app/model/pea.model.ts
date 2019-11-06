@@ -50,7 +50,7 @@ export interface ReporterJobStatus {
   start?: number
   end?: number
   workers?: { [k: string]: JobWorkerStatus }
-  load?: SingleHttpScenarioMessage & RunSimulationMessage
+  load?: UnionLoadMessage
 }
 
 export interface SimulationModel {
@@ -102,6 +102,12 @@ export interface SingleHttpScenarioMessage extends LoadMessage {
 export interface RunSimulationMessage extends LoadMessage {
   simulation?: string
 }
+
+export interface RunProgramMessage extends LoadMessage {
+  program?: string
+}
+
+export type UnionLoadMessage = SingleHttpScenarioMessage & RunSimulationMessage & RunProgramMessage
 
 export interface SingleHttpScenarioJob {
   workers?: PeaMember[]
@@ -161,4 +167,10 @@ export const MemberStatus = {
   GATHERING: 'gathering',
   REPORTING: 'reporting',
   FINISHED: 'finished',
+}
+
+export const LoadTypes = {
+  SINGLE: 'single',
+  SCRIPT: 'script',
+  PROGRAM: 'program',
 }

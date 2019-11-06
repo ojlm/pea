@@ -37,6 +37,12 @@
       <div *ngSwitchCase="'script'">
         <a>{{load.simulation}}</a>
       </div>
+      <div *ngSwitchCase="'program'">
+        <div *ngFor="let item of load.jobs">
+          <span class="addr">{{item.worker.address}}:{{item.worker.port}} :</span>
+          <a>{{item.request.program}}</a>
+        </div>
+      </div>
       <div *ngSwitchDefault></div>
     </div>
   </div>

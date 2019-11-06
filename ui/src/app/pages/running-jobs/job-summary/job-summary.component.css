@@ -48,3 +48,8 @@
   margin-top: 4px;
   border-top: 1px solid lightgray;
 }
+
+.addr {
+  margin-right: 8px;
+  color: lightslategray;
+}
