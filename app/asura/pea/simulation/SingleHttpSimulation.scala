@@ -38,7 +38,7 @@ class SingleHttpSimulation extends PeaSimulation {
   setUp(
     scn.inject(
       getInjectionSteps()
-    ).protocols(http)
+    ).protocols(http.disableCaching)
   )
 
   def getInjectionSteps(): Seq[OpenInjectionStep] = {
