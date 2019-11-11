@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core'
 import { TranslateService } from '@ngx-translate/core'
-import { Injection, ReporterJobStatus, RunSimulationMessage, SingleHttpScenarioMessage } from 'src/app/model/pea.model'
+import { Injection, LoadJob, ReporterJobStatus, UnionLoadMessage } from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-job-summary',
@@ -11,7 +11,7 @@ export class JobSummaryComponent {
 
   startTime = ''
   job: ReporterJobStatus = {}
-  load: SingleHttpScenarioMessage & RunSimulationMessage
+  load: LoadJob & UnionLoadMessage
   @Input()
   set data(data: ReporterJobStatus) {
     if (data) {

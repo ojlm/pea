@@ -50,7 +50,7 @@ export interface ReporterJobStatus {
   start?: number
   end?: number
   workers?: { [k: string]: JobWorkerStatus }
-  load?: UnionLoadMessage
+  load?: LoadJob & UnionLoadMessage
 }
 
 export interface SimulationModel {
@@ -91,6 +91,20 @@ export interface LoadMessage {
   report?: boolean
   verbose?: boolean
   type?: string
+}
+
+export interface SingleJob {
+  worker?: PeaMember
+  request?: UnionLoadMessage
+}
+
+export interface LoadJob {
+  workers?: PeaMember[]
+  request?: UnionLoadMessage
+  jobs?: SingleJob
+  report?: boolean
+  simulationId?: string
+  start?: number
 }
 
 export interface SingleHttpScenarioMessage extends LoadMessage {
