@@ -1,9 +1,9 @@
 package asura.pea.grpc
 
 import asura.pea.grpc.check.GrpcCheckSupport
-import com.trueaccord.lenses.{Lens, Mutation, Updatable}
 import io.gatling.core.Predef.value2Expression
 import io.gatling.core.session.Expression
+import scalapb.lenses.{Lens, Mutation, Updatable}
 
 object Predef extends GrpcDsl with GrpcCheckSupport {
 

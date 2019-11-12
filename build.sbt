@@ -15,14 +15,16 @@ lazy val pea = Project("pea", file("."))
   ).aggregate(peaDubbo, peaGrpc)
 
 // pea-app dependencies
-val gatlingVersion = "3.2.1"
-val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-app")
+val gatlingVersion = "3.3.1"
+val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-app") exclude("com.fasterxml.jackson.core", "jackson-databind")
 val gatlingCompiler = "io.gatling" % "gatling-compiler" % gatlingVersion
+// use 2.9 instead of 2.10 in gatling, for asura-common compatibility. toto: upgrade asura
+val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.10"
 val curator = "org.apache.curator" % "curator-recipes" % "2.12.0"
 val asuraPlay = "cc.akkaha" %% "asura-play" % "0.6.0"
 val oshiCore = "com.github.oshi" % "oshi-core" % "4.0.0"
 
-libraryDependencies ++= Seq(gatling, gatlingCompiler, curator, asuraPlay, oshiCore)
+libraryDependencies ++= Seq(gatling, gatlingCompiler, jackson, curator, asuraPlay, oshiCore)
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
 
 // pea-dubbo dependencies, specify javassist and jbossnetty deps because of coursier dep resolve problems
@@ -34,22 +36,20 @@ lazy val peaDubbo = Project("pea-dubbo", file("pea-dubbo"))
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .settings(libraryDependencies ++= Seq(
-    gatling, dubbo, curator, dubboJavassist, dubboJbossNetty, dubboSpring
+    gatling, dubbo, curator, dubboJavassist, dubboJbossNetty, dubboSpring, jackson
   ))
 
 // pea-grpc
-val grpcVersion = "1.22.2" // override 1.8, com.trueaccord.scalapb.compiler.Version.grpcJavaVersion
+val grpcVersion = scalapb.compiler.Version.grpcJavaVersion
 val grpcNetty = "io.grpc" % "grpc-netty" % grpcVersion
-val scalapbRuntime = "com.trueaccord.scalapb" %% "scalapb-runtime-grpc" % com.trueaccord.scalapb.compiler.Version.scalapbVersion
-// Override the version that scalapb depends on. This adds an explicit dependency on
-// protobuf-java. This will cause sbt to evict the older version that is used by
-// scalapb-runtime.
-val protobuf = "com.google.protobuf" % "protobuf-java" % "3.7.0"
+val grpcStub = "io.grpc" % "grpc-stub" % grpcVersion
+val scalapbRuntime = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
+val scalapbGrpc = "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
 lazy val peaGrpc = Project("pea-grpc", file("pea-grpc"))
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .settings(libraryDependencies ++= Seq(
-    gatling, grpcNetty, scalapbRuntime, protobuf
+    gatling, grpcNetty, grpcStub, scalapbRuntime, scalapbGrpc
   ))
 
 // options: https://github.com/thesamet/sbt-protoc

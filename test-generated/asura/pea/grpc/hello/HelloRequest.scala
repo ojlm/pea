@@ -5,20 +5,24 @@
 
 package asura.pea.grpc.hello
 
-
-
 @SerialVersionUID(0L)
 final case class HelloRequest(
-    greeting: String = ""
-    ) extends com.trueaccord.scalapb.GeneratedMessage with com.trueaccord.scalapb.Message[HelloRequest] with com.trueaccord.lenses.Updatable[HelloRequest] {
+    greeting: _root_.scala.Predef.String = ""
+    ) extends scalapb.GeneratedMessage with scalapb.Message[HelloRequest] with scalapb.lenses.Updatable[HelloRequest] {
     @transient
-    private[this] var __serializedSizeCachedValue: Int = 0
-    private[this] def __computeSerializedValue(): Int = {
+    private[this] var __serializedSizeCachedValue: _root_.scala.Int = 0
+    private[this] def __computeSerializedValue(): _root_.scala.Int = {
       var __size = 0
-      if (greeting != "") { __size += _root_.com.google.protobuf.CodedOutputStream.computeStringSize(1, greeting) }
+      
+      {
+        val __value = greeting
+        if (__value != "") {
+          __size += _root_.com.google.protobuf.CodedOutputStream.computeStringSize(1, __value)
+        }
+      };
       __size
     }
-    final override def serializedSize: Int = {
+    final override def serializedSize: _root_.scala.Int = {
       var read = __serializedSizeCachedValue
       if (read == 0) {
         read = __computeSerializedValue()
@@ -26,7 +30,7 @@ final case class HelloRequest(
       }
       read
     }
-    def writeTo(`_output__`: _root_.com.google.protobuf.CodedOutputStream): Unit = {
+    def writeTo(`_output__`: _root_.com.google.protobuf.CodedOutputStream): _root_.scala.Unit = {
       {
         val __v = greeting
         if (__v != "") {
@@ -50,8 +54,8 @@ final case class HelloRequest(
           greeting = __greeting
       )
     }
-    def withGreeting(__v: String): HelloRequest = copy(greeting = __v)
-    def getFieldByNumber(__fieldNumber: Int): scala.Any = {
+    def withGreeting(__v: _root_.scala.Predef.String): HelloRequest = copy(greeting = __v)
+    def getFieldByNumber(__fieldNumber: _root_.scala.Int): _root_.scala.Any = {
       (__fieldNumber: @_root_.scala.unchecked) match {
         case 1 => {
           val __t = greeting
@@ -60,41 +64,47 @@ final case class HelloRequest(
       }
     }
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
-      require(__field.containingMessage eq companion.scalaDescriptor)
+      _root_.scala.Predef.require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
         case 1 => _root_.scalapb.descriptors.PString(greeting)
       }
     }
-    override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
+    def toProtoString: _root_.scala.Predef.String = _root_.scalapb.TextFormat.printToUnicodeString(this)
     def companion = asura.pea.grpc.hello.HelloRequest
 }
 
-object HelloRequest extends com.trueaccord.scalapb.GeneratedMessageCompanion[asura.pea.grpc.hello.HelloRequest] {
-  implicit def messageCompanion: com.trueaccord.scalapb.GeneratedMessageCompanion[asura.pea.grpc.hello.HelloRequest] = this
-  def fromFieldsMap(__fieldsMap: scala.collection.immutable.Map[_root_.com.google.protobuf.Descriptors.FieldDescriptor, scala.Any]): asura.pea.grpc.hello.HelloRequest = {
-    require(__fieldsMap.keys.forall(_.getContainingType() == javaDescriptor), "FieldDescriptor does not match message type.")
+object HelloRequest extends scalapb.GeneratedMessageCompanion[asura.pea.grpc.hello.HelloRequest] {
+  implicit def messageCompanion: scalapb.GeneratedMessageCompanion[asura.pea.grpc.hello.HelloRequest] = this
+  def fromFieldsMap(__fieldsMap: scala.collection.immutable.Map[_root_.com.google.protobuf.Descriptors.FieldDescriptor, _root_.scala.Any]): asura.pea.grpc.hello.HelloRequest = {
+    _root_.scala.Predef.require(__fieldsMap.keys.forall(_.getContainingType() == javaDescriptor), "FieldDescriptor does not match message type.")
     val __fields = javaDescriptor.getFields
     asura.pea.grpc.hello.HelloRequest(
-      __fieldsMap.getOrElse(__fields.get(0), "").asInstanceOf[String]
+      __fieldsMap.getOrElse(__fields.get(0), "").asInstanceOf[_root_.scala.Predef.String]
     )
   }
   implicit def messageReads: _root_.scalapb.descriptors.Reads[asura.pea.grpc.hello.HelloRequest] = _root_.scalapb.descriptors.Reads{
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
-      require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
+      _root_.scala.Predef.require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       asura.pea.grpc.hello.HelloRequest(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[String]).getOrElse("")
+        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.Predef.String]).getOrElse("")
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }
   def javaDescriptor: _root_.com.google.protobuf.Descriptors.Descriptor = HelloProto.javaDescriptor.getMessageTypes.get(0)
   def scalaDescriptor: _root_.scalapb.descriptors.Descriptor = HelloProto.scalaDescriptor.messages(0)
-  def messageCompanionForFieldNumber(__number: Int): _root_.com.trueaccord.scalapb.GeneratedMessageCompanion[_] = throw new MatchError(__number)
-  lazy val nestedMessagesCompanions: Seq[_root_.com.trueaccord.scalapb.GeneratedMessageCompanion[_]] = Seq.empty
-  def enumCompanionForFieldNumber(__fieldNumber: Int): _root_.com.trueaccord.scalapb.GeneratedEnumCompanion[_] = throw new MatchError(__fieldNumber)
+  def messageCompanionForFieldNumber(__number: _root_.scala.Int): _root_.scalapb.GeneratedMessageCompanion[_] = throw new MatchError(__number)
+  lazy val nestedMessagesCompanions: Seq[_root_.scalapb.GeneratedMessageCompanion[_ <: _root_.scalapb.GeneratedMessage]] = Seq.empty
+  def enumCompanionForFieldNumber(__fieldNumber: _root_.scala.Int): _root_.scalapb.GeneratedEnumCompanion[_] = throw new MatchError(__fieldNumber)
   lazy val defaultInstance = asura.pea.grpc.hello.HelloRequest(
+    greeting = ""
   )
-  implicit class HelloRequestLens[UpperPB](_l: _root_.com.trueaccord.lenses.Lens[UpperPB, asura.pea.grpc.hello.HelloRequest]) extends _root_.com.trueaccord.lenses.ObjectLens[UpperPB, asura.pea.grpc.hello.HelloRequest](_l) {
-    def greeting: _root_.com.trueaccord.lenses.Lens[UpperPB, String] = field(_.greeting)((c_, f_) => c_.copy(greeting = f_))
+  implicit class HelloRequestLens[UpperPB](_l: _root_.scalapb.lenses.Lens[UpperPB, asura.pea.grpc.hello.HelloRequest]) extends _root_.scalapb.lenses.ObjectLens[UpperPB, asura.pea.grpc.hello.HelloRequest](_l) {
+    def greeting: _root_.scalapb.lenses.Lens[UpperPB, _root_.scala.Predef.String] = field(_.greeting)((c_, f_) => c_.copy(greeting = f_))
   }
   final val GREETING_FIELD_NUMBER = 1
+  def of(
+    greeting: _root_.scala.Predef.String
+  ): _root_.asura.pea.grpc.hello.HelloRequest = _root_.asura.pea.grpc.hello.HelloRequest(
+    greeting
+  )
 }
