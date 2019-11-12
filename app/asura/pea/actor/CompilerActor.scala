@@ -105,10 +105,10 @@ object CompilerActor {
     ProcessUtils.execAsync(
       "git pull",
       (stdout: String) => if (null != PeaConfig.compilerMonitorActor) {
-        PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("[info ]")} ${stdout}"
+        PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("[info ]")}[git ] ${stdout}"
       },
       (stderr: String) => if (null != PeaConfig.compilerMonitorActor) {
-        PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("[error]")} ${stderr}"
+        PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("[error]")}[git ] ${stderr}"
       },
       Some(new File(PeaConfig.defaultSimulationSourceFolder))
     ).get

@@ -11,7 +11,6 @@ import com.typesafe.scalalogging.{Logger, StrictLogging}
 import sbt.internal.inc.classpath.ClasspathUtilities
 import sbt.internal.inc.{Locate, LoggedReporter, AnalysisStore => _, CompilerCache => _, _}
 import sbt.util.{Level, Logger => SbtLogger}
-import xsbti.Problem
 import xsbti.compile.{CompileAnalysis, DefinesClass, PerClasspathEntryLookup, FileAnalysisStore => _, ScalaInstance => _, _}
 
 import scala.reflect.io.Directory
@@ -32,7 +31,7 @@ class ZincCompilerInstance(
     def wrapSbt(log: String) = s"[sbt]:${log}"
 
     override def trace(t: => Throwable): Unit = {
-      logger.debug(wrapSbt(Option(t.getMessage).getOrElse("error")))
+      logger.trace(wrapSbt(Option(t.getMessage).getOrElse("error")))
     }
 
     override def success(message: => String): Unit = {
@@ -50,23 +49,24 @@ class ZincCompilerInstance(
             logger.error(wrapSbt(message))
           }
           if (null != PeaConfig.compilerMonitorActor) {
-            PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("[error]")} ${message}"
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.redWrap("[error]")}[zinc] ${message}"
           }
         case Level.Warn =>
           logger.warn(wrapSbt(message))
           if (null != PeaConfig.compilerMonitorActor) {
-            PeaConfig.compilerMonitorActor ! s"${XtermUtils.yellowWrap("[warn ]")} ${message}"
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.yellowWrap("[warn ]")}[zinc] ${message}"
           }
         case Level.Info =>
           logger.info(wrapSbt(message))
           if (null != PeaConfig.compilerMonitorActor) {
-            PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("[info ]")} ${message}"
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("[info ]")}[zinc] ${message}"
           }
         case Level.Debug =>
-          logger.debug(wrapSbt(message))
-          if (null != PeaConfig.compilerMonitorActor) {
-            PeaConfig.compilerMonitorActor ! s"${XtermUtils.blueWrap("[debug]")} ${message}"
+          if ((message.startsWith("Scala compilation took") || message.startsWith("No changes"))
+            && null != PeaConfig.compilerMonitorActor) {
+            PeaConfig.compilerMonitorActor ! s"${XtermUtils.greenWrap("[info ]")}[zinc] ${message}"
           }
+          logger.debug(wrapSbt(message))
       }
   }
 
@@ -78,13 +78,7 @@ class ZincCompilerInstance(
 
   val maxErrors = 100
 
-  val reporter = new LoggedReporter(maxErrors, sbtLogger) {
-    override protected def logError(problem: Problem): Unit = logger.error(problem.message())
-
-    override protected def logWarning(problem: Problem): Unit = logger.warn(problem.message())
-
-    override protected def logInfo(problem: Problem): Unit = logger.info(problem.message())
-  }
+  val reporter = new LoggedReporter(maxErrors, sbtLogger)
 
   val scalaCompiler = new AnalyzingCompiler(
     scalaInstance = scalaInstance,
@@ -107,6 +101,7 @@ class ZincCompilerInstance(
     )
 
   def doCompile(config: CompilerConfiguration): CompileResponse = {
+    reporter.reset()
     Files.createDirectories(config.binariesDirectory)
     val sources: Array[File] = Directory(config.simulationsDirectory.toString)
       .deepFiles
