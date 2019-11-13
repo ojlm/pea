@@ -127,14 +127,20 @@ class WorkerActor extends BaseActor {
   private def runLoad(message: LoadMessage): Future[String] = {
     val futureRunResult = (gatlingRunnerActor ? message).asInstanceOf[Future[PeaGatlingRunResult]]
     futureRunResult.map(runResult => {
-      engineCancelable = runResult.cancel
-      self ! UpdateRunningStatus(runResult.runId)
-      runResult.result.map(result => {
-        if (!result.isByCanceled) { // stop not by hand
-          self ! UpdateEndStatus(result.code, result.errMsg)
-        }
-      })
-      runResult.runId
+      if (null == runResult.error) {
+        engineCancelable = runResult.cancel
+        self ! UpdateRunningStatus(runResult.runId)
+        runResult.result.map(result => {
+          if (!result.isByCanceled) { // stop not by hand
+            self ! UpdateEndStatus(result.code, result.errMsg)
+          }
+        })
+        runResult.runId
+      } else {
+        self ! UpdateEndStatus(-1, runResult.error.getMessage)
+        // throw the error to the controller
+        throw runResult.error
+      }
     })
   }
 

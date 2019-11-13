@@ -77,7 +77,12 @@ object GatlingRunnerActor {
     PeaGatlingRunner.generateReport(props, runId)(scala.concurrent.ExecutionContext.global)
   }
 
-  case class PeaGatlingRunResult(runId: String, result: Future[GatlingResult], cancel: Cancellable)
+  case class PeaGatlingRunResult(
+                                  runId: String,
+                                  result: Future[GatlingResult],
+                                  cancel: Cancellable,
+                                  error: Throwable = null,
+                                )
 
   case class GatlingResult(code: Int, errMsg: String = null, isByCanceled: Boolean = false)
 

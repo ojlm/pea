@@ -64,60 +64,67 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
     * simulationId and start for custom runId
     */
   def run(simulationId: String = null, nowMillis: Long = 0L)(implicit ec: ExecutionContext): PeaGatlingRunResult = {
-    val selection = Selection(None, configuration)
-    val simulation = selection.simulationClass.getDeclaredConstructor().newInstance()
-    logger.info("Simulation instantiated")
-    val simulationParams = simulation.params(configuration)
-    logger.info("Simulation params built")
+    try { // catch exception when get simulation
+      val selection = Selection(None, configuration)
+      val simulation = selection.simulationClass.getDeclaredConstructor().newInstance()
+      logger.info("Simulation instantiated")
+      val simulationParams = simulation.params(configuration)
+      logger.info("Simulation params built")
 
-    simulation.executeBefore()
-    logger.info("Before hooks executed")
+      simulation.executeBefore()
+      logger.info("Before hooks executed")
 
-    val runMessage = RunMessage(
-      simulationParams.name,
-      if (null != simulationId) simulationId else selection.simulationId,
-      if (nowMillis > 0) nowMillis else clock.nowMillis,
-      selection.description,
-      configuration.core.version
-    )
+      val runMessage = RunMessage(
+        simulationParams.name,
+        if (null != simulationId) simulationId else selection.simulationId,
+        if (nowMillis > 0) nowMillis else clock.nowMillis,
+        selection.description,
+        configuration.core.version
+      )
 
-    val result = Future {
-      var errMsg: String = StringUtils.EMPTY
-      val runResult = try {
-        val statsEngine = PeaDataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)
-        val throttler = Throttler(system, simulationParams)
-        val injector = Injector(system, statsEngine, clock)
-        val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams, configuration), Controller.ControllerActorName)
-        val exit = new Exit(injector, clock)
-        val coreComponents = CoreComponents(system, controller, throttler, statsEngine, clock, exit, configuration)
-        logger.info("CoreComponents instantiated")
-        val scenarios = simulationParams.scenarios(coreComponents)
-        start(simulationParams, scenarios, coreComponents) match {
-          case Failure(t) => throw t
-          case _ =>
-            simulation.executeAfter()
-            logger.info("After hooks executed")
-            RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
-        }
-      } catch {
-        case t: Throwable =>
-          logger.error("Run crashed", t)
-          if (!cancelled) { // if the engine is stopped by hand, ignore the exception
-            errMsg = t.getMessage
+      val result = Future {
+        var errMsg: String = StringUtils.EMPTY
+        val runResult = try {
+          val statsEngine = PeaDataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)
+          val throttler = Throttler(system, simulationParams)
+          val injector = Injector(system, statsEngine, clock)
+          val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams, configuration), Controller.ControllerActorName)
+          val exit = new Exit(injector, clock)
+          val coreComponents = CoreComponents(system, controller, throttler, statsEngine, clock, exit, configuration)
+          logger.info("CoreComponents instantiated")
+          val scenarios = simulationParams.scenarios(coreComponents)
+          start(simulationParams, scenarios, coreComponents) match {
+            case Failure(t) => throw t
+            case _ =>
+              simulation.executeAfter()
+              logger.info("After hooks executed")
+              RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
           }
-          null
-      } finally {
+        } catch {
+          case t: Throwable =>
+            logger.error("Run crashed", t)
+            if (!cancelled) { // if the engine is stopped by hand, ignore the exception
+              errMsg = t.getMessage
+            }
+            null
+        } finally {
+          terminateActorSystem()
+        }
+        if (null != runResult) {
+          val code = new RunResultProcessor(configuration).processRunResult(runResult).code
+          replaceReportLogo(runResult.runId)
+          GatlingResult(code)
+        } else {
+          GatlingResult(-1, errMsg, cancelled)
+        }
+      }
+      PeaGatlingRunResult(runMessage.runId, result, cancel)
+    } catch {
+      case t: Throwable =>
         terminateActorSystem()
-      }
-      if (null != runResult) {
-        val code = new RunResultProcessor(configuration).processRunResult(runResult).code
-        replaceReportLogo(runResult.runId)
-        GatlingResult(code)
-      } else {
-        GatlingResult(-1, errMsg, cancelled)
-      }
+        logger.error(LogUtils.stackTraceToString(t))
+        PeaGatlingRunResult(null, null, null, t)
     }
-    PeaGatlingRunResult(runMessage.runId, result, cancel)
   }
 
   def generateReport(runId: String)(implicit ec: ExecutionContext): Future[Int] = {
