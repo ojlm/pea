@@ -1,6 +1,7 @@
 package asura.pea.api
 
 import java.io.File
+import java.nio.file.Files
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
@@ -15,6 +16,7 @@ import asura.play.api.BaseApi.OkApiRes
 import com.typesafe.scalalogging.StrictLogging
 import controllers.Assets
 import javax.inject.{Inject, Singleton}
+import org.apache.commons.codec.digest.DigestUtils
 import org.pac4j.play.scala.SecurityComponents
 import play.api.http.HttpErrorHandler
 
@@ -35,7 +37,8 @@ class ResourceApi @Inject()(
       val request = req.bodyAs(classOf[ResourceCheckRequest])
       val file = new File(s"${PeaConfig.resourcesFolder}${File.separator}${request.file}")
       val info = if (file.exists()) {
-        ResourceInfo(true, file.isDirectory, file.length(), file.lastModified())
+        val md5 = DigestUtils.md5Hex(Files.newInputStream(file.toPath))
+        ResourceInfo(true, file.isDirectory, file.length, file.lastModified, md5)
       } else {
         ResourceInfo(false, false)
       }

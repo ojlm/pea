@@ -11,6 +11,7 @@ object ResourceModels {
                            isDirectory: Boolean,
                            size: Long = 0L,
                            modified: Long = 0L,
+                           md5: String = null,
                          )
 
 }
