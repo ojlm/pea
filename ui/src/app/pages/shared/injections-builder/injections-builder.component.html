@@ -23,15 +23,15 @@
           </nz-input-number>
         </nz-input-group>
         <div *ngIf="current.type!='atOnceUsers'" style="margin-top:4px;">
-          <nz-input-group nzCompact [nzAddOnBefore]="duringTpl">
-            <ng-template #duringTpl>
+          <nz-input-group nzCompact [nzAddOnBefore]="durationTpl">
+            <ng-template #durationTpl>
               <div style="width:58px;text-align:left;">
-                <span>{{'item.during'|translate}}</span>
+                <span>{{'item.duration'|translate}}</span>
               </div>
             </ng-template>
-            <nz-input-number [(ngModel)]="current.during.value" nzSize="small" [nzMin]="1" [nzStep]="1">
+            <nz-input-number [(ngModel)]="current.duration.value" nzSize="small" [nzMin]="1" [nzStep]="1">
             </nz-input-number>
-            <nz-select [(ngModel)]="current.during.unit" nzSize="small">
+            <nz-select [(ngModel)]="current.duration.unit" nzSize="small">
               <nz-option *ngFor="let item of TIME_UNITS" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
             </nz-select>
           </nz-input-group>

@@ -73,7 +73,7 @@ export interface SingleRequest {
   body?: string
 }
 
-export interface During {
+export interface Duration {
   value?: number
   unit?: string
 }
@@ -82,7 +82,7 @@ export interface Injection {
   type?: string
   users?: number
   to?: number
-  during?: During
+  duration?: Duration
 }
 
 export interface LoadMessage {

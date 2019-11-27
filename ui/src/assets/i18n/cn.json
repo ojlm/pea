@@ -14,7 +14,7 @@
   "btn.upload.file": "上传文件",
   "btn.new.floder": "新建文件夹",
   "item.start": "启动时间",
-  "item.during": "持续时间",
+  "item.duration": "持续时间",
   "item.successful.count": "总成功数",
   "item.fail.count": "总失败数",
   "item.total": "总共",

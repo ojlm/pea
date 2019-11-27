@@ -14,7 +14,7 @@
   "btn.upload.file": "Upload File",
   "btn.new.floder": "New Folder",
   "item.start": "Start At",
-  "item.during": "During",
+  "item.duration": "Duration",
   "item.successful.count": "Successful Count",
   "item.fail.count": "Fail Count",
   "item.total": "Total",

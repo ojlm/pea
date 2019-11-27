@@ -22,7 +22,7 @@ export class InjectionsBuilderComponent {
   current: Injection = {
     type: InjectionType.TYPE_AT_ONCE_USERS,
     users: 100,
-    during: {
+    duration: {
       value: 1,
       unit: TimeUnit.TIME_UNIT_MINUTE,
     }
@@ -58,8 +58,8 @@ export class InjectionsBuilderComponent {
     if (item.to) {
       sum = `${sum},${item.to}`
     }
-    if (item.during && item.during.value && item.during.unit) {
-      sum = `${sum}. During: ${item.during.value} ${this.i18nService.instant(`time.${item.during.unit}`)}.`
+    if (item.duration && item.duration.value && item.duration.unit) {
+      sum = `${sum}. Duration: ${item.duration.value} ${this.i18nService.instant(`time.${item.duration.unit}`)}.`
     }
     return sum
   }
@@ -67,15 +67,15 @@ export class InjectionsBuilderComponent {
   copyInjection(injection: Injection): Injection {
     switch (injection.type) {
       case InjectionType.TYPE_RAMP_USERS:
-        return { type: injection.type, users: injection.users, during: { ...injection.during } }
+        return { type: injection.type, users: injection.users, duration: { ...injection.duration } }
       case InjectionType.TYPE_HEAVISIDE_USERS:
-        return { type: injection.type, users: injection.users, during: { ...injection.during } }
+        return { type: injection.type, users: injection.users, duration: { ...injection.duration } }
       case InjectionType.TYPE_AT_ONCE_USERS:
         return { type: injection.type, users: injection.users }
       case InjectionType.TYPE_CONSTANT_USERS_PER_SEC:
-        return { type: injection.type, users: injection.users, during: { ...injection.during } }
+        return { type: injection.type, users: injection.users, duration: { ...injection.duration } }
       case InjectionType.TYPE_RAMP_USERS_PER_SEC:
-        return { type: injection.type, users: injection.users, to: injection.to, during: { ...injection.during } }
+        return { type: injection.type, users: injection.users, to: injection.to, duration: { ...injection.duration } }
     }
   }
 }

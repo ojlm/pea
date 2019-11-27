@@ -30,8 +30,8 @@ export class JobSummaryComponent {
     if (item.to) {
       sum = `${sum},${item.to}`
     }
-    if (item.during && item.during.value && item.during.unit) {
-      sum = `${sum}. During: ${item.during.value} ${this.i18nService.instant(`time.${item.during.unit}`)}.`
+    if (item.duration && item.duration.value && item.duration.unit) {
+      sum = `${sum}. Duration: ${item.duration.value} ${this.i18nService.instant(`time.${item.duration.unit}`)}.`
     }
     return sum
   }
