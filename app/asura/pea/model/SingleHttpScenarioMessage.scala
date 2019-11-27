@@ -1,6 +1,7 @@
 package asura.pea.model
 
 import asura.common.util.StringUtils
+import asura.pea.model.params._
 
 case class SingleHttpScenarioMessage(
                                       var name: String,
@@ -9,6 +10,11 @@ case class SingleHttpScenarioMessage(
                                       var report: Boolean = true,
                                       var simulationId: String = null,
                                       var start: Long = 0L,
+                                      var feeder: FeederParam = null,
+                                      var loop: LoopParam = null,
+                                      var maxDuration: DurationParam = null,
+                                      var assertions: HttpAssertionParam = null,
+                                      var throttle: ThrottleParam = null,
                                     ) extends LoadMessage {
 
   val `type`: String = LoadTypes.SINGLE

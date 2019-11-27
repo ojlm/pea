@@ -1,11 +1,13 @@
 package asura.pea.model
 
+import asura.pea.model.params.DurationParam
+
 // https://gatling.io/docs/current/general/simulation_setup
 case class Injection(
                       var `type`: String,
                       var users: Int,
                       var to: Int = 0,
-                      var during: During = null,
+                      var duration: DurationParam = null,
                     )
 
 object Injection {
