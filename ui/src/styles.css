@@ -43,3 +43,7 @@ i.click-icon:active {
 .ant-transfer-list-content-item {
   text-align: left;
 }
+
+.ant-breadcrumb-separator {
+  margin: 0 4px;
+}

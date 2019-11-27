@@ -5,16 +5,21 @@ import {
   DeleteOutline,
   DesktopOutline,
   DotChartOutline,
+  FileOutline,
+  FolderOutline,
+  HomeOutline,
   InfoCircleOutline,
   MenuFoldOutline,
   MenuUnfoldOutline,
   NumberOutline,
+  PlusOutline,
   RadarChartOutline,
   RiseOutline,
   ScanOutline,
   ScheduleOutline,
   StopOutline,
   SyncOutline,
+  UploadOutline,
 } from '@ant-design/icons-angular/icons'
 import { NZ_ICONS } from 'ng-zorro-antd'
 
@@ -34,6 +39,12 @@ const icons = [
   RadarChartOutline,
   SyncOutline,
   InfoCircleOutline,
+  FolderOutline,
+  FileOutline,
+  DeleteOutline,
+  HomeOutline,
+  UploadOutline,
+  PlusOutline,
 ]
 
 @NgModule({

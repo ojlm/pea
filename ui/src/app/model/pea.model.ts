@@ -139,6 +139,15 @@ export interface WorkersAvailable {
   runId?: string
 }
 
+export interface ResourceInfo {
+  filename?: string
+  exists?: boolean
+  isDirectory?: boolean
+  size?: number
+  modified?: number
+  md5?: string
+}
+
 export interface Oshi {
   os?: string
   'memory.total'?: number

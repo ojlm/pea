@@ -1,0 +1,54 @@
+<div style="margin-bottom:4px;">
+  <nz-upload [nzAction]="uploadUrl" (nzChange)="uploadChange($event)" [(nzFileList)]="fileList">
+    <button nz-button>
+      <i nz-icon nzType="upload"></i>
+      <span>{{'btn.upload.file'|translate}}</span>
+    </button>
+    <button style="margin-left:4px;" nz-button (click)="newFloder();$event.stopPropagation();">
+      <i nz-icon nzType="plus"></i>
+      <span>{{'btn.new.floder'|translate}}</span>
+    </button>
+  </nz-upload>
+</div>
+<nz-list nzSize="small" [nzDataSource]="items" nzBordered [nzRenderItem]="item" [nzHeader]="tool">
+  <ng-template #tool>
+    <div>
+      <nz-breadcrumb>
+        <nz-breadcrumb-item><a (click)="loadPath('')"><i nz-icon nzType="home"></i></a></nz-breadcrumb-item>
+        <nz-breadcrumb-item *ngFor="let item of breadcrumbItems">
+          <a (click)="loadPath(item.path)">{{item.value}}</a>
+        </nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </div>
+  </ng-template>
+  <ng-template #item let-item>
+    <nz-list-item [nzActions]="[actions]">
+      <div style="width:100%;">
+        <i class="icon" nz-icon [nzType]="item.isDirectory?'folder':'file'" nzTheme="outline"
+          [style.color]="itemColor(item)">
+        </i>
+        <span class="file" [style.color]="itemColor(item)" (click)="click(item)">{{item.filename}}</span>
+        <span *ngIf="item.md5">
+          <nz-divider nzType="vertical"></nz-divider>
+          <span class="md5" title="md5">md5:{{item.md5}}</span>
+        </span>
+        <span class="tail">
+          <span>{{itemSize(item)}}</span>
+          <nz-divider nzType="vertical"></nz-divider>
+          <span>{{itemDate(item)}}</span>
+        </span>
+      </div>
+      <ng-template #actions>
+        <a style="color:red;" (click)="remove(item)">
+          <i nz-icon nzType="delete" nzTheme="outline"></i>
+        </a>
+      </ng-template>
+    </nz-list-item>
+  </ng-template>
+</nz-list>
+<nz-modal [(nzVisible)]="newFlolderVisible" [nzTitle]="'btn.new.floder'|translate" (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()">
+  <nz-input-group [nzAddOnBefore]="'item.folder'|translate">
+    <input type="text" nz-input [(ngModel)]="newFolderName" />
+  </nz-input-group>
+</nz-modal>
