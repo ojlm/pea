@@ -12,6 +12,12 @@ object ResourceModels {
                            size: Long = 0L,
                            modified: Long = 0L,
                            md5: String = null,
+                           filename: String = null,
                          )
+
+  case class NewFolder(
+                        path: String,
+                        name: String,
+                      )
 
 }

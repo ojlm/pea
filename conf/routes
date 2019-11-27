@@ -23,7 +23,12 @@ GET         /api/gatling/response                 asura.pea.api.GatlingApi.respo
 POST        /api/gatling/simulation               asura.pea.api.GatlingApi.runSimulation()
 POST        /api/gatling/program                  asura.pea.api.GatlingApi.runProgram()
 GET         /api/gatling/simulation/:runId        asura.pea.api.GatlingApi.getSimulationLog(runId)
-POST        /api/gatling/resource/check           asura.pea.api.ResourceApi.checkResource()
-POST        /api/gatling/resource/download        asura.pea.api.ResourceApi.downloadResource()
+
+POST        /api/resource/check                   asura.pea.api.ResourceApi.checkResource()
+POST        /api/resource/download                asura.pea.api.ResourceApi.downloadResource()
+POST        /api/resource/upload                  asura.pea.api.ResourceApi.upload(path: String ?= "")
+POST        /api/resource/list                    asura.pea.api.ResourceApi.listFiles()
+POST        /api/resource/remove                  asura.pea.api.ResourceApi.removeFile()
+PUT         /api/resource/folder                  asura.pea.api.ResourceApi.newFolder()
 
 GET         /*file                                asura.pea.api.HomeApi.asset(file)

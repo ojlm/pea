@@ -5,11 +5,11 @@ import java.nio.file.Files
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import asura.common.model.ApiRes
+import asura.common.model.{ApiRes, ApiResError}
 import asura.common.util.StringUtils
 import asura.pea.PeaConfig
 import asura.pea.model.DownloadResourceRequest
-import asura.pea.model.ResourceModels.{ResourceCheckRequest, ResourceInfo}
+import asura.pea.model.ResourceModels.{NewFolder, ResourceCheckRequest, ResourceInfo}
 import asura.pea.service.ResourceService
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
@@ -17,6 +17,7 @@ import com.typesafe.scalalogging.StrictLogging
 import controllers.Assets
 import javax.inject.{Inject, Singleton}
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.FileUtils
 import org.pac4j.play.scala.SecurityComponents
 import play.api.http.HttpErrorHandler
 
@@ -31,6 +32,87 @@ class ResourceApi @Inject()(
                              val assets: Assets,
                              val errorHandler: HttpErrorHandler,
                            ) extends BaseApi with CommonChecks with StrictLogging {
+
+  def upload(path: String) = Action(parse.multipartFormData) { request =>
+    request.body
+      .file("file")
+      .map { upFile =>
+        val subPath = if (StringUtils.isNotEmpty(path)) s"${path}${File.separator}" else StringUtils.EMPTY
+        val absolutePath = s"${PeaConfig.resourcesFolder}${File.separator}${subPath}${upFile.filename}"
+        val targetFile = new File(absolutePath)
+        if (targetFile.getAbsolutePath.startsWith(PeaConfig.resourcesFolder)) {
+          upFile.ref.moveFileTo(targetFile.toPath, replace = true)
+          OkApiRes(ApiRes())
+        } else {
+          blockingResult(targetFile)
+        }
+      }
+      .getOrElse {
+        OkApiRes(ApiResError("Missing file"))
+      }
+  }
+
+  def listFiles() = Action(parse.byteString) { implicit req =>
+    val request = req.bodyAs(classOf[ResourceCheckRequest])
+    val absolutePath = s"${PeaConfig.resourcesFolder}${File.separator}${request.file}"
+    val file = new File(absolutePath)
+    if (file.getAbsolutePath.startsWith(PeaConfig.resourcesFolder)) {
+      if (!file.exists()) {
+        OkApiRes(ApiRes(data = Nil))
+      } else {
+        if (file.isDirectory()) {
+          val resources = file.listFiles().sortWith((a, b) => {
+            if (a.isDirectory && b.isDirectory || a.isFile && b.isFile) {
+              a.lastModified() > b.lastModified()
+            } else {
+              a.isDirectory
+            }
+          }).map(f => {
+            val md5 = if (f.isDirectory) null else DigestUtils.md5Hex(Files.newInputStream(f.toPath))
+            ResourceInfo(true, f.isDirectory, f.length, f.lastModified, md5, f.getName)
+          })
+          OkApiRes(ApiRes(data = resources))
+        } else {
+          val md5 = DigestUtils.md5Hex(Files.newInputStream(file.toPath))
+          OkApiRes(ApiRes(data = Seq(ResourceInfo(true, file.isDirectory, file.length, file.lastModified, md5, file.getName))))
+        }
+      }
+    } else {
+      blockingResult(file)
+    }
+  }
+
+  def newFolder() = Action(parse.byteString) { implicit req =>
+    val request = req.bodyAs(classOf[NewFolder])
+    if (StringUtils.isNotEmpty(request.name)) {
+      val subPath = if (StringUtils.isNotEmpty(request.path)) s"${request.path}${File.separator}" else StringUtils.EMPTY
+      val absolutePath = s"${PeaConfig.resourcesFolder}${File.separator}${subPath}${request.name}"
+      val file = new File(absolutePath)
+      if (!file.exists()) {
+        if (file.getAbsolutePath.startsWith(PeaConfig.resourcesFolder)) {
+          OkApiRes(ApiRes(data = Files.createDirectories(file.toPath).toString))
+        } else {
+          blockingResult(file)
+        }
+      } else {
+        OkApiRes(ApiResError("Folder already exists"))
+      }
+    } else {
+      OkApiRes(ApiResError("Empty folder name"))
+    }
+  }
+
+  def removeFile() = Action(parse.byteString) { implicit req =>
+    val request = req.bodyAs(classOf[ResourceCheckRequest])
+    val absolutePath = s"${PeaConfig.resourcesFolder}${File.separator}${request.file}"
+    val file = new File(absolutePath)
+    if (StringUtils.isNotEmpty(request.file) && file.getAbsolutePath.startsWith(PeaConfig.resourcesFolder)) {
+      FileUtils.forceDelete(file)
+      OkApiRes(ApiRes())
+    } else {
+      blockingResult(file)
+    }
+  }
 
   def checkResource() = Action(parse.byteString).async { implicit req =>
     checkWorkerEnable {
@@ -57,5 +139,9 @@ class ResourceApi @Inject()(
         Future.successful(ErrorResult("Illegal request parameters"))
       }
     }
+  }
+
+  private def blockingResult(file: File) = {
+    OkApiRes(ApiResError(s"Blocking access to this file: ${file.getAbsolutePath}"))
   }
 }
