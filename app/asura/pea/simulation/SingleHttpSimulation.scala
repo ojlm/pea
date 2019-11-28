@@ -167,13 +167,16 @@ class SingleHttpSimulation extends PeaSimulation {
       case DurationParam.TIME_UNIT_HOUR => duration.value hours
     }
   }
-
   def toRequestBuilder(request: SingleRequest): HttpRequestBuilder = {
     val builder = http(StringUtils.notEmptyElse(request.name, request.url))
       .httpRequest(request.method, request.url)
+      .queryParamMap(request.getParams())
       .headers(request.getHeaders())
       .body(StringBody(request.getBody()))
       .check(getChecks(): _*)
+    if(request.getVirtualhost()!=null || request.virtualhost.length!=0) {
+      builder.virtualHost(request.getVirtualhost())
+    }
     if (singleHttpScenario.verbose) {
       builder.check(
         bodyString.saveAs(KEY_BODY),
@@ -183,4 +186,6 @@ class SingleHttpSimulation extends PeaSimulation {
       builder
     }
   }
+
+
 }
