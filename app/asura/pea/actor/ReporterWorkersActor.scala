@@ -10,11 +10,10 @@ import asura.common.actor.BaseActor
 import asura.common.model.{ApiCode, ApiRes}
 import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
-import asura.pea.actor.ReporterActor.RunProgramJob
+import asura.pea.actor.ReporterActor.{RunProgramJob, RunScriptJob, SingleHttpScenarioJob}
 import asura.pea.actor.ReporterWorkersActor._
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 import asura.pea.model._
-import asura.pea.model.job.{RunScriptMessage, SingleHttpScenarioMessage}
 import asura.pea.service.PeaService
 import asura.pea.service.PeaService.LoadFunction
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
@@ -59,12 +58,12 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       log.debug(s"Current job status change to: ${msg}")
     case JobWorkerStatusChange(worker, memberStatus) =>
       handleWorkerStatusChangeEvent(worker, memberStatus)
-    case msg: SingleHttpScenarioMessage =>
+    case msg: SingleHttpScenarioJob =>
       jobType = msg.`type`
-      sendMessageAndWatch(msg, PeaService.sendSingleHttpScenario)
-    case msg: RunScriptMessage =>
+      sendJobAndWatch(msg, PeaService.sendSingleHttpScenario)
+    case msg: RunScriptJob =>
       jobType = msg.`type`
-      sendMessageAndWatch(msg, PeaService.sendScript)
+      sendJobAndWatch(msg, PeaService.sendScript)
     case msg: RunProgramJob =>
       jobType = msg.`type`
       report = msg.report
@@ -167,28 +166,27 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     }
   }
 
-  // workers with the same message
-  def sendMessageAndWatch(msg: LoadMessage, func: LoadFunction): Unit = {
-    initJobNode(msg)
-    val doneFutures = workers.map(worker => {
-      watchWorkerNode(worker)
-      val futureRes = func(worker, msg)
-      dealSendJobResponse(worker, futureRes)
-    })
-    Future.sequence(doneFutures).map(afterSendLoads)
-  }
-
-  // workers with different message
   def sendJobAndWatch(load: LoadJob, func: LoadFunction): Unit = {
     initJobNode(load)
-    val doneFutures = load.jobs.map(job => {
-      watchWorkerNode(job.worker)
-      val msg = job.request
+    val doneFutures = if (null != load.workers && null != load.request) { // with the same load
+      val msg = load.request
       msg.simulationId = load.simulationId
       msg.start = load.start
-      val futureRes = func(job.worker, msg)
-      dealSendJobResponse(job.worker, futureRes)
-    })
+      workers.map(worker => {
+        watchWorkerNode(worker)
+        val futureRes = func(worker, msg)
+        dealSendJobResponse(worker, futureRes)
+      })
+    } else { // with different load
+      load.jobs.map(job => {
+        watchWorkerNode(job.worker)
+        val msg = job.request
+        msg.simulationId = load.simulationId
+        msg.start = load.start
+        val futureRes = func(job.worker, msg)
+        dealSendJobResponse(job.worker, futureRes)
+      })
+    }
     Future.sequence(doneFutures).map(afterSendLoads)
   }
 
