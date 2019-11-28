@@ -22,11 +22,11 @@ class GatlingRunnerActor extends BaseActor {
   override def receive: Receive = {
     case msg: StartMessage =>
       sender() ! GatlingRunnerActor.start(msg)
-    case SingleHttpScenarioMessage(_, _, _, report, simulationId, start) =>
+    case msg: SingleHttpScenarioMessage =>
       sender() ! GatlingRunnerActor.start(
-        StartMessage(innerClassPath, singleHttpSimulationRef, report),
-        simulationId,
-        start
+        StartMessage(innerClassPath, singleHttpSimulationRef, msg.report),
+        msg.simulationId,
+        msg.start
       )
     case msg: RunSimulationMessage =>
       sender() ! GatlingRunnerActor.start(
