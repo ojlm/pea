@@ -36,6 +36,11 @@ export class WorkerPeasComponent implements OnInit {
     })
   }
 
+  openResource(item: WorkerData) {
+    const worker = item.member
+    window.open(`http://${worker.address}:${worker.port}/resources`)
+  }
+
   stop(item: WorkerData) {
     this.homeService.stopWorkers([item.member]).subscribe(res => {
       if (res.data.result) {
