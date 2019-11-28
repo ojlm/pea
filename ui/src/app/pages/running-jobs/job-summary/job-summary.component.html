@@ -1,49 +1,14 @@
-<div>
-  <div class="title">
-    <span class="item">
-      <i nz-icon nzType="number" nzTheme="outline"></i>
-      <span>{{job.runId}}</span>
-    </span>
-    <span class="item time">
-      <i nz-icon nzType="schedule" nzTheme="outline"></i>
-      <span>{{startTime}}</span>
-    </span>
-    <span class="item status">
-      <i nz-icon nzType="radar-chart" nzTheme="outline"></i>
-      <span>{{job.status}}</span>
-    </span>
-  </div>
-  <div *ngIf="load" style="margin-top:4px;">
-    <div [ngSwitch]="load.type">
-      <div *ngSwitchCase="'single'">
-        <div nz-row>
-          <div nz-col nzSpan="24">
-            <a>{{load.request.url}}</a>
-          </div>
-          <div nz-col nzSpan="24" class="injections">
-            <div *ngFor="let item of load.injections">
-              <span class="inj-type">
-                <i nz-icon nzType="number" nzTheme="outline"></i>
-                <span>{{('injection.'+item.type)|translate}}</span>
-              </span>
-              <span class="inj-sum">
-                <i nz-icon nzType="rise" nzTheme="outline"></i>
-                <span>{{sumText(item)}}</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div *ngSwitchCase="'script'">
-        <a>{{load.simulation}}</a>
-      </div>
-      <div *ngSwitchCase="'program'">
-        <div *ngFor="let item of load.jobs">
-          <span class="addr">{{item.worker.address}}:{{item.worker.port}} :</span>
-          <a>{{item.request.program}}</a>
-        </div>
-      </div>
-      <div *ngSwitchDefault></div>
-    </div>
-  </div>
+<div class="title">
+  <span class="item">
+    <i nz-icon nzType="number" nzTheme="outline"></i>
+    <span>{{job.runId}}</span>
+  </span>
+  <span class="item time">
+    <i nz-icon nzType="schedule" nzTheme="outline"></i>
+    <span>{{startTime}}</span>
+  </span>
+  <span class="item status">
+    <i nz-icon nzType="radar-chart" nzTheme="outline"></i>
+    <span>{{job.status}}</span>
+  </span>
 </div>

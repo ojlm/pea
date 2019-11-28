@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { HomeService, WorkerData } from 'src/app/api/home.service'
-import { ReporterJobStatus, UnionLoadMessage } from 'src/app/model/pea.model'
+import { ReporterJobStatus } from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-running-job',
@@ -13,7 +13,6 @@ export class RunningJobComponent implements OnInit, OnDestroy {
   runId = ''
   job: ReporterJobStatus = {}
   members: WorkerData[] = []
-  load: UnionLoadMessage = {}
   constructor(
     private route: ActivatedRoute,
     private homeService: HomeService,
@@ -23,11 +22,18 @@ export class RunningJobComponent implements OnInit, OnDestroy {
     if (this.runId) {
       this.homeService.getJobDetails(this.runId).subscribe(res => {
         this.job = res.data
-        this.load = res.data.load || {}
-        this.members = Object.keys(res.data.workers).map(key => {
-          const addr = key.split(':')
-          return { member: { address: addr[0], port: parseInt(addr[1], 10) } }
-        })
+        const load = res.data.load
+        let tmp: WorkerData[] = []
+        if (load.jobs && load.jobs.length > 0) {
+          load.jobs.forEach(item => {
+            tmp.push({ member: item.worker, request: item.request })
+          })
+        } else if (load.request && load.workers && load.workers.length > 0) {
+          load.workers.forEach(item => {
+            tmp.push({ member: item, request: load.request })
+          })
+        }
+        this.members = tmp
       })
     }
   }

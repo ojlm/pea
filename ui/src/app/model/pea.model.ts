@@ -101,10 +101,11 @@ export interface SingleJob {
 export interface LoadJob {
   workers?: PeaMember[]
   request?: UnionLoadMessage
-  jobs?: SingleJob
+  jobs?: SingleJob[]
   report?: boolean
   simulationId?: string
   start?: number
+  type?: string
 }
 
 export interface SingleHttpScenarioMessage extends LoadMessage {
