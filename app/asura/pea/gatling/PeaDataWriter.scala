@@ -1,18 +1,17 @@
 package asura.pea.gatling
 
+import asura.common.util.StringUtils
 import asura.pea.PeaConfig
-import asura.pea.gatling.PeaDataWriter.{MonitorData, TotalCounters}
+import asura.pea.gatling.PeaDataWriter.{MoitorFuseData, MonitorData, TotalCounters}
 import io.gatling.commons.stats.{KO, OK}
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.message.{End, Start}
 import io.gatling.core.stats.writer._
 
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.math.floor
-
 class PeaDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
 
   private val flushTimerName = "flushTimer"
@@ -48,27 +47,32 @@ class PeaDataWriter(clock: Clock, configuration: GatlingConfiguration) extends D
   }
 
   override def onMessage(message: LoadEventMessage, data: ConsoleData): Unit = message match {
-    case user: UserMessage => onUserMessage(user, data)
+    case user: UserStartMessage    => onUserStartMessage(user, data)
+    case user: UserEndMessage      => onUserEndMessage(user, data)
     case response: ResponseMessage => onResponseMessage(response, data)
-    case error: ErrorMessage => onErrorMessage(error, data)
-    case _ =>
+    case error: ErrorMessage       => onErrorMessage(error, data)
+    case _                         =>
+
   }
 
-  private def onUserMessage(user: UserMessage, data: ConsoleData): Unit = {
+  private def onUserStartMessage(user: UserStartMessage, data: ConsoleData): Unit = {
     import data._
     import user._
 
-    event match {
-      case Start =>
-        usersCounters.get(session.scenario) match {
-          case Some(userCounters) => userCounters.userStart()
-          case _ => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
-        }
-      case End =>
-        usersCounters.get(session.scenario) match {
-          case Some(userCounters) => userCounters.userDone()
-          case _ => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
-        }
+    usersCounters.get(session.scenario) match {
+      case Some(userCounters) => userCounters.userStart()
+      case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
+    }
+  }
+
+
+  private def onUserEndMessage(user: UserEndMessage, data: ConsoleData): Unit = {
+    import data._
+    import user._
+
+    usersCounters.get(session.scenario) match {
+      case Some(userCounters) => userCounters.userDone()
+      case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
     }
   }
 
@@ -122,8 +126,12 @@ object PeaDataWriter {
                           requests: mutable.Map[String, RequestCounters],
                           global: RequestCounters,
                           errors: mutable.Map[String, Int],
+                          debugmsg: String = StringUtils.EMPTY,
                         )
-
+  case class MoitorFuseData(
+                             errorrate: Int,
+                             maxResponse:Long=0L
+                           )
   case class PeaUserCounters(
                               total: Long,
                               active: Long,
