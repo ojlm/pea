@@ -12,7 +12,7 @@ import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor.{AsyncCompileMessage, GetAllSimulations}
-import asura.pea.actor.ReporterActor.{GetAllWorkers, RunProgramJob, RunSimulationJob, SingleHttpScenarioJob}
+import asura.pea.actor.ReporterActor.{GetAllWorkers, RunProgramJob, RunScriptJob, SingleHttpScenarioJob}
 import asura.pea.api.util.ResultUtils
 import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, WorkersRequest}
 import asura.pea.service.PeaService
@@ -130,9 +130,9 @@ class HomeApi @Inject()(
     }
   }
 
-  def runSimulation() = Action(parse.byteString).async { implicit req =>
+  def runScript() = Action(parse.byteString).async { implicit req =>
     checkReporterEnable {
-      val message = req.bodyAs(classOf[RunSimulationJob])
+      val message = req.bodyAs(classOf[RunScriptJob])
       loadJob(message)
     }
   }

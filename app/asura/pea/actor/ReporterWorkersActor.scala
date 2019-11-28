@@ -14,6 +14,7 @@ import asura.pea.actor.ReporterActor.RunProgramJob
 import asura.pea.actor.ReporterWorkersActor._
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 import asura.pea.model._
+import asura.pea.model.job.{RunScriptMessage, SingleHttpScenarioMessage}
 import asura.pea.service.PeaService
 import asura.pea.service.PeaService.LoadFunction
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
@@ -61,9 +62,9 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     case msg: SingleHttpScenarioMessage =>
       jobType = msg.`type`
       sendMessageAndWatch(msg, PeaService.sendSingleHttpScenario)
-    case msg: RunSimulationMessage =>
+    case msg: RunScriptMessage =>
       jobType = msg.`type`
-      sendMessageAndWatch(msg, PeaService.sendSimulation)
+      sendMessageAndWatch(msg, PeaService.sendScript)
     case msg: RunProgramJob =>
       jobType = msg.`type`
       report = msg.report

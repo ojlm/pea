@@ -118,9 +118,9 @@ object PeaService {
       })
   }
 
-  def sendSimulation(member: PeaMember, load: LoadMessage): Future[ApiRes] = {
+  def sendScript(member: PeaMember, load: LoadMessage): Future[ApiRes] = {
     HttpClient.wsClient
-      .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/simulation")
+      .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/script")
       .post(JsonUtils.stringify(load))
       .map(response => {
         JsonUtils.parse(response.body[String], classOf[ApiRes])

@@ -13,6 +13,7 @@ import asura.pea.actor.GatlingRunnerActor.PeaGatlingRunResult
 import asura.pea.actor.ProgramRunnerActor.ProgramResult
 import asura.pea.actor.WorkerActor._
 import asura.pea.model._
+import asura.pea.model.job.{RunProgramMessage, RunScriptMessage, SingleHttpScenarioMessage}
 import asura.pea.{ErrorMessages, PeaConfig}
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.apache.zookeeper.CreateMode
@@ -45,8 +46,8 @@ class WorkerActor extends BaseActor {
       (compilerActor ? msg) pipeTo sender()
     case msg: SingleHttpScenarioMessage =>
       doSingleHttpScenario(msg) pipeTo sender()
-    case msg: RunSimulationMessage =>
-      runSimulation(msg) pipeTo sender()
+    case msg: RunScriptMessage =>
+      runScript(msg) pipeTo sender()
     case msg: RunProgramMessage =>
       runProgram(msg) pipeTo sender()
     case StopEngine =>
@@ -101,7 +102,7 @@ class WorkerActor extends BaseActor {
     }
   }
 
-  def runSimulation(message: RunSimulationMessage): Future[String] = {
+  def runScript(message: RunScriptMessage): Future[String] = {
     if (MemberStatus.WORKER_IDLE.equals(memberStatus.status)) {
       (compilerActor ? SimulationValidateMessage(message.simulation)).flatMap(res => {
         if (res.asInstanceOf[Boolean]) {

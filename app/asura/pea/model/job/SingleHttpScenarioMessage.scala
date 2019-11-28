@@ -1,7 +1,8 @@
-package asura.pea.model
+package asura.pea.model.job
 
 import asura.common.util.StringUtils
 import asura.pea.model.params._
+import asura.pea.model.{Injection, LoadMessage, LoadTypes, SingleRequest}
 
 case class SingleHttpScenarioMessage(
                                       var name: String,

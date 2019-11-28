@@ -1,6 +1,7 @@
-package asura.pea.model
+package asura.pea.model.job
 
 import asura.common.util.StringUtils
+import asura.pea.model.{LoadMessage, LoadTypes}
 
 case class RunProgramMessage(
                               var program: String,

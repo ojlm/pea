@@ -9,6 +9,7 @@ import asura.common.util.JsonUtils
 import asura.pea.PeaConfig
 import asura.pea.actor.ReporterActor._
 import asura.pea.model._
+import asura.pea.model.job.{RunProgramSingleJob, RunScriptMessage, SingleHttpScenarioMessage}
 import asura.pea.service.PeaService
 import asura.pea.service.PeaService.WorkersAvailable
 import org.apache.curator.framework.recipes.cache.PathChildrenCache
@@ -27,7 +28,7 @@ class ReporterActor extends BaseActor {
   override def receive: Receive = {
     case SingleHttpScenarioJob(workers, request) =>
       checkAndStartJob(workers, request) pipeTo sender()
-    case RunSimulationJob(workers, request) =>
+    case RunScriptJob(workers, request) =>
       checkAndStartJob(workers, request) pipeTo sender()
     case msg: RunProgramJob =>
       checkAndStartJobs(msg) pipeTo sender()
@@ -106,13 +107,13 @@ object ReporterActor {
                                     override val request: SingleHttpScenarioMessage,
                                   ) extends LoadJob
 
-  case class RunSimulationJob(
-                               override val workers: Seq[PeaMember],
-                               override val request: RunSimulationMessage,
-                             ) extends LoadJob
+  case class RunScriptJob(
+                           override val workers: Seq[PeaMember],
+                           override val request: RunScriptMessage,
+                         ) extends LoadJob
 
   case class RunProgramJob(
-                            override val jobs: Seq[SingleRunProgramJob]
+                            override val jobs: Seq[RunProgramSingleJob]
                           ) extends LoadJob {
     val `type`: String = LoadTypes.PROGRAM
   }

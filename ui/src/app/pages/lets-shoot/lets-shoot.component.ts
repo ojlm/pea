@@ -7,7 +7,7 @@ import { HomeService, WorkerData } from 'src/app/api/home.service'
 import { ApiRes } from 'src/app/model/api.model'
 import {
   HttpMethods,
-  RunSimulationJob,
+  RunScriptJob,
   SimulationModel,
   SingleHttpScenarioJob,
   SingleHttpScenarioMessage,
@@ -63,7 +63,7 @@ export class LetsShootComponent implements OnInit {
       response = this.homeService.runSingleHttpScenarioJob(this.buildLoadJob())
     } else if (this.tabIndex === 1) {
       this.loading = true
-      response = this.homeService.runSimulationJob(this.buildLoadJob())
+      response = this.homeService.runScriptJob(this.buildLoadJob())
     }
     response.subscribe(res => {
       this.loading = false
@@ -86,7 +86,7 @@ export class LetsShootComponent implements OnInit {
     }, _ => this.loading = false)
   }
 
-  buildLoadJob(): SingleHttpScenarioJob | RunSimulationJob {
+  buildLoadJob(): SingleHttpScenarioJob | RunScriptJob {
     if (this.tabIndex === 0) {
       if (this.headersStr) {
         try {

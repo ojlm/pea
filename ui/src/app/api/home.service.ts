@@ -6,7 +6,7 @@ import {
   JobWorkerStatus,
   PeaMember,
   ReporterJobStatus,
-  RunSimulationJob,
+  RunScriptJob,
   Simulations,
   SingleHttpScenarioJob,
   WorkersAvailable,
@@ -52,8 +52,8 @@ export class HomeService extends BaseService {
     return this.http.post<ApiRes<WorkersAvailable>>(`${this.API_BASE}/single`, load)
   }
 
-  runSimulationJob(load: RunSimulationJob) {
-    return this.http.post<ApiRes<WorkersAvailable>>(`${this.API_BASE}/simulation`, load)
+  runScriptJob(load: RunScriptJob) {
+    return this.http.post<ApiRes<WorkersAvailable>>(`${this.API_BASE}/script`, load)
   }
 
 }

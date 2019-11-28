@@ -7,7 +7,7 @@ GET         /api/reports                          asura.pea.api.HomeApi.reports(
 GET         /api/workers                          asura.pea.api.HomeApi.workers()
 GET         /api/reporters                        asura.pea.api.HomeApi.reporters()
 POST        /api/single                           asura.pea.api.HomeApi.single()
-POST        /api/simulation                       asura.pea.api.HomeApi.runSimulation()
+POST        /api/script                           asura.pea.api.HomeApi.runScript()
 POST        /api/program                          asura.pea.api.HomeApi.runProgram()
 GET         /api/simulations                      asura.pea.api.HomeApi.simulations()
 POST        /api/stop                             asura.pea.api.HomeApi.stop()
@@ -20,7 +20,7 @@ GET         /api/gatling/monitor                  asura.pea.api.GatlingApi.monit
 POST        /api/gatling/compile                  asura.pea.api.GatlingApi.compile()
 GET         /api/gatling/compiler                 asura.pea.api.GatlingApi.compiler()
 GET         /api/gatling/response                 asura.pea.api.GatlingApi.response()
-POST        /api/gatling/simulation               asura.pea.api.GatlingApi.runSimulation()
+POST        /api/gatling/script                   asura.pea.api.GatlingApi.runScript()
 POST        /api/gatling/program                  asura.pea.api.GatlingApi.runProgram()
 GET         /api/gatling/simulation/:runId        asura.pea.api.GatlingApi.getSimulationLog(runId)
 

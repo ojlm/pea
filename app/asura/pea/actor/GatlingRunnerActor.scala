@@ -5,7 +5,7 @@ import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.{GenerateReport, StartMessage}
-import asura.pea.model.{RunSimulationMessage, SingleHttpScenarioMessage}
+import asura.pea.model.job.{RunScriptMessage, SingleHttpScenarioMessage}
 import asura.pea.simulation.SingleHttpSimulation
 import io.gatling.app.PeaGatlingRunner
 import io.gatling.core.config.GatlingPropertiesBuilder
@@ -28,7 +28,7 @@ class GatlingRunnerActor extends BaseActor {
         msg.simulationId,
         msg.start
       )
-    case msg: RunSimulationMessage =>
+    case msg: RunScriptMessage =>
       sender() ! GatlingRunnerActor.start(
         StartMessage(PeaConfig.defaultSimulationOutputFolder, msg.simulation, msg.report),
         msg.simulationId,

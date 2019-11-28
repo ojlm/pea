@@ -9,7 +9,7 @@ import asura.common.util.ProcessUtils.AsyncIntResult
 import asura.common.util.{LogUtils, ProcessUtils, StringUtils, XtermUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.ProgramRunnerActor.{ProgramResult, logger}
-import asura.pea.model.RunProgramMessage
+import asura.pea.model.job.RunProgramMessage
 import asura.pea.service.PeaService
 import asura.pea.util.SimulationLogUtils
 import com.typesafe.scalalogging.Logger

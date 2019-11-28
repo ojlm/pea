@@ -18,7 +18,7 @@ import asura.pea.actor.WebResponseMonitorActor.WebResponseMonitorOptions
 import asura.pea.actor.WebWorkerMonitorActor.WebWorkerMonitorOptions
 import asura.pea.actor.WorkerActor.{GetNodeStatusMessage, StopEngine}
 import asura.pea.actor.{WebCompilerMonitorActor, WebResponseMonitorActor, WebWorkerMonitorActor}
-import asura.pea.model.{RunProgramMessage, RunSimulationMessage, SingleHttpScenarioMessage}
+import asura.pea.model.job.{RunProgramMessage, RunScriptMessage, SingleHttpScenarioMessage}
 import asura.pea.util.SimulationLogUtils
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
@@ -62,9 +62,9 @@ class GatlingApi @Inject()(
     }
   }
 
-  def runSimulation() = Action(parse.byteString).async { implicit req =>
+  def runScript() = Action(parse.byteString).async { implicit req =>
     checkWorkerEnable {
-      val message = req.bodyAs(classOf[RunSimulationMessage])
+      val message = req.bodyAs(classOf[RunScriptMessage])
       val exception = message.isValid()
       if (null != exception) {
         Future.failed(exception)

@@ -1,6 +1,8 @@
-package asura.pea.model
+package asura.pea.model.job
 
-case class SingleRunProgramJob(
+import asura.pea.model.{PeaMember, SingleJob}
+
+case class RunProgramSingleJob(
                                 worker: PeaMember,
                                 request: RunProgramMessage
                               ) extends SingleJob

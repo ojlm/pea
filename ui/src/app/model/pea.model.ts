@@ -113,7 +113,7 @@ export interface SingleHttpScenarioMessage extends LoadMessage {
   injections?: Injection[]
 }
 
-export interface RunSimulationMessage extends LoadMessage {
+export interface RunScriptMessage extends LoadMessage {
   simulation?: string
 }
 
@@ -121,16 +121,16 @@ export interface RunProgramMessage extends LoadMessage {
   program?: string
 }
 
-export type UnionLoadMessage = SingleHttpScenarioMessage & RunSimulationMessage & RunProgramMessage
+export type UnionLoadMessage = SingleHttpScenarioMessage & RunScriptMessage & RunProgramMessage
 
 export interface SingleHttpScenarioJob {
   workers?: PeaMember[]
   request?: SingleHttpScenarioMessage
 }
 
-export interface RunSimulationJob {
+export interface RunScriptJob {
   workers?: PeaMember[]
-  request?: RunSimulationMessage
+  request?: RunScriptMessage
 }
 
 export interface WorkersAvailable {
