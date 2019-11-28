@@ -120,6 +120,7 @@ class SingleHttpSimulation extends PeaSimulation {
           case Injection.TYPE_AT_ONCE_USERS => atOnceUsers(injection.users)
           case Injection.TYPE_CONSTANT_USERS_PER_SEC => constantUsersPerSec(injection.users) during (toFiniteDuration(duration))
           case Injection.TYPE_RAMP_USERS_PER_SEC => rampUsersPerSec(injection.users) to injection.to during (toFiniteDuration(duration))
+          case Injection.TYPE_INCREMENT_USERS_PERSEC => incrementUsersPerSec(injection.users).times(injection.time).eachLevelLasting(toFiniteDuration(duration)).startingFrom(duration.start)
         }
       })
     } else {
