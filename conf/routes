@@ -26,11 +26,13 @@ GET         /api/gatling/simulation/:runId        asura.pea.api.GatlingApi.getSi
 
 POST        /api/resource/check                   asura.pea.api.ResourceApi.checkResource()
 POST        /api/resource/download                asura.pea.api.ResourceApi.downloadResourceFrom()
+GET         /api/resource/read1k                  asura.pea.api.ResourceApi.readResource1k(path: String ?= "")
 GET         /api/resource/download                asura.pea.api.ResourceApi.downloadResource(path: String ?= "")
 POST        /api/resource/upload                  asura.pea.api.ResourceApi.uploadResource(path: String ?= "")
 POST        /api/resource/list                    asura.pea.api.ResourceApi.listResource()
 POST        /api/resource/remove                  asura.pea.api.ResourceApi.removeResource()
 PUT         /api/resource/folder                  asura.pea.api.ResourceApi.newResourceFolder()
+GET         /api/resource/jar/read1k              asura.pea.api.ResourceApi.readJar1k(path: String ?= "")
 GET         /api/resource/jar/download            asura.pea.api.ResourceApi.downloadJar(path: String ?= "")
 POST        /api/resource/jar/upload              asura.pea.api.ResourceApi.uploadJar(path: String ?= "")
 POST        /api/resource/jar/list                asura.pea.api.ResourceApi.listJar()

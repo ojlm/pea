@@ -13,6 +13,10 @@ export class ResourceService extends BaseService {
   API_BASE_RESOURCE = `${this.API_BASE}/resource`
   constructor(private http: HttpClient) { super() }
 
+  read1k(path: string, isLibs: boolean) {
+    return this.http.get<ApiRes<string>>(`${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/read1k?path=${path}`)
+  }
+
   list(file: string, isLibs: boolean) {
     return this.http.post<ApiRes<ResourceInfo[]>>(`${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/list`, { file: file || '' })
   }

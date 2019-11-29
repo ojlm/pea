@@ -93,6 +93,14 @@ export class LocalResourcesComponent implements OnInit {
       this.loadFiles()
     } else {
       // read file
+      this.resourceService.read1k(`${this.path}/${item.filename}`, this.isLibs).subscribe(res => {
+        this.modalService.create({
+          nzTitle: `1K: ${item.filename}`,
+          nzContent: `<pre>${res.data}</pre>`,
+          nzClosable: true,
+          nzOnOk: () => { }
+        })
+      })
     }
   }
 

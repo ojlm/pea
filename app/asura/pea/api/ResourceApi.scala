@@ -11,6 +11,7 @@ import asura.pea.PeaConfig
 import asura.pea.model.DownloadResourceRequest
 import asura.pea.model.ResourceModels.{NewFolder, ResourceCheckRequest, ResourceInfo}
 import asura.pea.service.ResourceService
+import asura.pea.util.{FileUtils => PeaFileUtils}
 import asura.play.api.BaseApi
 import asura.play.api.BaseApi.OkApiRes
 import com.typesafe.scalalogging.StrictLogging
@@ -34,6 +35,12 @@ class ResourceApi @Inject()(
                              val assets: Assets,
                              val errorHandler: HttpErrorHandler,
                            ) extends BaseApi with CommonChecks with StrictLogging {
+
+  def readJar1k(path: String) = Action {
+    checkUserDataFolder {
+      read1KRes(path, PeaConfig.compilerExtraClasspath)
+    }
+  }
 
   def downloadJar(path: String) = Action {
     checkJarFolder {
@@ -59,6 +66,12 @@ class ResourceApi @Inject()(
   def removeJar() = Action(parse.byteString) { implicit req =>
     checkJarFolder {
       removeRes(req.bodyAs(classOf[ResourceCheckRequest]), PeaConfig.compilerExtraClasspath)
+    }
+  }
+
+  def readResource1k(path: String) = Action {
+    checkUserDataFolder {
+      read1KRes(path, PeaConfig.resourcesFolder)
     }
   }
 
@@ -138,6 +151,16 @@ class ResourceApi @Inject()(
       }
     } else {
       OkApiRes(ApiResError("Empty folder name"))
+    }
+  }
+
+  private def read1KRes(path: String, baseFolder: String): Result = {
+    val absolutePath = s"${baseFolder}${File.separator}${path}"
+    val file = new File(absolutePath)
+    if (file.exists() && file.isFile && file.getAbsolutePath.startsWith(baseFolder)) {
+      OkApiRes(ApiRes(data = PeaFileUtils.readHead1K(file)))
+    } else {
+      blockingResult(file)
     }
   }
 
