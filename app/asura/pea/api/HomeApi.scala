@@ -58,13 +58,13 @@ class HomeApi @Inject()(
       }
     } else {
       if (file.exists()) {
-        if (file.getAbsolutePath.startsWith(PeaConfig.resultsFolder)) {
+        if (file.getCanonicalPath.startsWith(PeaConfig.resultsFolder)) {
           Ok.sendFile(file, true)
         } else {
-          OkApiRes(ApiResError(s"Blocking access to this file: ${file.getAbsolutePath}"))
+          OkApiRes(ApiResError(s"Blocking access to this file: ${file.getCanonicalPath}"))
         }
       } else {
-        OkApiRes(ApiResError(s"File is not there: ${file.getAbsolutePath}"))
+        OkApiRes(ApiResError(s"File is not there: ${file.getCanonicalPath}"))
       }
     }
   }

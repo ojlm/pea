@@ -54,7 +54,7 @@ class ApplicationStart @Inject()(
       str
     } else {
       val extFile = new File(s"${System.getProperty("user.dir")}/../ext")
-      if (extFile.isDirectory) extFile.getAbsolutePath else StringUtils.EMPTY
+      if (extFile.isDirectory) extFile.getCanonicalPath else StringUtils.EMPTY
     }
   }
   PeaConfig.webSimulationEditorBaseUrl = getStringFromConfig("pea.simulations.webEditorBaseUrl")
@@ -170,11 +170,11 @@ class ApplicationStart @Inject()(
         val method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
         method.setAccessible(true)
         method.invoke(ClassLoader.getSystemClassLoader, outputFile.toURI.toURL)
-        logger.debug("Add {} to system classpath.", outputFile.getAbsolutePath)
+        logger.debug("Add {} to system classpath.", outputFile.getCanonicalPath)
         if (StringUtils.isNotEmpty(PeaConfig.compilerExtraClasspath)) {
           val extFile = new File(PeaConfig.compilerExtraClasspath)
           method.invoke(ClassLoader.getSystemClassLoader, extFile.toURI.toURL)
-          logger.debug("Add {} to system classpath.", extFile.getAbsolutePath)
+          logger.debug("Add {} to system classpath.", extFile.getCanonicalPath)
         }
       } catch {
         case t: Throwable => logger.warn(LogUtils.stackTraceToString(t))

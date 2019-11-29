@@ -122,15 +122,15 @@ class GatlingApi @Inject()(
 
   def getSimulationLog(runId: String) = Action {
     val file = new File(SimulationLogUtils.simulationLogFile(runId))
-    logger.debug(s"Downloading file(${file.exists()}): ${file.getAbsolutePath}")
+    logger.debug(s"Downloading file(${file.exists()}): ${file.getCanonicalPath}")
     if (file.exists()) {
-      if (file.getAbsolutePath.startsWith(PeaConfig.resultsFolder)) {
+      if (file.getCanonicalPath.startsWith(PeaConfig.resultsFolder)) {
         Ok.sendFile(file, false)
       } else {
-        OkApiRes(ApiResError(s"Blocking access to this file: ${file.getAbsolutePath}"))
+        OkApiRes(ApiResError(s"Blocking access to this file: ${file.getCanonicalPath}"))
       }
     } else {
-      OkApiRes(ApiResError(s"File is not there: ${file.getAbsolutePath}"))
+      OkApiRes(ApiResError(s"File is not there: ${file.getCanonicalPath}"))
     }
   }
 

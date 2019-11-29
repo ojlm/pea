@@ -141,7 +141,7 @@ class ResourceApi @Inject()(
       val absolutePath = s"${baseFolder}${File.separator}${subPath}${request.name}"
       val file = new File(absolutePath)
       if (!file.exists()) {
-        if (file.getAbsolutePath.startsWith(baseFolder)) {
+        if (file.getCanonicalPath.startsWith(baseFolder)) {
           OkApiRes(ApiRes(data = Files.createDirectories(file.toPath).toString))
         } else {
           blockingResult(file)
@@ -157,7 +157,7 @@ class ResourceApi @Inject()(
   private def read1KRes(path: String, baseFolder: String): Result = {
     val absolutePath = s"${baseFolder}${File.separator}${path}"
     val file = new File(absolutePath)
-    if (file.exists() && file.isFile && file.getAbsolutePath.startsWith(baseFolder)) {
+    if (file.exists() && file.isFile && file.getCanonicalPath.startsWith(baseFolder)) {
       OkApiRes(ApiRes(data = PeaFileUtils.readHead1K(file)))
     } else {
       blockingResult(file)
@@ -167,7 +167,7 @@ class ResourceApi @Inject()(
   private def downloadRes(path: String, baseFolder: String): Result = {
     val absolutePath = s"${baseFolder}${File.separator}${path}"
     val file = new File(absolutePath)
-    if (file.exists() && file.isFile && file.getAbsolutePath.startsWith(baseFolder)) {
+    if (file.exists() && file.isFile && file.getCanonicalPath.startsWith(baseFolder)) {
       Ok.sendFile(file, false)
     } else {
       blockingResult(file)
@@ -178,7 +178,7 @@ class ResourceApi @Inject()(
     val subPath = if (StringUtils.isNotEmpty(path)) s"${path}${File.separator}" else StringUtils.EMPTY
     val absolutePath = s"${baseFolder}${File.separator}${subPath}${upFile.filename}"
     val targetFile = new File(absolutePath)
-    if (targetFile.getAbsolutePath.startsWith(baseFolder)) {
+    if (targetFile.getCanonicalPath.startsWith(baseFolder)) {
       upFile.ref.moveFileTo(targetFile.toPath, replace = true)
       OkApiRes(ApiRes())
     } else {
@@ -189,7 +189,7 @@ class ResourceApi @Inject()(
   private def removeRes(check: ResourceCheckRequest, baseFolder: String): Result = {
     val absolutePath = s"${baseFolder}${File.separator}${check.file}"
     val file = new File(absolutePath)
-    if (StringUtils.isNotEmpty(check.file) && file.getAbsolutePath.startsWith(baseFolder)) {
+    if (StringUtils.isNotEmpty(check.file) && file.getCanonicalPath.startsWith(baseFolder)) {
       FileUtils.forceDelete(file)
       OkApiRes(ApiRes())
     } else {
@@ -200,7 +200,7 @@ class ResourceApi @Inject()(
   private def listRes(check: ResourceCheckRequest, baseFolder: String): Result = {
     val absolutePath = s"${baseFolder}${File.separator}${check.file}"
     val file = new File(absolutePath)
-    if (file.getAbsolutePath.startsWith(baseFolder)) {
+    if (file.getCanonicalPath.startsWith(baseFolder)) {
       if (!file.exists()) {
         OkApiRes(ApiRes(data = Nil))
       } else {
@@ -227,6 +227,6 @@ class ResourceApi @Inject()(
   }
 
   private def blockingResult(file: File) = {
-    OkApiRes(ApiResError(s"Blocking access to this file: ${file.getAbsolutePath}"))
+    OkApiRes(ApiResError(s"Blocking access to this file: ${file.getCanonicalPath}"))
   }
 }

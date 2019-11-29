@@ -24,7 +24,7 @@ object ResourceService {
       .stream()
       .flatMap(res => {
         val file = new File(s"${PeaConfig.resourcesFolder}${File.separator}${request.file}")
-        if (file.getAbsolutePath.startsWith(PeaConfig.resourcesFolder)) {
+        if (file.getCanonicalPath.startsWith(PeaConfig.resourcesFolder)) {
           Files.createDirectories(Paths.get(file.getParent))
           val os = Files.newOutputStream(file.toPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)
           val sink = Sink.foreach[ByteString] { bytes =>
