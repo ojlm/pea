@@ -1,17 +1,18 @@
 package asura.pea.gatling
 
-import asura.common.util.StringUtils
 import asura.pea.PeaConfig
-import asura.pea.gatling.PeaDataWriter.{MoitorFuseData, MonitorData, TotalCounters}
+import asura.pea.gatling.PeaDataWriter.{MonitorData, TotalCounters}
 import io.gatling.commons.stats.{KO, OK}
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.stats.message.{End, Start}
 import io.gatling.core.stats.writer._
 
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.math.floor
+
 class PeaDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
 
   private val flushTimerName = "flushTimer"
@@ -64,7 +65,6 @@ class PeaDataWriter(clock: Clock, configuration: GatlingConfiguration) extends D
       case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
     }
   }
-
 
   private def onUserEndMessage(user: UserEndMessage, data: ConsoleData): Unit = {
     import data._
@@ -126,12 +126,8 @@ object PeaDataWriter {
                           requests: mutable.Map[String, RequestCounters],
                           global: RequestCounters,
                           errors: mutable.Map[String, Int],
-                          debugmsg: String = StringUtils.EMPTY,
                         )
-  case class MoitorFuseData(
-                             errorrate: Int,
-                             maxResponse:Long=0L
-                           )
+
   case class PeaUserCounters(
                               total: Long,
                               active: Long,
