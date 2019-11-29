@@ -48,9 +48,17 @@ class ApplicationStart @Inject()(
   PeaConfig.defaultSimulationSourceFolder = getStringFromConfig("pea.worker.source")
   PeaConfig.defaultSimulationOutputFolder = getStringFromConfig("pea.worker.output")
   PeaConfig.resourcesFolder = getStringFromConfig("pea.worker.resources")
-  PeaConfig.compilerExtraClasspath = getStringFromConfig("pea.worker.classpath")
+  PeaConfig.compilerExtraClasspath = {
+    val str = getStringFromConfig("pea.worker.classpath")
+    if (StringUtils.isNotEmpty(str)) {
+      str
+    } else {
+      val extFile = new File(s"${System.getProperty("user.dir")}/../ext")
+      if (extFile.isDirectory) extFile.getAbsolutePath else StringUtils.EMPTY
+    }
+  }
   PeaConfig.webSimulationEditorBaseUrl = getStringFromConfig("pea.simulations.webEditorBaseUrl")
-  addSimulationOutputToClasspath()
+  addSimulationOutputAndExtToClasspath()
   val enableZk = configuration.getOptional[Boolean]("pea.zk.enabled").getOrElse(false)
   if (enableZk) {
     registerToZK()
@@ -155,13 +163,19 @@ class ApplicationStart @Inject()(
     configuration.getOptional[String](key).getOrElse(StringUtils.EMPTY)
   }
 
-  private def addSimulationOutputToClasspath(): Unit = {
+  private def addSimulationOutputAndExtToClasspath(): Unit = {
     if (StringUtils.isNotEmpty(PeaConfig.defaultSimulationOutputFolder)) {
       try {
-        val file = new File(PeaConfig.defaultSimulationOutputFolder)
+        val outputFile = new File(PeaConfig.defaultSimulationOutputFolder)
         val method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
         method.setAccessible(true)
-        method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
+        method.invoke(ClassLoader.getSystemClassLoader, outputFile.toURI.toURL)
+        logger.debug("Add {} to system classpath.", outputFile.getAbsolutePath)
+        if (StringUtils.isNotEmpty(PeaConfig.compilerExtraClasspath)) {
+          val extFile = new File(PeaConfig.compilerExtraClasspath)
+          method.invoke(ClassLoader.getSystemClassLoader, extFile.toURI.toURL)
+          logger.debug("Add {} to system classpath.", extFile.getAbsolutePath)
+        }
       } catch {
         case t: Throwable => logger.warn(LogUtils.stackTraceToString(t))
       }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core'
+import { Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { NzModalService, UploadChangeParam, UploadFile } from 'ng-zorro-antd'
 import { ResourceService } from 'src/app/api/resource.service'
@@ -12,19 +13,21 @@ import { formatFileSize } from 'src/app/util/file'
 })
 export class LocalResourcesComponent implements OnInit {
 
-  UPLOAD_BASE_URL = '/api/resource/upload'
-  uploadUrl = this.UPLOAD_BASE_URL
+  UPLOAD_BASE_URL = ''
+  uploadUrl = ''
   fileList: UploadFile[] = []
   items: ResourceInfo[] = []
   breadcrumbItems: BreadcrumbPath[] = []
   path: string = ''
   newFlolderVisible = false
   newFolderName = ''
+  isLibs = false
 
   constructor(
     private resourceService: ResourceService,
     private modalService: NzModalService,
     private i18nService: TranslateService,
+    private router: Router,
   ) { }
 
   newFloder() {
@@ -32,7 +35,7 @@ export class LocalResourcesComponent implements OnInit {
   }
 
   handleOk() {
-    this.resourceService.newFolder(this.path, this.newFolderName).subscribe(res => {
+    this.resourceService.newFolder(this.path, this.newFolderName, this.isLibs).subscribe(res => {
       this.newFolderName = ''
       this.newFlolderVisible = false
       this.loadFiles()
@@ -46,8 +49,11 @@ export class LocalResourcesComponent implements OnInit {
 
   uploadChange(param: UploadChangeParam) {
     if (param.file.status === 'done') {
-      this.fileList = []
-      this.loadFiles()
+      const done = this.fileList.filter(file => file.status === 'done').length
+      if (done === this.fileList.length) {
+        this.fileList = []
+        this.loadFiles()
+      }
     }
   }
 
@@ -99,7 +105,7 @@ export class LocalResourcesComponent implements OnInit {
         if (this.path) {
           path = `${this.path}/${item.filename}`
         }
-        this.resourceService.remove(path).subscribe(res => {
+        this.resourceService.remove(path, this.isLibs).subscribe(res => {
           this.loadFiles()
         })
       }
@@ -111,7 +117,7 @@ export class LocalResourcesComponent implements OnInit {
     if (this.path) {
       path = `${this.path}/${item.filename}`
     }
-    this.resourceService.download(path)
+    this.resourceService.download(path, this.isLibs)
   }
 
   downloadLink(item: ResourceInfo) {
@@ -119,7 +125,7 @@ export class LocalResourcesComponent implements OnInit {
     if (this.path) {
       path = `${this.path}/${item.filename}`
     }
-    return this.resourceService.downloadLink(path)
+    return this.resourceService.downloadLink(path, this.isLibs)
   }
 
   itemDate(item: ResourceInfo) {
@@ -133,12 +139,19 @@ export class LocalResourcesComponent implements OnInit {
   }
 
   loadFiles() {
-    this.resourceService.list(this.path).subscribe(res => {
+    this.resourceService.list(this.path, this.isLibs).subscribe(res => {
       this.items = res.data
     })
   }
 
   ngOnInit() {
+    this.isLibs = this.router.url === '/libs'
+    if (this.isLibs) {
+      this.UPLOAD_BASE_URL = '/api/resource/jar/upload'
+    } else {
+      this.UPLOAD_BASE_URL = '/api/resource/upload'
+    }
+    this.updateBreadcrumbItems()
     this.loadFiles()
   }
 }

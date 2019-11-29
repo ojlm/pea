@@ -1,10 +1,10 @@
 <div style="margin-bottom:4px;">
-  <nz-upload [nzAction]="uploadUrl" (nzChange)="uploadChange($event)" [(nzFileList)]="fileList">
+  <nz-upload [nzMultiple]="true" [nzAction]="uploadUrl" (nzChange)="uploadChange($event)" [(nzFileList)]="fileList">
     <button nz-button>
       <i nz-icon nzType="upload"></i>
       <span>{{'btn.upload.file'|translate}}</span>
     </button>
-    <button style="margin-left:4px;" nz-button (click)="newFloder();$event.stopPropagation();">
+    <button *ngIf="!isLibs" style="margin-left:4px;" nz-button (click)="newFloder();$event.stopPropagation();">
       <i nz-icon nzType="plus"></i>
       <span>{{'btn.new.floder'|translate}}</span>
     </button>

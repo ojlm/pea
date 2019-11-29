@@ -8,6 +8,7 @@
   "menu.localReports": "本地报告",
   "menu.resources": "资源",
   "menu.localData": "数据文件",
+  "menu.localLibs": "依赖文件",
   "btn.add": "添加",
   "btn.remove": "移除",
   "btn.run": "执行",

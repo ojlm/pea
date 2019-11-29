@@ -1,5 +1,6 @@
 package asura.pea.api
 
+import asura.common.util.StringUtils
 import asura.pea.PeaConfig
 import play.api.mvc.Result
 
@@ -20,6 +21,22 @@ trait CommonChecks extends CommonFunctions {
       func
     } else {
       FutureErrorResult("Role reporter is disabled")
+    }
+  }
+
+  def checkUserDataFolder(func: => Result): Result = {
+    if (StringUtils.isNotEmpty(PeaConfig.resourcesFolder)) {
+      func
+    } else {
+      ErrorResult("Config 'resources' is not set")
+    }
+  }
+
+  def checkJarFolder(func: => Result): Result = {
+    if (StringUtils.isNotEmpty(PeaConfig.compilerExtraClasspath)) {
+      func
+    } else {
+      ErrorResult("Config 'classpath' is not set")
     }
   }
 }

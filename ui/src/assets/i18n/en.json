@@ -8,6 +8,7 @@
   "menu.localReports": "Local Reports",
   "menu.resources": "Resources",
   "menu.localData": "User Data",
+  "menu.localLibs": "Ext Libs",
   "btn.add": "Add",
   "btn.remove": "Remove",
   "btn.run": "Run",
