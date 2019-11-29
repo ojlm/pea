@@ -33,6 +33,16 @@ class ResourceApi @Inject()(
                              val errorHandler: HttpErrorHandler,
                            ) extends BaseApi with CommonChecks with StrictLogging {
 
+  def downloadFile(path: String) = Action {
+    val absolutePath = s"${PeaConfig.resourcesFolder}${File.separator}${path}"
+    val file = new File(absolutePath)
+    if (file.isFile && file.getAbsolutePath.startsWith(PeaConfig.resourcesFolder)) {
+      Ok.sendFile(file, false)
+    } else {
+      blockingResult(file)
+    }
+  }
+
   def upload(path: String) = Action(parse.multipartFormData) { request =>
     request.body
       .file("file")

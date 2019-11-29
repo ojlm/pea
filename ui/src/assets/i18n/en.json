@@ -7,7 +7,7 @@
   "menu.reports": "Simulations",
   "menu.localReports": "Local Reports",
   "menu.resources": "Resources",
-  "menu.localResources": "Local Resources",
+  "menu.localData": "User Data",
   "btn.add": "Add",
   "btn.remove": "Remove",
   "btn.run": "Run",

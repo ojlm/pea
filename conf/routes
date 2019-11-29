@@ -26,6 +26,7 @@ GET         /api/gatling/simulation/:runId        asura.pea.api.GatlingApi.getSi
 
 POST        /api/resource/check                   asura.pea.api.ResourceApi.checkResource()
 POST        /api/resource/download                asura.pea.api.ResourceApi.downloadResource()
+GET         /api/resource/download                asura.pea.api.ResourceApi.downloadFile(path: String ?= "")
 POST        /api/resource/upload                  asura.pea.api.ResourceApi.upload(path: String ?= "")
 POST        /api/resource/list                    asura.pea.api.ResourceApi.listFiles()
 POST        /api/resource/remove                  asura.pea.api.ResourceApi.removeFile()
