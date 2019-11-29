@@ -1,9 +1,11 @@
 import { Component, Input, OnDestroy } from '@angular/core'
+import { TranslateService } from '@ngx-translate/core'
 import { NzMessageService } from 'ng-zorro-antd'
 import { GatlingService } from 'src/app/api/gatling.service'
 import { WorkerData } from 'src/app/api/home.service'
 import { ActorEvent, ActorEventType } from 'src/app/model/api.model'
 import {
+  Injection,
   JobWorkerStatus,
   LoadTypes,
   MonitorData,
@@ -11,6 +13,7 @@ import {
   PeaUserCounters,
   RequestCounters,
   TotalCounters,
+  UnionLoadMessage,
 } from 'src/app/model/pea.model'
 
 @Component({
@@ -33,24 +36,28 @@ export class PeaMemberComponent implements OnDestroy {
   users: UserCountersItem[] = []
   requests: RequestCountersItem[] = []
   errors: ErrorsCountItem[] = []
+  request: UnionLoadMessage
 
-  @Input() type = ''
   @Input()
   set data(data: WorkerData) {
+    this.request = data.request
     this.status = data.status
     this.member = data.member
-    if (data) {
-      if (LoadTypes.PROGRAM === this.type) {
+    if (this.request) {
+      if (LoadTypes.PROGRAM === this.request.type) {
         this.showConsole()
       } else {
         this.startGatlingMonitor()
       }
+    } else {
+      this.startGatlingMonitor()
     }
   }
 
   constructor(
     private gatlingService: GatlingService,
     private msgService: NzMessageService,
+    private i18nService: TranslateService,
   ) { }
 
   startGatlingMonitor() {
@@ -98,6 +105,17 @@ export class PeaMemberComponent implements OnDestroy {
     this.errors = Object.keys(data.errors).map(k => {
       return { name: k, count: data.errors[k] }
     })
+  }
+
+  sumText(item: Injection) {
+    let sum = `Users: ${item.users}`
+    if (item.to) {
+      sum = `${sum},${item.to}`
+    }
+    if (item.duration && item.duration.value && item.duration.unit) {
+      sum = `${sum}. Duration: ${item.duration.value} ${this.i18nService.instant(`time.${item.duration.unit}`)}.`
+    }
+    return sum
   }
 
   ngOnDestroy(): void {

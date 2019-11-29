@@ -5,7 +5,9 @@ import {
   DeleteOutline,
   DesktopOutline,
   DotChartOutline,
+  DownloadOutline,
   FileOutline,
+  FolderOpenOutline,
   FolderOutline,
   HomeOutline,
   InfoCircleOutline,
@@ -45,6 +47,8 @@ const icons = [
   HomeOutline,
   UploadOutline,
   PlusOutline,
+  FolderOpenOutline,
+  DownloadOutline,
 ]
 
 @NgModule({

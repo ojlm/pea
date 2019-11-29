@@ -39,9 +39,14 @@
         </span>
       </div>
       <ng-template #actions>
-        <a style="color:red;" (click)="remove(item)">
-          <i nz-icon nzType="delete" nzTheme="outline"></i>
-        </a>
+        <div class="actions">
+          <a *ngIf="!item.isDirectory" style="color:black;" [href]="downloadLink(item)" [download]="item.filename">
+            <i nz-icon nzType="download" nzTheme="outline"></i>
+          </a>
+          <a style="color:red;margin-left:4px;" (click)="remove(item)">
+            <i nz-icon nzType="delete" nzTheme="outline"></i>
+          </a>
+        </div>
       </ng-template>
     </nz-list-item>
   </ng-template>

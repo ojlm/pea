@@ -24,4 +24,20 @@ export class ResourceService extends BaseService {
   newFolder(path: string, name: string) {
     return this.http.put<ApiRes<boolean>>(`${this.API_BASE_RESOURCE}/folder`, { path: path, name: name })
   }
+
+  getDownloadLink() {
+    return `${this.API_BASE_RESOURCE}/download`
+  }
+
+  download(path: string) {
+    const url = `${this.API_BASE_RESOURCE}/download?path=${path}`
+    this.http.get<Blob>(url, { responseType: 'blob' as 'json' }).subscribe(res => {
+      const link = window.URL.createObjectURL(res)
+      window.open(link)
+    })
+  }
+
+  downloadLink(path: string) {
+    return `${this.API_BASE_RESOURCE}/download?path=${path}`
+  }
 }

@@ -9,6 +9,7 @@ import {
   RunScriptJob,
   Simulations,
   SingleHttpScenarioJob,
+  UnionLoadMessage,
   WorkersAvailable,
 } from '../model/pea.model'
 import { BaseService } from './base.service'
@@ -61,6 +62,7 @@ export class HomeService extends BaseService {
 export interface WorkerData {
   member?: PeaMember
   status?: JobWorkerStatus
+  request?: UnionLoadMessage
 }
 
 export interface WorkersBoolResponse {

@@ -106,6 +106,22 @@ export class LocalResourcesComponent implements OnInit {
     })
   }
 
+  download(item: ResourceInfo) {
+    let path = item.filename
+    if (this.path) {
+      path = `${this.path}/${item.filename}`
+    }
+    this.resourceService.download(path)
+  }
+
+  downloadLink(item: ResourceInfo) {
+    let path = item.filename
+    if (this.path) {
+      path = `${this.path}/${item.filename}`
+    }
+    return this.resourceService.downloadLink(path)
+  }
+
   itemDate(item: ResourceInfo) {
     return new Date(item.modified).toLocaleString()
   }
