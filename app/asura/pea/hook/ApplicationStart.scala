@@ -53,7 +53,7 @@ class ApplicationStart @Inject()(
     if (StringUtils.isNotEmpty(str)) {
       str
     } else {
-      val extFile = new File(s"${System.getProperty("user.dir")}/../ext")
+      val extFile = new File(s"${System.getProperty("user.dir")}${File.separator}ext")
       if (extFile.isDirectory) extFile.getCanonicalPath else StringUtils.EMPTY
     }
   }
