@@ -4,5 +4,5 @@ import asura.pea.model.{PeaMember, SingleJob}
 
 case class SingleHttpScenarioSingleJob(
                                         worker: PeaMember,
-                                        request: SingleHttpScenarioMessage
+                                        load: SingleHttpScenarioMessage
                                       ) extends SingleJob

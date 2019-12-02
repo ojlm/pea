@@ -95,12 +95,12 @@ export interface LoadMessage {
 
 export interface SingleJob {
   worker?: PeaMember
-  request?: UnionLoadMessage
+  load?: UnionLoadMessage
 }
 
 export interface LoadJob {
   workers?: PeaMember[]
-  request?: UnionLoadMessage
+  load?: UnionLoadMessage
   jobs?: SingleJob[]
   report?: boolean
   simulationId?: string
@@ -124,14 +124,13 @@ export interface RunProgramMessage extends LoadMessage {
 
 export type UnionLoadMessage = SingleHttpScenarioMessage & RunScriptMessage & RunProgramMessage
 
-export interface SingleHttpScenarioJob {
-  workers?: PeaMember[]
-  request?: SingleHttpScenarioMessage
+export interface SingleHttpScenarioJob extends LoadJob {
 }
 
-export interface RunScriptJob {
-  workers?: PeaMember[]
-  request?: RunScriptMessage
+export interface RunScriptJob extends LoadJob {
+}
+
+export interface RunProgramJob extends LoadJob {
 }
 
 export interface WorkersAvailable {

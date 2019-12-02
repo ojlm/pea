@@ -97,12 +97,12 @@ export class LetsShootComponent implements OnInit {
       }
       return {
         workers: this.selectedWorkers.map(item => item.member),
-        request: this.innerRequest
+        load: this.innerRequest
       }
     } else if (this.tabIndex === 1) {
       return {
         workers: this.selectedWorkers.map(item => item.member),
-        request: {
+        load: {
           simulation: this.simulation.name
         }
       }

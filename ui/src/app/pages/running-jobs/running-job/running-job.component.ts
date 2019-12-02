@@ -26,11 +26,11 @@ export class RunningJobComponent implements OnInit, OnDestroy {
         let tmp: WorkerData[] = []
         if (load.jobs && load.jobs.length > 0) {
           load.jobs.forEach(item => {
-            tmp.push({ member: item.worker, request: item.request })
+            tmp.push({ member: item.worker, request: item.load })
           })
-        } else if (load.request && load.workers && load.workers.length > 0) {
+        } else if (load.load && load.workers && load.workers.length > 0) {
           load.workers.forEach(item => {
-            tmp.push({ member: item, request: load.request })
+            tmp.push({ member: item, request: load.load })
           })
         }
         this.members = tmp

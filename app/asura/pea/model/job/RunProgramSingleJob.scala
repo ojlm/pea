@@ -4,5 +4,5 @@ import asura.pea.model.{PeaMember, SingleJob}
 
 case class RunProgramSingleJob(
                                 worker: PeaMember,
-                                request: RunProgramMessage
+                                load: RunProgramMessage
                               ) extends SingleJob
