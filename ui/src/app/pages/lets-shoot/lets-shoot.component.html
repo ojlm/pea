@@ -30,7 +30,7 @@
           <app-feeder [(data)]="innerRequest.feeder"></app-feeder>
         </nz-tab>
         <nz-tab [nzTitle]="'Assertions'">
-          Assertions
+          <app-assertions [(data)]="innerRequest.assertions"></app-assertions>
         </nz-tab>
       </nz-tabset>
       <nz-divider [nzText]="injectionsTpl" nzOrientation="left">

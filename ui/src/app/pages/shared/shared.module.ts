@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router'
 import { TranslateModule } from '@ngx-translate/core'
 import { NgZorroAntdModule } from 'ng-zorro-antd'
 
+import { AssertionsComponent } from './assertions/assertions.component'
 import { FeederComponent } from './feeder/feeder.component'
 import { InjectionsBuilderComponent } from './injections-builder/injections-builder.component'
 import { MemberSelectorComponent } from './member-selector/member-selector.component'
@@ -21,6 +22,7 @@ const COMPONENTS = [
   ResponseMonitorComponent,
   FeederComponent,
   ThrottleComponent,
+  AssertionsComponent,
 ]
 
 const ENTRY_COMPONENTS = [

@@ -169,8 +169,14 @@ export interface AssertionItem {
   expect?: object
 }
 
-export interface HttpAssertionParam {
+export interface AssertionsParam {
   list?: AssertionItem[]
+}
+
+export interface HttpAssertionParam {
+  status?: AssertionsParam
+  header?: AssertionsParam
+  body?: AssertionsParam
 }
 
 export interface ThrottleStep {

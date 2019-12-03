@@ -40,7 +40,7 @@ export class LetsShootComponent implements OnInit {
       forever: false,
     },
     maxDuration: {},
-    assertions: { list: [] },
+    assertions: { status: { list: [] }, header: { list: [] }, body: { list: [] } },
     throttle: { steps: [] },
   }
 
