@@ -3,7 +3,6 @@ package asura.pea.model.params
 case class FeederParam(
                         `type`: String,
                         path: String,
-
                       )
 
 object FeederParam {

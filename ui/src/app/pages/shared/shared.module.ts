@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router'
 import { TranslateModule } from '@ngx-translate/core'
 import { NgZorroAntdModule } from 'ng-zorro-antd'
 
+import { FeederComponent } from './feeder/feeder.component'
 import { InjectionsBuilderComponent } from './injections-builder/injections-builder.component'
 import { MemberSelectorComponent } from './member-selector/member-selector.component'
 import { OshiInfoComponent } from './oshi-info/oshi-info.component'
@@ -17,6 +18,7 @@ const COMPONENTS = [
   MemberSelectorComponent,
   OshiInfoComponent,
   ResponseMonitorComponent,
+  FeederComponent,
 ]
 
 const ENTRY_COMPONENTS = [

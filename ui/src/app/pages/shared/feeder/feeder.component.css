@@ -1,0 +1,19 @@
+.file {
+  cursor: pointer;
+  margin-left: 2px;
+}
+
+.md5 {
+  font-size: small;
+  color: lightslategray;
+}
+
+.tail {
+  float: right;
+  font-size: small;
+}
+
+.actions {
+  width: 32px;
+  text-align: right;
+}

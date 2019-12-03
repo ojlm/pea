@@ -4,13 +4,14 @@ import { TranslateService } from '@ngx-translate/core'
 import { NzModalService } from 'ng-zorro-antd'
 import { Observable } from 'rxjs'
 import { HomeService, WorkerData } from 'src/app/api/home.service'
-import { ApiRes } from 'src/app/model/api.model'
+import { ApiRes, SelectOption } from 'src/app/model/api.model'
 import {
   HttpMethods,
   RunScriptJob,
   SimulationModel,
   SingleHttpScenarioJob,
   SingleHttpScenarioMessage,
+  TimeUnit,
   WorkersAvailable,
 } from 'src/app/model/pea.model'
 
@@ -22,6 +23,10 @@ import {
 export class LetsShootComponent implements OnInit {
 
   METHODS = [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT]
+  TIME_UNITS: SelectOption[] = Object.keys(TimeUnit).map(k => {
+    const v = TimeUnit[k]
+    return { label: this.i18nService.instant(`time.${v}`), value: v }
+  })
   tabIndex = 0
   loading = false
 
@@ -29,7 +34,14 @@ export class LetsShootComponent implements OnInit {
     request: {
       method: HttpMethods.GET,
     },
-    injections: []
+    injections: [],
+    feeder: {},
+    loop: {
+      forever: false,
+    },
+    maxDuration: {},
+    assertions: { list: [] },
+    throttle: { steps: [] },
   }
 
   simulation: SimulationModel = {}

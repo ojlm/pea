@@ -1,0 +1,47 @@
+<nz-list nzSize="small" [nzDataSource]="items" nzBordered [nzRenderItem]="item" [nzHeader]="tool">
+  <ng-template #tool>
+    <div style="display:flex;">
+      <nz-breadcrumb style="width:100%;">
+        <nz-breadcrumb-item><a (click)="loadPath('')"><i nz-icon nzType="home"></i></a></nz-breadcrumb-item>
+        <nz-breadcrumb-item *ngFor="let item of breadcrumbItems">
+          <a (click)="loadPath(item.path)">{{item.value}}</a>
+        </nz-breadcrumb-item>
+      </nz-breadcrumb>
+      <span>
+        <a>{{feeder.path}}</a>
+      </span>
+      <span style="margin-left:8px;">
+        <nz-select style="width:80px;" nzSize="small" [(ngModel)]="feeder.type" (ngModelChange)="modelChange()"
+          nzPlaceHolder="type">
+          <nz-option *ngFor="let item of FEEDER_TYPES" [nzValue]="item" [nzLabel]="item"></nz-option>
+        </nz-select>
+      </span>
+    </div>
+  </ng-template>
+  <ng-template #item let-item>
+    <nz-list-item [nzActions]="[actions]">
+      <div style="width:100%;">
+        <i class="icon" nz-icon [nzType]="item.isDirectory?'folder':'file'" nzTheme="outline"
+          [style.color]="itemColor(item)">
+        </i>
+        <span class="file" [style.color]="itemColor(item)" (click)="click(item)">{{item.filename}}</span>
+        <span *ngIf="item.md5">
+          <nz-divider nzType="vertical"></nz-divider>
+          <span class="md5" title="md5">md5:{{item.md5}}</span>
+        </span>
+        <span class="tail">
+          <span>{{itemSize(item)}}</span>
+          <nz-divider nzType="vertical"></nz-divider>
+          <span>{{itemDate(item)}}</span>
+        </span>
+      </div>
+      <ng-template #actions>
+        <div class="actions">
+          <a *ngIf="!item.isDirectory" (click)="select(item)" [style.color]="checked.md5===item.md5?'':'lightblue'">
+            <i class="click-icon" nz-icon nzType="check-square" nzTheme="outline"></i>
+          </a>
+        </div>
+      </ng-template>
+    </nz-list-item>
+  </ng-template>
+</nz-list>

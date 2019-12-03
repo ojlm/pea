@@ -73,7 +73,8 @@ class SingleHttpSimulation extends PeaSimulation {
   }
 
   def hasMaxDuration(): Boolean = {
-    null != singleHttpScenario.maxDuration
+    val maxDuration = singleHttpScenario.maxDuration
+    null != maxDuration && StringUtils.isNotEmpty(maxDuration.unit) && maxDuration.value > 0
   }
 
   def hasLoops(): Boolean = {
@@ -83,7 +84,7 @@ class SingleHttpSimulation extends PeaSimulation {
 
   def getFeeder(): FeederBuilder = {
     val feederParam = singleHttpScenario.feeder
-    if (null != feederParam) {
+    if (null != feederParam && StringUtils.isNotEmpty(feederParam.path)) {
       feederParam.`type` match {
         case FeederParam.TYPE_CSV => csv(feederParam.path).batch(200).circular
         case FeederParam.TYPE_JSON => jsonFile(feederParam.path).circular

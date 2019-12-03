@@ -73,7 +73,7 @@ export interface SingleRequest {
   body?: string
 }
 
-export interface Duration {
+export interface DurationParam {
   value?: number
   unit?: string
 }
@@ -82,7 +82,7 @@ export interface Injection {
   type?: string
   users?: number
   to?: number
-  duration?: Duration
+  duration?: DurationParam
 }
 
 export interface LoadMessage {
@@ -112,6 +112,11 @@ export interface SingleHttpScenarioMessage extends LoadMessage {
   name?: string
   request?: SingleRequest
   injections?: Injection[]
+  feeder?: FeederParam
+  loop?: LoopParam
+  maxDuration?: DurationParam
+  assertions?: HttpAssertionParam
+  throttle?: ThrottleParam
 }
 
 export interface RunScriptMessage extends LoadMessage {
@@ -146,6 +151,36 @@ export interface ResourceInfo {
   size?: number
   modified?: number
   md5?: string
+}
+
+export interface FeederParam {
+  type?: 'csv' | 'json'
+  path?: string
+}
+
+export interface LoopParam {
+  forever?: boolean
+  repeat?: number
+}
+
+export interface AssertionItem {
+  op?: string
+  path?: string
+  expect?: object
+}
+
+export interface HttpAssertionParam {
+  list?: AssertionItem[]
+}
+
+export interface ThrottleStep {
+  type?: string
+  rps?: number
+  duration?: DurationParam
+}
+
+export interface ThrottleParam {
+  steps?: ThrottleStep[]
 }
 
 export interface Oshi {
