@@ -232,3 +232,9 @@ export const LoadTypes = {
   SCRIPT: 'script',
   PROGRAM: 'program',
 }
+
+export const ThrottleTypes = {
+  REACH: 'reach',
+  HOLD: 'hold',
+  JUMP: 'jump',
+}

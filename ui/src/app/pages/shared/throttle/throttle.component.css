@@ -1,0 +1,23 @@
+.step-type>i {
+  color: lightseagreen;
+}
+
+.step-type>span {
+  color: gray;
+  font-size: small;
+  padding-left: 4px;
+}
+
+.step-sum {
+  margin-left: 4px;
+}
+
+.step-sum>i {
+  color: lightseagreen;
+}
+
+.step-sum>span {
+  color: gray;
+  font-size: small;
+  padding-left: 4px;
+}

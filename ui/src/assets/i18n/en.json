@@ -39,6 +39,9 @@
   "item.pullAndCompile": "Pull&Compile",
   "item.help": "Help",
   "item.folder": "Folder",
+  "item.throttle": "Throttle",
+  "item.step": "Step",
+  "item.rps": "RPS",
   "tips.buildRequest": "Build Request",
   "tips.selectWorkers": "Select Workers",
   "tips.runJob": "Run Job",
@@ -65,5 +68,8 @@
   "time.milli": "millis",
   "time.second": "seconds",
   "time.minute": "minutes",
-  "time.hour": "hours"
+  "time.hour": "hours",
+  "throttle.reach": "Reach",
+  "throttle.hold": "Hold",
+  "throttle.jump": "Jump"
 }

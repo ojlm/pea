@@ -62,6 +62,12 @@
         <nz-divider nzType="vertical"></nz-divider>
       </div>
       <app-injections-builder [(data)]="innerRequest.injections"></app-injections-builder>
+      <nz-divider [nzText]="throttleTpl" nzOrientation="left">
+        <ng-template #throttleTpl>
+          <span style="font-size:smaller;">{{'item.throttle'|translate}}</span>
+        </ng-template>
+      </nz-divider>
+      <app-throttle [(data)]="innerRequest.throttle"></app-throttle>
     </nz-tab>
     <nz-tab [nzTitle]="'item.script'|translate">
       <div>

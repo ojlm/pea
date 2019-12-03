@@ -11,6 +11,7 @@ import { MemberSelectorComponent } from './member-selector/member-selector.compo
 import { OshiInfoComponent } from './oshi-info/oshi-info.component'
 import { PeaMemberComponent } from './pea-member/pea-member.component'
 import { ResponseMonitorComponent } from './response-monitor/response-monitor.component'
+import { ThrottleComponent } from './throttle/throttle.component'
 
 const COMPONENTS = [
   PeaMemberComponent,
@@ -19,6 +20,7 @@ const COMPONENTS = [
   OshiInfoComponent,
   ResponseMonitorComponent,
   FeederComponent,
+  ThrottleComponent,
 ]
 
 const ENTRY_COMPONENTS = [

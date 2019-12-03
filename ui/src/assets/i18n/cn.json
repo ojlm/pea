@@ -39,6 +39,9 @@
   "item.pullAndCompile": "更新&编译",
   "item.help": "帮助",
   "item.folder": "文件夹",
+  "item.throttle": "限流控制",
+  "item.step": "阶段",
+  "item.rps": "RPS",
   "tips.buildRequest": "构建请求",
   "tips.selectWorkers": "选择节点",
   "tips.runJob": "执行任务",
@@ -65,5 +68,8 @@
   "time.milli": "毫秒",
   "time.second": "秒",
   "time.minute": "分钟",
-  "time.hour": "小时"
+  "time.hour": "小时",
+  "throttle.reach": "达到",
+  "throttle.hold": "保持",
+  "throttle.jump": "跳到"
 }
