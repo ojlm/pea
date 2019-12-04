@@ -26,15 +26,15 @@ object RunnerSpec extends StrictLogging {
       IDEPathHelper.resultsFolder.toAbsolutePath.toString,
       StringUtils.EMPTY,
     )
-    val code = GatlingRunnerActor.start(message)(global).result.await.code
-    logger.info(s"Exit: ${code}")
+    val result = GatlingRunnerActor.start(message)(global).result.await
+    logger.info(s"Exit: ${result}")
   }
 
   def report(): Unit = {
-    val code = GatlingRunnerActor.generateReport(
+    val result = GatlingRunnerActor.generateReport(
       "runId",
       IDEPathHelper.resultsFolder.toAbsolutePath.toString,
     ).await
-    logger.info(s"Exit: ${code}")
+    logger.info(s"Exit: ${result}")
   }
 }

@@ -8,15 +8,16 @@ import akka.actor.Props
 import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.common.model.{ApiCode, ApiRes}
-import asura.common.util.{JsonUtils, LogUtils}
+import asura.common.util.{JsonUtils, LogUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.GatlingReportResult
 import asura.pea.actor.ReporterActor.{RunProgramJob, RunScriptJob, SingleHttpScenarioJob}
 import asura.pea.actor.ReporterWorkersActor._
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 import asura.pea.model._
-import asura.pea.service.PeaService
+import asura.pea.model.params.FinishedCallbackRequest
 import asura.pea.service.PeaService.LoadFunction
+import asura.pea.service.{NotifyService, PeaService}
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.apache.zookeeper.CreateMode
 
@@ -53,6 +54,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
   var jobType: String = null
   // does generate report
   var report: Boolean = true
+  var callback: FinishedCallbackRequest = null
 
   override def receive: Receive = {
     case msg: ReporterJobStatus =>
@@ -61,12 +63,15 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
       handleWorkerStatusChangeEvent(worker, memberStatus)
     case msg: SingleHttpScenarioJob =>
       jobType = msg.`type`
+      callback = msg.callback
       sendJobAndWatch(msg, PeaService.sendSingleHttpScenario)
     case msg: RunScriptJob =>
       jobType = msg.`type`
+      callback = msg.callback
       sendJobAndWatch(msg, PeaService.sendScript)
     case msg: RunProgramJob =>
       jobType = msg.`type`
+      callback = msg.callback
       report = msg.report
       sendJobAndWatch(msg, PeaService.sendProgram)
     case DownloadSimulationFinished(worker, _) =>
@@ -243,9 +248,24 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
           }
           jobStatus.status = MemberStatus.REPORTER_FINISHED
           self ! PushStatusToZk
+          sendGatlingCallback(result)
           tryStopSelfAfterTimeout()
-          // TODO: deal the request statistics
         })
+    }
+  }
+
+  def sendGatlingCallback(result: GatlingReportResult): Unit = {
+    if (null != callback && StringUtils.isNotEmpty(callback.url)) {
+      val response = FinishedCallbackResponse(
+        runId = runId,
+        start = jobStatus.start,
+        end = jobStatus.end,
+        code = result.code,
+        errMsg = result.errMsg,
+        statistics = result.statistics,
+        ext = callback.ext,
+      )
+      NotifyService.gatlingResultCallback(callback, response)
     }
   }
 

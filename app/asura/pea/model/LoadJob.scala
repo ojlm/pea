@@ -1,5 +1,7 @@
 package asura.pea.model
 
+import asura.pea.model.params.FinishedCallbackRequest
+
 trait LoadJob {
 
   val `type`: String
@@ -10,4 +12,5 @@ trait LoadJob {
   var report: Boolean = true
   var simulationId: String = null
   var start: Long = 0L
+  var callback: FinishedCallbackRequest = null
 }
