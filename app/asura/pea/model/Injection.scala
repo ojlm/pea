@@ -8,6 +8,7 @@ case class Injection(
                       var users: Int,
                       var to: Int = 0,
                       var duration: DurationParam = null,
+                      var time: Int =1,
                     )
 
 object Injection {
@@ -17,4 +18,5 @@ object Injection {
   val TYPE_AT_ONCE_USERS = "atOnceUsers"
   val TYPE_CONSTANT_USERS_PER_SEC = "constantUsersPerSec"
   val TYPE_RAMP_USERS_PER_SEC = "rampUsersPerSec"
+  val TYPE_INCREMENT_USERS_PERSEC = "incrementUsersPerSec"
 }

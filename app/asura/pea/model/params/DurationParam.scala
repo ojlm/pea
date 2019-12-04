@@ -3,6 +3,7 @@ package asura.pea.model.params
 case class DurationParam(
                           value: Int,
                           unit: String,
+                          start:Int =0,
                         )
 
 object DurationParam {

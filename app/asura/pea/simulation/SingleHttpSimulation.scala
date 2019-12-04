@@ -121,6 +121,7 @@ class SingleHttpSimulation extends PeaSimulation {
           case Injection.TYPE_AT_ONCE_USERS => atOnceUsers(injection.users)
           case Injection.TYPE_CONSTANT_USERS_PER_SEC => constantUsersPerSec(injection.users) during (toFiniteDuration(duration))
           case Injection.TYPE_RAMP_USERS_PER_SEC => rampUsersPerSec(injection.users) to injection.to during (toFiniteDuration(duration))
+          case Injection.TYPE_INCREMENT_USERS_PERSEC => incrementUsersPerSec(injection.users).times(injection.time).eachLevelLasting(toFiniteDuration(duration)).startingFrom(duration.start)
         }
       })
     } else {
@@ -168,13 +169,16 @@ class SingleHttpSimulation extends PeaSimulation {
       case DurationParam.TIME_UNIT_HOUR => duration.value hours
     }
   }
-
   def toRequestBuilder(request: SingleRequest): HttpRequestBuilder = {
     val builder = http(StringUtils.notEmptyElse(request.name, request.url))
       .httpRequest(request.method, request.url)
+      .queryParamMap(request.getParams())
       .headers(request.getHeaders())
       .body(StringBody(request.getBody()))
       .check(getChecks(): _*)
+    if(request.getVirtualhost()!=null || request.virtualhost.length!=0) {
+      builder.virtualHost(request.getVirtualhost())
+    }
     if (singleHttpScenario.verbose) {
       builder.check(
         bodyString.saveAs(KEY_BODY),
@@ -184,4 +188,6 @@ class SingleHttpSimulation extends PeaSimulation {
       builder
     }
   }
+
+
 }

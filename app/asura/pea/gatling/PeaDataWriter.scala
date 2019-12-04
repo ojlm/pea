@@ -48,27 +48,31 @@ class PeaDataWriter(clock: Clock, configuration: GatlingConfiguration) extends D
   }
 
   override def onMessage(message: LoadEventMessage, data: ConsoleData): Unit = message match {
-    case user: UserMessage => onUserMessage(user, data)
+    case user: UserStartMessage    => onUserStartMessage(user, data)
+    case user: UserEndMessage      => onUserEndMessage(user, data)
     case response: ResponseMessage => onResponseMessage(response, data)
-    case error: ErrorMessage => onErrorMessage(error, data)
-    case _ =>
+    case error: ErrorMessage       => onErrorMessage(error, data)
+    case _                         =>
+
   }
 
-  private def onUserMessage(user: UserMessage, data: ConsoleData): Unit = {
+  private def onUserStartMessage(user: UserStartMessage, data: ConsoleData): Unit = {
     import data._
     import user._
 
-    event match {
-      case Start =>
-        usersCounters.get(session.scenario) match {
-          case Some(userCounters) => userCounters.userStart()
-          case _ => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
-        }
-      case End =>
-        usersCounters.get(session.scenario) match {
-          case Some(userCounters) => userCounters.userDone()
-          case _ => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
-        }
+    usersCounters.get(session.scenario) match {
+      case Some(userCounters) => userCounters.userStart()
+      case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
+    }
+  }
+
+  private def onUserEndMessage(user: UserEndMessage, data: ConsoleData): Unit = {
+    import data._
+    import user._
+
+    usersCounters.get(session.scenario) match {
+      case Some(userCounters) => userCounters.userDone()
+      case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
     }
   }
 

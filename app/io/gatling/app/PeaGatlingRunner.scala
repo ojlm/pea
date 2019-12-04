@@ -27,6 +27,7 @@ import io.gatling.core.protocol.Protocols
 import io.gatling.core.scenario.{Scenario, SimulationParams}
 import io.gatling.core.stats.writer.RunMessage
 import io.gatling.http.protocol.HttpProtocol
+import org.slf4j.LoggerFactory
 import sbt.io.FileFilter
 
 import scala.collection.mutable
@@ -124,6 +125,14 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
         terminateActorSystem()
         logger.error(LogUtils.stackTraceToString(t))
         PeaGatlingRunResult(null, null, null, t)
+    }finally {
+      val factory = LoggerFactory.getILoggerFactory
+      try {
+        factory.getClass.getMethod("stop").invoke(factory)
+      } catch {
+        case _: NoSuchMethodException => //Fail silently if a logging provider other than LogBack is used.
+        case NonFatal(ex)             => logger.warn("Logback failed to shutdown.", ex)
+      }
     }
   }
 

@@ -27,22 +27,24 @@ private[app] class RunResultProcessor(configuration: GatlingConfiguration) {
   private implicit val config: GatlingConfiguration = configuration
 
   def processRunResult(runResult: RunResult): StatusCode = {
-    val start = System.currentTimeMillis()
+    config.resolve(
+      // [fl]
+      //
+      // [fl]
+      initLogFileReader(runResult) match {
+        case Some(reader) =>
+          val assertionResults = AssertionValidator.validateAssertions(reader)
 
-    initLogFileReader(runResult) match {
-      case Some(reader) =>
-        val assertionResults = AssertionValidator.validateAssertions(reader)
+          if (reportsGenerationEnabled) {
+            val reportsGenerationInputs = ReportsGenerationInputs(runResult.runId, reader, assertionResults)
+            generateReports(reportsGenerationInputs)
+          }
 
-        if (reportsGenerationEnabled) {
-          val reportsGenerationInputs = ReportsGenerationInputs(runResult.runId, reader, assertionResults)
-          generateReports(reportsGenerationInputs, start)
-        }
+          runStatus(assertionResults)
 
-        runStatus(assertionResults)
-
-      case _ =>
-        StatusCode.Success
-    }
+        case _ =>
+          StatusCode.Success
+      })
   }
 
   private def initLogFileReader(runResult: RunResult): Option[LogFileReader] =
@@ -52,11 +54,14 @@ private[app] class RunResultProcessor(configuration: GatlingConfiguration) {
       None
 
   private def reportsGenerationEnabled =
-    configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.charting.noReports)
+    !configuration.charting.noReports && (configuration.core.directory.reportsOnly.isDefined || configuration.data.fileDataWriterEnabled)
+  //    configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.charting.noReports)
 
-  private def generateReports(reportsGenerationInputs: ReportsGenerationInputs, start: Long): Unit = {
+  private def generateReports(reportsGenerationInputs: ReportsGenerationInputs): Unit = {
+    val start = System.currentTimeMillis()
     println("Generating reports...")
-    val indexFile = new ReportsGenerator().generateFor(reportsGenerationInputs)
+    val indefdata = new ReportsGenerator()
+    val indexFile = indefdata.generateFor(reportsGenerationInputs)
     println(s"Reports generated in ${(System.currentTimeMillis() - start) / 1000}s.")
     println(s"Please open the following file: ${indexFile.toFile}")
   }
