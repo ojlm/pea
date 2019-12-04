@@ -1,24 +1,21 @@
-<div style="margin-bottom:4px;">
-  <nz-upload [nzMultiple]="true" [nzAction]="uploadUrl" (nzChange)="uploadChange($event)" [(nzFileList)]="fileList">
-    <button nz-button>
-      <i nz-icon nzType="upload"></i>
-      <span>{{'btn.upload.file'|translate}}</span>
-    </button>
-    <button *ngIf="!isLibs" style="margin-left:4px;" nz-button (click)="newFloder();$event.stopPropagation();">
-      <i nz-icon nzType="plus"></i>
-      <span>{{'btn.new.floder'|translate}}</span>
-    </button>
-  </nz-upload>
-</div>
 <nz-list nzSize="small" [nzDataSource]="items" nzBordered [nzRenderItem]="item" [nzHeader]="tool">
   <ng-template #tool>
-    <div>
-      <nz-breadcrumb>
+    <div style="display:flex;">
+      <nz-breadcrumb style="width:100%;">
         <nz-breadcrumb-item><a (click)="loadPath('')"><i nz-icon nzType="home"></i></a></nz-breadcrumb-item>
         <nz-breadcrumb-item *ngFor="let item of breadcrumbItems">
           <a (click)="loadPath(item.path)">{{item.value}}</a>
         </nz-breadcrumb-item>
       </nz-breadcrumb>
+      <span>
+        <a>{{feeder.path}}</a>
+      </span>
+      <span style="margin-left:8px;">
+        <nz-select style="width:80px;" nzSize="small" [(ngModel)]="feeder.type" (ngModelChange)="modelChange()"
+          nzPlaceHolder="type">
+          <nz-option *ngFor="let item of FEEDER_TYPES" [nzValue]="item" [nzLabel]="item"></nz-option>
+        </nz-select>
+      </span>
     </div>
   </ng-template>
   <ng-template #item let-item>
@@ -40,20 +37,11 @@
       </div>
       <ng-template #actions>
         <div class="actions">
-          <a *ngIf="!item.isDirectory" style="color:black;" [href]="downloadLink(item)" [download]="item.filename">
-            <i nz-icon nzType="download" nzTheme="outline"></i>
-          </a>
-          <a style="color:red;margin-left:4px;" (click)="remove(item)">
-            <i nz-icon nzType="delete" nzTheme="outline"></i>
+          <a *ngIf="!item.isDirectory" (click)="select(item)" [style.color]="checked.md5===item.md5?'':'lightblue'">
+            <i class="click-icon" nz-icon nzType="check-square" nzTheme="outline"></i>
           </a>
         </div>
       </ng-template>
     </nz-list-item>
   </ng-template>
 </nz-list>
-<nz-modal [(nzVisible)]="newFlolderVisible" [nzTitle]="'btn.new.floder'|translate" (nzOnCancel)="handleCancel()"
-  (nzOnOk)="handleOk()">
-  <nz-input-group [nzAddOnBefore]="'item.folder'|translate">
-    <input type="text" nz-input [(ngModel)]="newFolderName" />
-  </nz-input-group>
-</nz-modal>

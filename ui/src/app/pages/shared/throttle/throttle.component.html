@@ -1,0 +1,71 @@
+<div nz-row nzGutter="4">
+  <div nz-col nzSpan="8">
+    <div nz-row>
+      <div nz-col nzSpan="24">
+        <nz-input-group style="width:100%;" nzSize="small" [nzAddOnBefore]="funcTpl">
+          <ng-template #funcTpl>
+            <div style="width:58px;text-align:left;">
+              <span>{{'item.step'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-select style="width:100%;" nzShowSearch nzAllowClear nzDropdownMatchSelectWidth="false" nzSize="small"
+            [(ngModel)]="current.type">
+            <nz-option *ngFor="let item of THROTTLE_TYPES" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+          </nz-select>
+        </nz-input-group>
+        <nz-input-group *ngIf="current.type!='hold'" style="width:100%;margin-top:4px;" nzSize="small"
+          [nzAddOnBefore]="rpsTpl">
+          <ng-template #rpsTpl>
+            <div style="width:58px;text-align:left;">
+              <span>{{'item.rps'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-input-number style="width:100%;" [(ngModel)]="current.rps" nzSize="small" [nzMin]="1" [nzStep]="1">
+          </nz-input-number>
+        </nz-input-group>
+        <div *ngIf="current.type!='jump'" style="margin-top:4px;">
+          <nz-input-group nzCompact [nzAddOnBefore]="durationTpl">
+            <ng-template #durationTpl>
+              <div style="width:58px;text-align:left;">
+                <span>{{'item.duration'|translate}}</span>
+              </div>
+            </ng-template>
+            <nz-input-number [(ngModel)]="current.duration.value" nzSize="small" [nzMin]="1" [nzStep]="1">
+            </nz-input-number>
+            <nz-select [(ngModel)]="current.duration.unit" nzSize="small">
+              <nz-option *ngFor="let item of TIME_UNITS" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+          </nz-input-group>
+        </div>
+      </div>
+    </div>
+    <div nz-row>
+      <div nz-col nzSpan="24" style="margin-top:4px;margin-bottom:4px;">
+        <button type="button" nz-button nzType="dashed" [nzSize]="'small'" (click)="add()">
+          <span>{{'btn.add'|translate}}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div nz-col nzSpan="16">
+    <nz-list nzBordered nzSize="small" [nzDataSource]="throttle.steps" [nzRenderItem]="stepItem">
+      <ng-template #stepItem let-item let-index>
+        <nz-list-item>
+          <div style="width:100%;">
+            <span class="step-type">
+              <i nz-icon nzType="number" nzTheme="outline"></i>
+              <span>{{('throttle.'+item.type)|translate}}</span>
+            </span>
+            <span class="step-sum">
+              <i nz-icon nzType="rise" nzTheme="outline"></i>
+              <span>{{sumText(item)}}</span>
+            </span>
+            <a style="float:right;" (click)="remove(item, index)">
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </a>
+          </div>
+        </nz-list-item>
+      </ng-template>
+    </nz-list>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core'
 import {
+  CheckSquareOutline,
   CodeOutline,
   DashboardOutline,
   DeleteOutline,
@@ -49,6 +50,7 @@ const icons = [
   PlusOutline,
   FolderOpenOutline,
   DownloadOutline,
+  CheckSquareOutline,
 ]
 
 @NgModule({

@@ -13,31 +13,35 @@ export class ResourceService extends BaseService {
   API_BASE_RESOURCE = `${this.API_BASE}/resource`
   constructor(private http: HttpClient) { super() }
 
-  list(file: string) {
-    return this.http.post<ApiRes<ResourceInfo[]>>(`${this.API_BASE_RESOURCE}/list`, { file: file || '' })
+  read1k(path: string, isLibs: boolean) {
+    return this.http.get<ApiRes<string>>(`${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/read1k?path=${path}`)
   }
 
-  remove(file: string) {
-    return this.http.post<ApiRes<boolean>>(`${this.API_BASE_RESOURCE}/remove`, { file: file })
+  list(file: string, isLibs: boolean) {
+    return this.http.post<ApiRes<ResourceInfo[]>>(`${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/list`, { file: file || '' })
   }
 
-  newFolder(path: string, name: string) {
-    return this.http.put<ApiRes<boolean>>(`${this.API_BASE_RESOURCE}/folder`, { path: path, name: name })
+  remove(file: string, isLibs: boolean) {
+    return this.http.post<ApiRes<boolean>>(`${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/remove`, { file: file })
   }
 
-  getDownloadLink() {
-    return `${this.API_BASE_RESOURCE}/download`
+  newFolder(path: string, name: string, isLibs: boolean) {
+    return this.http.put<ApiRes<boolean>>(`${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/folder`, { path: path, name: name })
   }
 
-  download(path: string) {
-    const url = `${this.API_BASE_RESOURCE}/download?path=${path}`
+  getDownloadLink(isLibs: boolean) {
+    return `${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/download`
+  }
+
+  download(path: string, isLibs: boolean) {
+    const url = `${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/download?path=${path}`
     this.http.get<Blob>(url, { responseType: 'blob' as 'json' }).subscribe(res => {
       const link = window.URL.createObjectURL(res)
       window.open(link)
     })
   }
 
-  downloadLink(path: string) {
-    return `${this.API_BASE_RESOURCE}/download?path=${path}`
+  downloadLink(path: string, isLibs: boolean) {
+    return `${this.API_BASE_RESOURCE}${isLibs ? '/jar' : ''}/download?path=${path}`
   }
 }

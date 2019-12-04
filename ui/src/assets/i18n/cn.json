@@ -8,6 +8,7 @@
   "menu.localReports": "本地报告",
   "menu.resources": "资源",
   "menu.localData": "数据文件",
+  "menu.localLibs": "依赖文件",
   "btn.add": "添加",
   "btn.remove": "移除",
   "btn.run": "执行",
@@ -38,6 +39,9 @@
   "item.pullAndCompile": "更新&编译",
   "item.help": "帮助",
   "item.folder": "文件夹",
+  "item.throttle": "限流控制",
+  "item.step": "阶段",
+  "item.rps": "RPS",
   "tips.buildRequest": "构建请求",
   "tips.selectWorkers": "选择节点",
   "tips.runJob": "执行任务",
@@ -53,6 +57,9 @@
   "tips.refreshNodes": "刷新节点状态",
   "tips.printResponse": "打印响应",
   "tips.deleteFile": "确认删除文件",
+  "tips.forever": "无限循环",
+  "tips.repeat": "循环次数",
+  "tips.maxDuration": "最长运行时长",
   "injection.rampUsers": "线性增长",
   "injection.heavisideUsers": "阶跃函数增长",
   "injection.atOnceUsers": "一次性",
@@ -61,5 +68,8 @@
   "time.milli": "毫秒",
   "time.second": "秒",
   "time.minute": "分钟",
-  "time.hour": "小时"
+  "time.hour": "小时",
+  "throttle.reach": "达到",
+  "throttle.hold": "保持",
+  "throttle.jump": "跳到"
 }

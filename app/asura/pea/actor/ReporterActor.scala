@@ -91,7 +91,7 @@ object ReporterActor {
 
   case class SingleHttpScenarioJob(
                                     override val workers: Seq[PeaMember],
-                                    override val request: SingleHttpScenarioMessage,
+                                    override val load: SingleHttpScenarioMessage,
                                     override val jobs: Seq[SingleHttpScenarioSingleJob],
                                   ) extends LoadJob {
     val `type`: String = LoadTypes.SINGLE
@@ -99,7 +99,7 @@ object ReporterActor {
 
   case class RunScriptJob(
                            override val workers: Seq[PeaMember],
-                           override val request: RunScriptMessage,
+                           override val load: RunScriptMessage,
                            override val jobs: Seq[RunScriptSingleJob],
                          ) extends LoadJob {
     val `type`: String = LoadTypes.SCRIPT
@@ -107,7 +107,7 @@ object ReporterActor {
 
   case class RunProgramJob(
                             override val workers: Seq[PeaMember],
-                            override val request: RunProgramMessage,
+                            override val load: RunProgramMessage,
                             override val jobs: Seq[RunProgramSingleJob]
                           ) extends LoadJob {
     val `type`: String = LoadTypes.PROGRAM

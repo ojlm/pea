@@ -9,6 +9,7 @@ const routes: Routes = [
   { path: 'reports', loadChildren: () => import('./pages/local-reports/local-reports.module').then(m => m.LocalReportsModule) },
   { path: 'simulations', loadChildren: () => import('./pages/simulations/simulations.module').then(m => m.SimulationsModule) },
   { path: 'resources', loadChildren: () => import('./pages/local-resources/local-resources.module').then(m => m.LocalResourcesModule) },
+  { path: 'libs', loadChildren: () => import('./pages/local-resources/local-resources.module').then(m => m.LocalResourcesModule) },
   { path: '**', redirectTo: '' },
 ]
 

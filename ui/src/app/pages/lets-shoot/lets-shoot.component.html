@@ -26,16 +26,48 @@
         <nz-tab [nzTitle]="'Body'">
           <textarea rows="4" nz-input [(ngModel)]="innerRequest.request.body"></textarea>
         </nz-tab>
+        <nz-tab [nzTitle]="'Feeder'">
+          <app-feeder [(data)]="innerRequest.feeder"></app-feeder>
+        </nz-tab>
+        <nz-tab [nzTitle]="'Assertions'">
+          <app-assertions [(data)]="innerRequest.assertions"></app-assertions>
+        </nz-tab>
       </nz-tabset>
       <nz-divider [nzText]="injectionsTpl" nzOrientation="left">
         <ng-template #injectionsTpl>
           <span style="font-size:smaller;">{{'item.injections'|translate}}</span>
         </ng-template>
       </nz-divider>
-      <label style="margin-bottom:4px;color:lightseagreen;width:100%;" nz-checkbox [(ngModel)]="innerRequest.verbose">
-        <span>{{'tips.printResponse'|translate}}</span>
-      </label>
+      <div style="margin-bottom:4px;">
+        <label nz-checkbox [(ngModel)]="innerRequest.verbose">
+          <span>{{'tips.printResponse'|translate}}</span>
+        </label>
+        <nz-divider nzType="vertical"></nz-divider>
+        <label nz-checkbox [(ngModel)]="innerRequest.loop.forever">
+          <span>{{'tips.forever'|translate}}</span>
+        </label>
+        <nz-input-group style="width:160px;" nzSize="small" [nzAddOnBefore]="'tips.repeat'|translate">
+          <nz-input-number style="width:100%;" [(ngModel)]="innerRequest.loop.repeat" nzSize="small" [nzMin]="1"
+            [nzStep]="1">
+          </nz-input-number>
+        </nz-input-group>
+        <nz-divider nzType="vertical"></nz-divider>
+        <nz-input-group style="width:284px;" nzSize="small" nzCompact [nzAddOnBefore]="'tips.maxDuration'|translate">
+          <nz-input-number [(ngModel)]="innerRequest.maxDuration.value" nzSize="small" [nzMin]="1" [nzStep]="1">
+          </nz-input-number>
+          <nz-select style="width:84px;" [(ngModel)]="innerRequest.maxDuration.unit" nzSize="small">
+            <nz-option *ngFor="let item of TIME_UNITS" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+          </nz-select>
+        </nz-input-group>
+        <nz-divider nzType="vertical"></nz-divider>
+      </div>
       <app-injections-builder [(data)]="innerRequest.injections"></app-injections-builder>
+      <nz-divider [nzText]="throttleTpl" nzOrientation="left">
+        <ng-template #throttleTpl>
+          <span style="font-size:smaller;">{{'item.throttle'|translate}}</span>
+        </ng-template>
+      </nz-divider>
+      <app-throttle [(data)]="innerRequest.throttle"></app-throttle>
     </nz-tab>
     <nz-tab [nzTitle]="'item.script'|translate">
       <div>

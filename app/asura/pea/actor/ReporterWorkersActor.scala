@@ -10,6 +10,7 @@ import asura.common.actor.BaseActor
 import asura.common.model.{ApiCode, ApiRes}
 import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
+import asura.pea.actor.GatlingRunnerActor.GatlingReportResult
 import asura.pea.actor.ReporterActor.{RunProgramJob, RunScriptJob, SingleHttpScenarioJob}
 import asura.pea.actor.ReporterWorkersActor._
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
@@ -168,8 +169,8 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
 
   def sendJobAndWatch(load: LoadJob, func: LoadFunction): Unit = {
     initJobNode(load)
-    val doneFutures = if (null != load.workers && null != load.request) { // with the same load
-      val msg = load.request
+    val doneFutures = if (null != load.workers && null != load.load) { // with the same load
+      val msg = load.load
       msg.simulationId = load.simulationId
       msg.start = load.start
       workers.map(worker => {
@@ -180,7 +181,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     } else { // with different load
       load.jobs.map(job => {
         watchWorkerNode(job.worker)
-        val msg = job.request
+        val msg = job.load
         msg.simulationId = load.simulationId
         msg.start = load.start
         val futureRes = func(job.worker, msg)
@@ -229,11 +230,13 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
     } else { // gatling
       GatlingRunnerActor.generateReport(runId)
         .recover {
-          case t: Throwable => log.warning(LogUtils.stackTraceToString(t)); -1
+          case t: Throwable =>
+            log.warning(LogUtils.stackTraceToString(t))
+            GatlingReportResult(-1, LogUtils.stackTraceToString(t))
         }
-        .map(code => {
-          code match {
-            case -1 => log.debug("[GenerateReport]:Exception")
+        .map(result => {
+          result.code match {
+            case -1 => log.debug(s"[GenerateReport]:Exception. ${result.errMsg}")
             case 0 => log.debug("[GenerateReport]:Success")
             case 1 => log.debug("[GenerateReport]:InvalidArguments")
             case 2 => log.debug("[GenerateReport]:AssertionsFailed")
@@ -241,6 +244,7 @@ class ReporterWorkersActor(workers: Seq[PeaMember]) extends BaseActor {
           jobStatus.status = MemberStatus.REPORTER_FINISHED
           self ! PushStatusToZk
           tryStopSelfAfterTimeout()
+          // TODO: deal the request statistics
         })
     }
   }

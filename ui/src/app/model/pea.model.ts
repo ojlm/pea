@@ -73,7 +73,7 @@ export interface SingleRequest {
   body?: string
 }
 
-export interface Duration {
+export interface DurationParam {
   value?: number
   unit?: string
 }
@@ -82,7 +82,7 @@ export interface Injection {
   type?: string
   users?: number
   to?: number
-  duration?: Duration
+  duration?: DurationParam
 }
 
 export interface LoadMessage {
@@ -95,12 +95,12 @@ export interface LoadMessage {
 
 export interface SingleJob {
   worker?: PeaMember
-  request?: UnionLoadMessage
+  load?: UnionLoadMessage
 }
 
 export interface LoadJob {
   workers?: PeaMember[]
-  request?: UnionLoadMessage
+  load?: UnionLoadMessage
   jobs?: SingleJob[]
   report?: boolean
   simulationId?: string
@@ -112,6 +112,11 @@ export interface SingleHttpScenarioMessage extends LoadMessage {
   name?: string
   request?: SingleRequest
   injections?: Injection[]
+  feeder?: FeederParam
+  loop?: LoopParam
+  maxDuration?: DurationParam
+  assertions?: HttpAssertionParam
+  throttle?: ThrottleParam
 }
 
 export interface RunScriptMessage extends LoadMessage {
@@ -124,14 +129,13 @@ export interface RunProgramMessage extends LoadMessage {
 
 export type UnionLoadMessage = SingleHttpScenarioMessage & RunScriptMessage & RunProgramMessage
 
-export interface SingleHttpScenarioJob {
-  workers?: PeaMember[]
-  request?: SingleHttpScenarioMessage
+export interface SingleHttpScenarioJob extends LoadJob {
 }
 
-export interface RunScriptJob {
-  workers?: PeaMember[]
-  request?: RunScriptMessage
+export interface RunScriptJob extends LoadJob {
+}
+
+export interface RunProgramJob extends LoadJob {
 }
 
 export interface WorkersAvailable {
@@ -147,6 +151,42 @@ export interface ResourceInfo {
   size?: number
   modified?: number
   md5?: string
+}
+
+export interface FeederParam {
+  type?: 'csv' | 'json'
+  path?: string
+}
+
+export interface LoopParam {
+  forever?: boolean
+  repeat?: number
+}
+
+export interface AssertionItem {
+  op?: string
+  path?: string
+  expect?: object
+}
+
+export interface AssertionsParam {
+  list?: AssertionItem[]
+}
+
+export interface HttpAssertionParam {
+  status?: AssertionsParam
+  header?: AssertionsParam
+  body?: AssertionsParam
+}
+
+export interface ThrottleStep {
+  type?: string
+  rps?: number
+  duration?: DurationParam
+}
+
+export interface ThrottleParam {
+  steps?: ThrottleStep[]
 }
 
 export interface Oshi {
@@ -197,4 +237,10 @@ export const LoadTypes = {
   SINGLE: 'single',
   SCRIPT: 'script',
   PROGRAM: 'program',
+}
+
+export const ThrottleTypes = {
+  REACH: 'reach',
+  HOLD: 'hold',
+  JUMP: 'jump',
 }

@@ -58,13 +58,13 @@ class HomeApi @Inject()(
       }
     } else {
       if (file.exists()) {
-        if (file.getAbsolutePath.startsWith(PeaConfig.resultsFolder)) {
+        if (file.getCanonicalPath.startsWith(PeaConfig.resultsFolder)) {
           Ok.sendFile(file, true)
         } else {
-          OkApiRes(ApiResError(s"Blocking access to this file: ${file.getAbsolutePath}"))
+          OkApiRes(ApiResError(s"Blocking access to this file: ${file.getCanonicalPath}"))
         }
       } else {
-        OkApiRes(ApiResError(s"File is not there: ${file.getAbsolutePath}"))
+        OkApiRes(ApiResError(s"File is not there: ${file.getCanonicalPath}"))
       }
     }
   }
@@ -161,25 +161,25 @@ class HomeApi @Inject()(
 
   private def loadJob(message: LoadJob): Future[Result] = {
     val workers = message.workers
-    val request = message.request
+    val load = message.load
     val jobs = message.jobs
     if (null == jobs || jobs.isEmpty) {
       if (null == workers || workers.isEmpty) {
         FutureErrorResult("Empty workers")
       } else {
-        if (null != request) {
-          val exception = request.isValid()
+        if (null != load) {
+          val exception = load.isValid()
           if (null != exception) {
             Future.failed(exception)
           } else {
             (PeaConfig.reporterActor ? message).toOkResult
           }
         } else {
-          FutureErrorResult("Empty request")
+          FutureErrorResult("Empty load")
         }
       }
     } else {
-      if (jobs.forall(job => null == job.request.isValid())) {
+      if (jobs.forall(job => null == job.load.isValid())) {
         (PeaConfig.reporterActor ? message).toOkResult
       } else {
         FutureErrorResult("Invalid request body")

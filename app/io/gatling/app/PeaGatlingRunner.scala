@@ -9,7 +9,7 @@ import akka.actor.{ActorSystem, Cancellable}
 import akka.pattern.ask
 import asura.common.util.{LogUtils, StringUtils}
 import asura.pea.PeaConfig
-import asura.pea.actor.GatlingRunnerActor.{GatlingResult, PeaGatlingRunResult}
+import asura.pea.actor.GatlingRunnerActor.{GatlingReportResult, GatlingResult, PeaGatlingRunResult}
 import asura.pea.dubbo.protocol.DubboProtocol
 import asura.pea.gatling.{PeaDataWritersStatsEngine, PeaSimulation}
 import asura.pea.grpc.protocol.GrpcProtocol
@@ -112,9 +112,9 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
           terminateActorSystem()
         }
         if (null != runResult) {
-          val code = new RunResultProcessor(configuration).processRunResult(runResult).code
+          val (statusCode, statistics) = new PeaRunResultProcessor(configuration).processRunResult(runResult)
           replaceReportLogo(runResult.runId)
-          GatlingResult(code)
+          GatlingResult(code = statusCode.code, statistics = statistics)
         } else {
           GatlingResult(-1, errMsg, cancelled)
         }
@@ -136,11 +136,11 @@ class PeaGatlingRunner(config: mutable.Map[String, _], onlyReport: Boolean = fal
     }
   }
 
-  def generateReport(runId: String)(implicit ec: ExecutionContext): Future[Int] = {
+  def generateReport(runId: String)(implicit ec: ExecutionContext): Future[GatlingReportResult] = {
     Future {
-      val code = new RunResultProcessor(configuration).processRunResult(RunResult(runId, true)).code
+      val (statusCode, statistics) = new PeaRunResultProcessor(configuration).processRunResult(RunResult(runId, true))
       replaceReportLogo(runId)
-      code
+      GatlingReportResult(code = statusCode.code, statistics = statistics)
     }
   }
 
@@ -221,7 +221,7 @@ object PeaGatlingRunner extends StrictLogging {
   def generateReport(
                       config: mutable.Map[String, _],
                       runId: String
-                    )(implicit ec: ExecutionContext): Future[Int] = {
+                    )(implicit ec: ExecutionContext): Future[GatlingReportResult] = {
     new PeaGatlingRunner(config, true).generateReport(runId)
   }
 

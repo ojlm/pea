@@ -5,6 +5,7 @@ import akka.pattern.pipe
 import asura.common.actor.BaseActor
 import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.{GenerateReport, StartMessage}
+import asura.pea.gatling.PeaRequestStatistics
 import asura.pea.model.job.{RunScriptMessage, SingleHttpScenarioMessage}
 import asura.pea.simulation.SingleHttpSimulation
 import io.gatling.app.PeaGatlingRunner
@@ -70,7 +71,7 @@ object GatlingRunnerActor {
     PeaGatlingRunner.run(message.toGatlingPropertiesMap, simulationId, start)
   }
 
-  def generateReport(runId: String, resultsFolder: String = PeaConfig.resultsFolder): Future[Int] = {
+  def generateReport(runId: String, resultsFolder: String = PeaConfig.resultsFolder): Future[GatlingReportResult] = {
     val props = new GatlingPropertiesBuilder()
       .resultsDirectory(resultsFolder)
       .build
@@ -84,7 +85,18 @@ object GatlingRunnerActor {
                                   error: Throwable = null,
                                 )
 
-  case class GatlingResult(code: Int, errMsg: String = null, isByCanceled: Boolean = false)
+  case class GatlingResult(
+                            code: Int,
+                            errMsg: String = null,
+                            isByCanceled: Boolean = false,
+                            statistics: PeaRequestStatistics = null,
+                          )
+
+  case class GatlingReportResult(
+                                  code: Int,
+                                  errMsg: String = null,
+                                  statistics: PeaRequestStatistics = null,
+                                )
 
   case class GenerateReport(runId: String)
 
