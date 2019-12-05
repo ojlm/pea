@@ -15,19 +15,13 @@ lazy val pea = Project("pea", file("."))
   ).aggregate(peaDubbo, peaGrpc)
 
 // pea-app dependencies
-val gatlingVersion = "3.3.1"
+val gatlingVersion = "3.2.1"
 val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-app")
 val gatlingCompiler = "io.gatling" % "gatling-compiler" % gatlingVersion
 val curator = "org.apache.curator" % "curator-recipes" % "2.12.0"
 val asuraPlay = "cc.akkaha" %% "asura-play" % "0.6.0"
 val oshiCore = "com.github.oshi" % "oshi-core" % "4.0.0"
-val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.0"
-val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
-val akkaStream                     = akka.organization                     %% "akka-stream"                     % akka.revision
-val akkaProtobuf                   = akka.organization                     %% "akka-protobuf"                   % akka.revision
-val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
 
-libraryDependencies ++= Seq(akka, akkaSlf4j, akkaStream, akkaProtobuf, akkaTestKit)
 libraryDependencies ++= Seq(gatling, gatlingCompiler, curator, asuraPlay, oshiCore)
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
 
@@ -42,6 +36,7 @@ lazy val peaDubbo = Project("pea-dubbo", file("pea-dubbo"))
   .settings(libraryDependencies ++= Seq(
     gatling, dubbo, curator, dubboJavassist, dubboJbossNetty, dubboSpring
   ))
+
 // pea-grpc
 val grpcVersion = "1.22.2" // override 1.8, com.trueaccord.scalapb.compiler.Version.grpcJavaVersion
 val grpcNetty = "io.grpc" % "grpc-netty" % grpcVersion
