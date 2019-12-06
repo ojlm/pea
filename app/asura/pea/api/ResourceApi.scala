@@ -5,15 +5,14 @@ import java.nio.file.Files
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import asura.common.model.{ApiRes, ApiResError}
-import asura.common.util.StringUtils
 import asura.pea.PeaConfig
+import asura.pea.api.BaseApi.OkApiRes
+import asura.pea.common.model.{ApiRes, ApiResError}
+import asura.pea.common.util.StringUtils
 import asura.pea.model.DownloadResourceRequest
 import asura.pea.model.ResourceModels.{NewFolder, ResourceCheckRequest, ResourceInfo}
 import asura.pea.service.ResourceService
 import asura.pea.util.{FileUtils => PeaFileUtils}
-import asura.play.api.BaseApi
-import asura.play.api.BaseApi.OkApiRes
 import com.typesafe.scalalogging.StrictLogging
 import controllers.Assets
 import javax.inject.{Inject, Singleton}

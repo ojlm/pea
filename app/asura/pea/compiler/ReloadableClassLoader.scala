@@ -2,7 +2,7 @@ package asura.pea.compiler
 
 import java.io.{DataInputStream, File, FileInputStream}
 
-import asura.common.util.LogUtils
+import asura.pea.common.util.LogUtils
 import com.typesafe.scalalogging.Logger
 
 class ReloadableClassLoader(

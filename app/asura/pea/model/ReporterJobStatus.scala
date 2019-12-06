@@ -1,6 +1,6 @@
 package asura.pea.model
 
-import asura.common.util.StringUtils
+import asura.pea.common.util.StringUtils
 import asura.pea.model.ReporterJobStatus.JobWorkerStatus
 
 import scala.collection.mutable

@@ -1,7 +1,7 @@
 package asura.pea.api
 
-import asura.common.model.ApiResError
-import asura.play.api.BaseApi.OkApiRes
+import asura.pea.api.BaseApi.OkApiRes
+import asura.pea.common.model.ApiResError
 import play.api.mvc.Result
 
 import scala.concurrent.Future

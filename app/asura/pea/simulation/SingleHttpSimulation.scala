@@ -1,7 +1,7 @@
 package asura.pea.simulation
 
-import asura.common.util.StringUtils
 import asura.pea.actor.ResponseMonitorActor
+import asura.pea.common.util.StringUtils
 import asura.pea.gatling.PeaSimulation
 import asura.pea.model.params.{AssertionItem, DurationParam, FeederParam, ThrottleStep => ThrottleStepParam}
 import asura.pea.model.{Injection, SingleRequest}

@@ -7,17 +7,16 @@ import java.util.{Collections, Date}
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.stream.Materializer
-import asura.common.model.{ApiRes, ApiResError}
-import asura.common.util.{JsonUtils, LogUtils}
 import asura.pea.PeaConfig
 import asura.pea.PeaConfig.DEFAULT_ACTOR_ASK_TIMEOUT
 import asura.pea.actor.CompilerActor.{AsyncCompileMessage, GetAllSimulations}
 import asura.pea.actor.ReporterActor.{GetAllWorkers, RunProgramJob, RunScriptJob, SingleHttpScenarioJob}
+import asura.pea.api.BaseApi.OkApiRes
 import asura.pea.api.util.ResultUtils
+import asura.pea.common.model.{ApiRes, ApiResError}
+import asura.pea.common.util.{JsonUtils, LogUtils}
 import asura.pea.model.{LoadJob, PeaMember, ReporterJobStatus, WorkersRequest}
 import asura.pea.service.PeaService
-import asura.play.api.BaseApi
-import asura.play.api.BaseApi.OkApiRes
 import com.typesafe.scalalogging.StrictLogging
 import controllers.Assets
 import javax.inject.{Inject, Singleton}

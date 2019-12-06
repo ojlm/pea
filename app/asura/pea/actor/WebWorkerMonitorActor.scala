@@ -1,9 +1,9 @@
 package asura.pea.actor
 
 import akka.actor.{ActorRef, Props}
-import asura.common.actor.{BaseActor, ItemActorEvent, SenderMessage}
 import asura.pea.PeaConfig
 import asura.pea.actor.WorkerMonitorActor.{MonitorMessage, MonitorSubscriberMessage}
+import asura.pea.common.actor.{BaseActor, ItemActorEvent, SenderMessage}
 
 /**
   * subscribe to monitor event bus

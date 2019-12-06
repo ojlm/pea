@@ -1,8 +1,8 @@
 package asura.pea.gatling
 
-import asura.common.util.FutureUtils.RichFuture
 import asura.pea.IDEPathHelper
 import asura.pea.actor.CompilerActor.SyncCompileMessage
+import asura.pea.common.util.FutureUtils.RichFuture
 import asura.pea.compiler.ScalaCompiler
 import com.typesafe.scalalogging.StrictLogging
 

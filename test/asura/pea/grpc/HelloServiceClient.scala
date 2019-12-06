@@ -2,7 +2,7 @@ package asura.pea.grpc
 
 import java.util.concurrent.TimeUnit
 
-import asura.common.util.LogUtils
+import asura.pea.common.util.LogUtils
 import asura.pea.grpc.hello.HelloServiceGrpc.HelloServiceBlockingStub
 import asura.pea.grpc.hello.{HelloRequest, HelloServiceGrpc}
 import io.grpc.ManagedChannel

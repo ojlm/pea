@@ -1,9 +1,9 @@
 package asura.pea.actor
 
 import akka.actor.{ActorRef, Props}
-import asura.common.actor.{BaseActor, NotifyActorEvent, SenderMessage}
 import asura.pea.PeaConfig
 import asura.pea.actor.CompilerMonitorActor.{MonitorMessage, MonitorSubscriberMessage}
+import asura.pea.common.actor.{BaseActor, NotifyActorEvent, SenderMessage}
 
 class WebCompilerMonitorActor() extends BaseActor {
 

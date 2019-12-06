@@ -1,7 +1,7 @@
 package asura.pea
 
-import asura.common.exceptions.ErrorMessages.ErrorMessage
-import asura.common.exceptions.{ErrorMessages => CommonErrorMessages}
+import asura.pea.common.exceptions.ErrorMessages.ErrorMessage
+import asura.pea.common.exceptions.{ErrorMessages => CommonErrorMessages}
 
 object ErrorMessages extends CommonErrorMessages {
 

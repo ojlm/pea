@@ -2,8 +2,8 @@ package asura.pea.actor
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.{ActorClassifier, ActorEventBus, ManagedActorClassification}
-import asura.common.actor.BaseActor
 import asura.pea.actor.CompilerMonitorActor.{CompilerMonitorBus, MonitorMessage, MonitorSubscriberMessage}
+import asura.pea.common.actor.BaseActor
 
 class CompilerMonitorActor extends BaseActor {
 

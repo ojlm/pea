@@ -3,7 +3,7 @@ package asura.pea
 import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import asura.common.util.StringUtils
+import asura.pea.common.util.StringUtils
 import org.apache.curator.framework.CuratorFramework
 
 import scala.concurrent.ExecutionContext

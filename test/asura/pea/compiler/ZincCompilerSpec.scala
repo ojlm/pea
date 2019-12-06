@@ -1,6 +1,6 @@
 package asura.pea.compiler
 
-import asura.common.util.FutureUtils.RichFuture
+import asura.pea.common.util.FutureUtils.RichFuture
 import asura.pea.IDEPathHelper
 import asura.pea.actor.CompilerActor.SyncCompileMessage
 

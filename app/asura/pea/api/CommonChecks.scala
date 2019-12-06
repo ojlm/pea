@@ -1,7 +1,7 @@
 package asura.pea.api
 
-import asura.common.util.StringUtils
 import asura.pea.PeaConfig
+import asura.pea.common.util.StringUtils
 import play.api.mvc.Result
 
 import scala.concurrent.Future

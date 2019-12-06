@@ -2,9 +2,9 @@ package asura.pea.actor
 
 import akka.actor.{Cancellable, Props}
 import akka.pattern.pipe
-import asura.common.actor.BaseActor
 import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.{GenerateReport, StartMessage}
+import asura.pea.common.actor.BaseActor
 import asura.pea.gatling.PeaRequestStatistics
 import asura.pea.model.job.{RunScriptMessage, SingleHttpScenarioMessage}
 import asura.pea.simulation.SingleHttpSimulation

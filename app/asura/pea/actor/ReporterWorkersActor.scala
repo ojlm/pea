@@ -6,9 +6,9 @@ import java.nio.charset.StandardCharsets
 import akka.Done
 import akka.actor.Props
 import akka.pattern.pipe
-import asura.common.actor.BaseActor
-import asura.common.model.{ApiCode, ApiRes}
-import asura.common.util.{JsonUtils, LogUtils, StringUtils}
+import asura.pea.common.actor.BaseActor
+import asura.pea.common.model.{ApiCode, ApiRes}
+import asura.pea.common.util.{JsonUtils, LogUtils, StringUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.GatlingRunnerActor.GatlingReportResult
 import asura.pea.actor.ReporterActor.{RunProgramJob, RunScriptJob, SingleHttpScenarioJob}

@@ -2,9 +2,9 @@ package asura.pea.compiler
 
 import java.io.File
 
-import asura.common.util.{ProcessUtils, StringUtils, XtermUtils}
 import asura.pea.PeaConfig
 import asura.pea.actor.CompilerActor.SyncCompileMessage
+import asura.pea.common.util.{ProcessUtils, StringUtils, XtermUtils}
 import sbt.internal.inc.{AnalysisStore => _, CompilerCache => _}
 import xsbti.compile.{FileAnalysisStore => _, ScalaInstance => _}
 

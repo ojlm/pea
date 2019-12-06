@@ -2,8 +2,8 @@ package asura.pea.model
 
 import java.net.URI
 
-import asura.common.util.{LogUtils, StringUtils}
 import asura.pea.PeaConfig
+import asura.pea.common.util.{LogUtils, StringUtils}
 import com.typesafe.scalalogging.Logger
 
 import scala.collection.mutable

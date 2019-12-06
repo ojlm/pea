@@ -1,6 +1,6 @@
 package asura.pea.model.job
 
-import asura.common.util.StringUtils
+import asura.pea.common.util.StringUtils
 import asura.pea.model.{LoadMessage, LoadTypes}
 
 case class RunScriptMessage(

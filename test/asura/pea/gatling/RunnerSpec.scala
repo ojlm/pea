@@ -1,9 +1,9 @@
 package asura.pea.gatling
 
-import asura.common.util.FutureUtils.RichFuture
-import asura.common.util.StringUtils
 import asura.pea.actor.GatlingRunnerActor
 import asura.pea.actor.GatlingRunnerActor.StartMessage
+import asura.pea.common.util.FutureUtils.RichFuture
+import asura.pea.common.util.StringUtils
 import asura.pea.simulations.GrpcHelloSimulation
 import asura.pea.{IDEPathHelper, PeaConfig}
 import com.typesafe.scalalogging.StrictLogging
