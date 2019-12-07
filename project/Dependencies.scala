@@ -7,7 +7,7 @@ import sbtrelease.ReleasePlugin.autoImport._
 
 object Dependencies {
 
-  lazy val commonSettings = Seq(
+  val commonSettings = Seq(
     organization := "cc.akkaha",
     version := "0.5.0",
     scalaVersion := "2.12.8",
@@ -24,7 +24,7 @@ object Dependencies {
 
   import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
-  lazy val releaseSettings = Seq(
+  val releaseSettings = Seq(
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
@@ -40,7 +40,7 @@ object Dependencies {
       //pushChanges
     )
   )
-  lazy val publishSettings = Seq(
+  val publishSettings = Seq(
     homepage := Some(url(s"https://github.com/$username/$repo")),
     licenses += "MIT" -> url(s"https://github.com/$username/$repo/blob/master/LICENSE"),
     scmInfo := Some(ScmInfo(url(s"https://github.com/$username/$repo"), s"git@github.com:$username/$repo.git")),

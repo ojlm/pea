@@ -33,7 +33,7 @@ lazy val peaDubbo = subProject("pea-dubbo")
 
 // pea-grpc
 val grpcVersion = "1.22.2" // override 1.8, com.trueaccord.scalapb.compiler.Version.grpcJavaVersion
-val grpcNetty = "io.grpc" % "grpc-netty" % grpcVersion
+val grpcNetty = "io.grpc" % "grpc-netty" % grpcVersion exclude("io.netty", "netty-codec-http2") // be compatible with gatling(4.1.42.Final)
 val scalapbRuntime = "com.trueaccord.scalapb" %% "scalapb-runtime-grpc" % com.trueaccord.scalapb.compiler.Version.scalapbVersion
 // Override the version that scalapb depends on. This adds an explicit dependency on
 // protobuf-java. This will cause sbt to evict the older version that is used by
