@@ -16,8 +16,6 @@
 
 package io.gatling.charts.report
 
-import asura.pea.gatling.PeaRequestStatistics
-import asura.pea.gatling.PeaRequestStatistics.{PeaGroupedCount, PeaStatistics}
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.charts.component.{ComponentLibrary, GroupedCount, RequestStatistics, Statistics}
 import io.gatling.charts.config.ChartsFiles._
@@ -26,6 +24,8 @@ import io.gatling.charts.template.{ConsoleTemplate, GlobalStatsJsonTemplate, Sta
 import io.gatling.commons.stats._
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
+import pea.app.gatling.PeaRequestStatistics
+import pea.app.gatling.PeaRequestStatistics.{PeaGroupedCount, PeaStatistics}
 
 import scala.collection.breakOut
 

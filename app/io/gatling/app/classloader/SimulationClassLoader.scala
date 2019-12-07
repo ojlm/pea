@@ -20,10 +20,10 @@ import java.io.File
 import java.lang.reflect.Modifier
 import java.nio.file.Path
 
-import asura.pea.PeaConfig
-import asura.pea.compiler.ReloadableClassLoader
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.scenario.Simulation
+import pea.app.PeaConfig
+import pea.app.compiler.ReloadableClassLoader
 
 import scala.util.Properties
 

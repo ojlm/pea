@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package asura.pea.grpc;
+package pea.grpc;
 
 service HelloService {
   rpc SayHello (HelloRequest) returns (HelloResponse);

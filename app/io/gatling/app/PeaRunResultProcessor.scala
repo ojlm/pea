@@ -16,12 +16,12 @@
 
 package io.gatling.app
 
-import asura.pea.gatling.PeaRequestStatistics
 import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{PeaReportsGenerator, ReportsGenerationInputs}
 import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.{AssertionResult, AssertionValidator}
 import io.gatling.core.config.GatlingConfiguration
+import pea.app.gatling.PeaRequestStatistics
 
 class PeaRunResultProcessor(configuration: GatlingConfiguration) {
 

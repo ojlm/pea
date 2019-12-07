@@ -27,7 +27,7 @@
 
   <logger name="play" level="INFO"/>
   <logger name="org.apache.zookeeper.ClientCnxn" level="ERROR"/>
-  <logger name="asura.pea" level="DEBUG"/>
+  <logger name="pea" level="DEBUG"/>
 
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourselves -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF"/>

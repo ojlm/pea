@@ -31,10 +31,10 @@
 ### 脚本示例
 
 ```scala
-import asura.pea.dubbo.Predef._
-import asura.pea.dubbo.api.GreetingService
-import asura.pea.gatling.PeaSimulation
 import io.gatling.core.Predef._
+import pea.dubbo.Predef._
+import pea.dubbo.api.GreetingService
+import pea.gatling.PeaSimulation
 
 class DubboGreetingSimulation extends PeaSimulation {
   override val description: String =

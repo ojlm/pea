@@ -7,13 +7,6 @@ import java.io.{File, PrintWriter}
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.pattern.ask
-import asura.pea.PeaConfig
-import asura.pea.actor.GatlingRunnerActor.{GatlingReportResult, GatlingResult, PeaGatlingRunResult}
-import asura.pea.common.util.{LogUtils, StringUtils}
-import asura.pea.dubbo.protocol.DubboProtocol
-import asura.pea.gatling.{PeaDataWritersStatsEngine, PeaSimulation}
-import asura.pea.grpc.protocol.GrpcProtocol
-import asura.pea.model.SimulationModel
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.commons.util.DefaultClock
@@ -27,6 +20,13 @@ import io.gatling.core.protocol.Protocols
 import io.gatling.core.scenario.{Scenario, SimulationParams}
 import io.gatling.core.stats.writer.RunMessage
 import io.gatling.http.protocol.HttpProtocol
+import pea.app.PeaConfig
+import pea.app.actor.GatlingRunnerActor.{GatlingReportResult, GatlingResult, PeaGatlingRunResult}
+import pea.app.gatling.{PeaDataWritersStatsEngine, PeaSimulation}
+import pea.app.model.SimulationModel
+import pea.common.util.{LogUtils, StringUtils}
+import pea.dubbo.protocol.DubboProtocol
+import pea.grpc.protocol.GrpcProtocol
 import sbt.io.FileFilter
 
 import scala.collection.mutable
