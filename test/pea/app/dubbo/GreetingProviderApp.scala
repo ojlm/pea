@@ -2,7 +2,7 @@ package pea.app.dubbo
 
 import java.util.concurrent.CountDownLatch
 
-import com.alibaba.dubbo.config.{ApplicationConfig, RegistryConfig, ServiceConfig}
+import org.apache.dubbo.config.{ApplicationConfig, RegistryConfig, ServiceConfig}
 import pea.app.dubbo.api.GreetingService
 import pea.app.dubbo.provider.GreetingsServiceImpl
 

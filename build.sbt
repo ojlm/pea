@@ -24,14 +24,11 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3
 lazy val peaCommon = subProject("pea-common")
   .settings(libraryDependencies ++= commonDependencies)
 
-// pea-dubbo dependencies, specify javassist and jbossnetty deps because of coursier dep resolve problems
-val dubbo = "com.alibaba" % "dubbo" % "2.6.5" excludeAll(ExclusionRule(organization = "org.springframework"), ExclusionRule(organization = "org.javassist"), ExclusionRule(organization = "org.jboss.netty"))
-val dubboJavassist = "org.javassist" % "javassist" % "3.21.0-GA"
-val dubboJbossNetty = "org.jboss.netty" % "netty" % "3.2.5.Final"
-val dubboSpring = "org.springframework" % "spring-context" % "4.3.10.RELEASE" % Test
+// pea-dubbo
+val dubbo = "org.apache.dubbo" % "dubbo" % "2.7.4.1"
 lazy val peaDubbo = subProject("pea-dubbo")
   .settings(libraryDependencies ++= Seq(
-    gatling, dubbo, curator, dubboJavassist, dubboJbossNetty, dubboSpring
+    gatling, dubbo,
   ))
 
 // pea-grpc

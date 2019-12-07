@@ -2,8 +2,8 @@ package pea.dubbo.request
 
 import java.util.concurrent.ConcurrentHashMap
 
-import com.alibaba.dubbo.common.utils.StringUtils
-import com.alibaba.dubbo.config.{ApplicationConfig, ReferenceConfig, RegistryConfig}
+import org.apache.dubbo.common.utils.StringUtils
+import org.apache.dubbo.config.{ApplicationConfig, ReferenceConfig, RegistryConfig}
 import pea.dubbo.protocol.DubboProtocol
 
 object ReferenceConfigCache {
@@ -11,7 +11,7 @@ object ReferenceConfigCache {
   private val cache = new ConcurrentHashMap[String, ReferenceConfig[_]]()
 
   def get[T](clazz: Class[T], protocol: DubboProtocol, actionProtocol: Option[DubboProtocol]): T = {
-    val reference = new CustomReferenceConfig[T]()
+    val reference = new ReferenceConfig[T]()
     var endpoint: String = null
     if (actionProtocol.nonEmpty) {
       val fallback = actionProtocol.get
@@ -59,7 +59,7 @@ object ReferenceConfigCache {
   }
 
   /**
-    * reference to [[com.alibaba.dubbo.config.utils.ReferenceConfigCache.DEFAULT_KEY_GENERATOR]]
+    * reference to [[org.apache.dubbo.config.utils.ReferenceConfigCache.DEFAULT_KEY_GENERATOR]]
     * key example: "group1/com.alibaba.foo.FooService:1.0.0@127.0.0.1:20880".
     */
   private def generateCacheKey(reference: ReferenceConfig[_], endpoint: String): String = {

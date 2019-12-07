@@ -1,6 +1,6 @@
 package pea.app.dubbo
 
-import com.alibaba.dubbo.config.{ApplicationConfig, ReferenceConfig}
+import org.apache.dubbo.config.{ApplicationConfig, ReferenceConfig}
 import pea.app.dubbo.api.GreetingService
 
 object GreetingConsumerApp extends RegistryAddressConfig {
