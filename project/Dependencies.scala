@@ -71,8 +71,9 @@ object Dependencies {
 
   /// Deps
 
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.5.23"
-  val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.1"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.5.26"
+  val akkaStream = "com.typesafe.akka" %% "akka-stream" % akkaActor.revision
+  val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.10.1"
 
   val commonDependencies = Seq(akkaActor, jackson)
 
@@ -80,8 +81,7 @@ object Dependencies {
     guice,
     ehcache,
     ws,
-    filters,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+    filters
   )
 
   val playPac4jVersion = "8.0.0"

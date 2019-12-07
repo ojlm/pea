@@ -11,13 +11,13 @@ lazy val pea = Project("pea", file("."))
   ).aggregate(peaCommon, peaDubbo, peaGrpc)
 
 // pea-app dependencies
-val gatlingVersion = "3.2.1"
+val gatlingVersion = "3.3.1"
 val gatling = "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion exclude("io.gatling", "gatling-app")
 val gatlingCompiler = "io.gatling" % "gatling-compiler" % gatlingVersion
 val curator = "org.apache.curator" % "curator-recipes" % "2.12.0"
 val oshiCore = "com.github.oshi" % "oshi-core" % "4.0.0"
 
-libraryDependencies ++= Seq(gatling, gatlingCompiler, curator, oshiCore) ++ appPlayDeps
+libraryDependencies ++= Seq(akkaStream, gatling, gatlingCompiler, curator, oshiCore) ++ appPlayDeps
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
 
 // pea-common

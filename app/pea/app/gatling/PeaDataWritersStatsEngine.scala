@@ -73,7 +73,9 @@ class PeaDataWritersStatsEngine(dataWriters: Seq[ActorRef], system: ActorSystem,
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
 
-  override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
+  override def logUserStart(session: Session): Unit = dispatch(UserStartMessage(session))
+
+  override def logUserEnd(userMessage: UserEndMessage): Unit = dispatch(userMessage)
 
   override def logResponse(
                             session: Session,
