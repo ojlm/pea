@@ -163,6 +163,7 @@ class ApplicationStart @Inject()(
     configuration.getOptional[String](key).getOrElse(StringUtils.EMPTY)
   }
 
+  // https://github.com/asura-pro/pea/issues/6
   private def addSimulationOutputAndExtToClasspath(): Unit = {
     if (StringUtils.isNotEmpty(PeaConfig.defaultSimulationOutputFolder)) {
       try {

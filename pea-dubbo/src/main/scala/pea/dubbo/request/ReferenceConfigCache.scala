@@ -11,7 +11,7 @@ object ReferenceConfigCache {
   private val cache = new ConcurrentHashMap[String, ReferenceConfig[_]]()
 
   def get[T](clazz: Class[T], protocol: DubboProtocol, actionProtocol: Option[DubboProtocol]): T = {
-    val reference = new ReferenceConfig[T]()
+    val reference = new CustomReferenceConfig[T]()
     var endpoint: String = null
     if (actionProtocol.nonEmpty) {
       val fallback = actionProtocol.get

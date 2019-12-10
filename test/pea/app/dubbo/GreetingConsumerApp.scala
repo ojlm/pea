@@ -1,12 +1,13 @@
 package pea.app.dubbo
 
-import org.apache.dubbo.config.{ApplicationConfig, ReferenceConfig}
+import org.apache.dubbo.config.ApplicationConfig
 import pea.app.dubbo.api.GreetingService
+import pea.dubbo.request.CustomReferenceConfig
 
 object GreetingConsumerApp extends RegistryAddressConfig {
 
   def main(args: Array[String]): Unit = {
-    val reference = new ReferenceConfig[GreetingService]()
+    val reference = new CustomReferenceConfig[GreetingService]()
     reference.setApplication(new ApplicationConfig("pea-dubbo-consumer"))
     // reference.setVersion("1.0.0")
     reference.setTimeout(3000)
