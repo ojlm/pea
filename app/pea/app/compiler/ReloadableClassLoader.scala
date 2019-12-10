@@ -1,9 +1,11 @@
 package pea.app.compiler
 
 import java.io.{DataInputStream, File, FileInputStream}
+import java.net.{URL, URLClassLoader}
 
 import com.typesafe.scalalogging.Logger
-import pea.common.util.LogUtils
+import pea.app.PeaConfig
+import pea.common.util.{LogUtils, StringUtils}
 
 class ReloadableClassLoader(
                              parent: ClassLoader,
@@ -11,6 +13,7 @@ class ReloadableClassLoader(
                            ) extends ClassLoader(parent) {
 
   val logger = ReloadableClassLoader.logger
+  val extUrlClassLoader = ReloadableClassLoader.getExtJarsUrlClassLoader(parent = parent)
 
   override def loadClass(name: String): Class[_] = {
     findClass(name)
@@ -25,7 +28,7 @@ class ReloadableClassLoader(
           val bytes = loadClassData(file)
           defineClass(name, bytes, 0, bytes.length)
         } else {
-          parent.loadClass(name)
+          Class.forName(name, true, extUrlClassLoader)
         }
       } else {
         loaded
@@ -50,4 +53,18 @@ class ReloadableClassLoader(
 
 object ReloadableClassLoader {
   val logger = Logger(getClass)
+
+  def getExtJarsUrlClassLoader(
+                                path: String = PeaConfig.compilerExtraClasspath,
+                                parent: ClassLoader = Thread.currentThread().getContextClassLoader,
+                              ): URLClassLoader = {
+    val urls = if (StringUtils.isNotEmpty(path)) {
+      new File(path)
+        .listFiles(item => item.isFile && item.getName.endsWith(".jar"))
+        .map(file => new URL(s"jar:file:${file.getCanonicalPath}!/"))
+    } else {
+      Array.empty[URL]
+    }
+    URLClassLoader.newInstance(urls, parent)
+  }
 }

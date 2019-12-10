@@ -2,6 +2,7 @@ package pea.app.compiler
 
 import java.io.File
 
+import org.apache.commons.lang3.SystemUtils
 import pea.app.PeaConfig
 import pea.app.actor.CompilerActor.SyncCompileMessage
 import pea.common.util.{ProcessUtils, StringUtils, XtermUtils}
@@ -14,7 +15,18 @@ object ScalaCompiler {
 
   private def getFullClasspath(): String = {
     if (StringUtils.isNotEmpty(PeaConfig.compilerExtraClasspath)) {
-      s"${System.getProperty("java.class.path")}:${PeaConfig.compilerExtraClasspath}"
+      val file = new File(PeaConfig.compilerExtraClasspath)
+      val fileNames = file.listFiles(item => item.isFile && item.getName.endsWith(".jar"))
+        .map(item => item.getCanonicalPath)
+      if (fileNames.nonEmpty) {
+        if (SystemUtils.IS_OS_WINDOWS) {
+          s"${System.getProperty("java.class.path")};${fileNames.mkString(";")}"
+        } else {
+          s"${System.getProperty("java.class.path")}:${fileNames.mkString(":")}"
+        }
+      } else {
+        System.getProperty("java.class.path")
+      }
     } else {
       System.getProperty("java.class.path")
     }
