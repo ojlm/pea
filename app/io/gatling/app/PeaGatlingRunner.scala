@@ -229,24 +229,24 @@ object PeaGatlingRunner extends StrictLogging {
     if (null == io.gatling.core.Predef._configuration) {
       io.gatling.core.Predef._configuration = GatlingConfiguration.load(defaultGatlingProps)
     }
-    SimulationClassLoader(binariesDirectory)
-      .simulationClasses
-      .foreach(clazz => {
-        try {
-          val model = if (classOf[PeaSimulation].isAssignableFrom(clazz)) {
-            val simulation = clazz.asInstanceOf[Class[PeaSimulation]].newInstance()
-            val params = simulation.params(io.gatling.core.Predef._configuration)
-            SimulationModel(clazz.getName, getProtocols(params), simulation.description)
-          } else {
-            val simulation = clazz.newInstance()
-            val params = simulation.params(io.gatling.core.Predef._configuration)
-            SimulationModel(clazz.getName, getProtocols(params))
-          }
-          simulations += model
-        } catch {
-          case t: Throwable => logger.warn(LogUtils.stackTraceToString(t))
+    val simulationClassLoader = SimulationClassLoader(binariesDirectory)
+    simulationClassLoader.simulationClasses.foreach(clazz => {
+      try {
+        val model = if (classOf[PeaSimulation].isAssignableFrom(clazz)) {
+          val simulation = clazz.asInstanceOf[Class[PeaSimulation]].newInstance()
+          val params = simulation.params(io.gatling.core.Predef._configuration)
+          SimulationModel(clazz.getName, getProtocols(params), simulation.description)
+        } else {
+          val simulation = clazz.newInstance()
+          val params = simulation.params(io.gatling.core.Predef._configuration)
+          SimulationModel(clazz.getName, getProtocols(params))
         }
-      })
+        simulations += model
+      } catch {
+        case t: Throwable => logger.warn(LogUtils.stackTraceToString(t))
+      }
+    })
+    simulationClassLoader.classLoader.close()
     simulations
   }
 

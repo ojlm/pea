@@ -47,7 +47,7 @@ private[app] object SimulationClassLoader {
   }
 }
 
-private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
+private[app] class SimulationClassLoader(val classLoader: ReloadableClassLoader, binaryDir: Path) {
 
   def simulationClasses: List[Class[Simulation]] =
     binaryDir
