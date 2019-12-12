@@ -58,6 +58,7 @@ class ApplicationStart @Inject()(
     }
   }
   PeaConfig.webSimulationEditorBaseUrl = getStringFromConfig("pea.simulations.webEditorBaseUrl")
+  PeaConfig.label = getStringFromConfig("pea.label")
   addSimulationOutputAndExtToClasspath()
   val enableZk = configuration.getOptional[Boolean]("pea.zk.enabled").getOrElse(false)
   if (enableZk) {

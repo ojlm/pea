@@ -11,6 +11,7 @@ export class OshiInfoComponent {
   GB = 1024 * 1024 * 1024
   oshi: Oshi = {}
 
+  @Input() label: string = ''
   @Input()
   set data(data: Oshi) {
     this.oshi = data || {}

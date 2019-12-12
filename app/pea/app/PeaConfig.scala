@@ -35,6 +35,7 @@ object PeaConfig {
   var address = StringUtils.EMPTY
   var port = 0
   var hostname = StringUtils.EMPTY
+  var label = StringUtils.EMPTY
 
   // roles
   var enableReporter = false

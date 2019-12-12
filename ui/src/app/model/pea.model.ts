@@ -42,6 +42,8 @@ export interface JobWorkerStatus {
   start?: number
   end?: number
   code?: number
+  label?: string
+  oshi?: Oshi
 }
 
 export interface ReporterJobStatus {

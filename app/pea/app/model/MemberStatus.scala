@@ -1,5 +1,6 @@
 package pea.app.model
 
+import pea.app.PeaConfig
 import pea.common.util.StringUtils
 
 /** node data
@@ -10,6 +11,7 @@ import pea.common.util.StringUtils
   * @param end    end time of last job
   * @param code   code of last job
   * @param errMsg error message of last job
+  * @param label  label
   * @param  oshi  operating system and hardware information
   */
 case class MemberStatus(
@@ -19,6 +21,7 @@ case class MemberStatus(
                          var end: Long = 0L,
                          var code: Int = 0,
                          var errMsg: String = null,
+                         var label: String = PeaConfig.label,
                          var oshi: OshiInfo = OshiInfo.getOshiInfo(),
                        )
 

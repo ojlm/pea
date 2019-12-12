@@ -6,7 +6,7 @@
           nzPopoverPlacement="topLeft" [nzPopoverContent]="contentTpl">
         </i>
         <ng-template #contentTpl>
-          <app-oshi-info [data]="item.status.oshi"></app-oshi-info>
+          <app-oshi-info [data]="item.status.oshi" [label]="item.status.label"></app-oshi-info>
         </ng-template>
         <span class="pea-addr">
           <i nz-icon nzType="number" nzTheme="outline"></i>
