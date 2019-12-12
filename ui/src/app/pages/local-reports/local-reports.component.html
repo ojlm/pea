@@ -1,9 +1,15 @@
-<nz-list [nzDataSource]="items" nzBordered [nzRenderItem]="item">
-  <ng-template #item let-item>
-    <nz-list-item>
-      <a (click)="open(item)">{{item.name}}</a>
-      <nz-divider nzType="vertical"></nz-divider>
-      <span class="desc">{{item.last}}</span>
-    </nz-list-item>
+<nz-table #table nzSize="small" [nzData]="items" [nzFrontPagination]="true" [nzPageSize]="20" [nzTotal]="items.length"
+  [nzShowSizeChanger]="true" [nzShowTotal]="totalTemplate">
+  <tbody>
+    <tr *ngFor="let item of table.data">
+      <td>
+        <a (click)="open(item)">{{item.name}}</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <span class="desc">{{item.last}}</span>
+      </td>
+    </tr>
+  </tbody>
+  <ng-template #totalTemplate let-total>
+    <span style="color:darkgray;">total: {{total}} items</span>
   </ng-template>
-</nz-list>
+</nz-table>
