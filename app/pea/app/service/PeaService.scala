@@ -34,7 +34,7 @@ object PeaService {
       })
   }
 
-  def stopWorker(member: PeaMember): Future[MemberApiBoolRes] = {
+  def stopWorker(member: PeaMember, args: Any): Future[MemberApiBoolRes] = {
     HttpClient.wsClient
       .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/stop")
       .get()
@@ -44,29 +44,30 @@ object PeaService {
   }
 
   def stopWorkers(workers: Seq[PeaMember]): Future[WorkersBoolResponse] = {
-    buildWorkersBoolResponse(workers, PeaService.stopWorker)
+    buildWorkersBoolResponse(workers, null, PeaService.stopWorker)
   }
 
-  def compile(member: PeaMember): Future[MemberApiBoolRes] = {
+  def compile(member: PeaMember, args: Any): Future[MemberApiBoolRes] = {
     HttpClient.wsClient
       .url(s"${PeaConfig.workerProtocol}://${member.toAddress}/api/gatling/compile")
-      .post(JsonUtils.stringify(AsyncCompileMessage(pull = true)))
+      .post(JsonUtils.stringify(AsyncCompileMessage(pull = args.asInstanceOf[Boolean])))
       .map(response => {
         JsonUtils.parse(response.body[String], classOf[MemberApiBoolRes])
       })
   }
 
-  def compileWorkers(workers: Seq[PeaMember]): Future[WorkersBoolResponse] = {
-    buildWorkersBoolResponse(workers, PeaService.compile)
+  def compileWorkers(workers: Seq[PeaMember], pull: Boolean): Future[WorkersBoolResponse] = {
+    buildWorkersBoolResponse(workers, pull, PeaService.compile)
   }
 
   private def buildWorkersBoolResponse(
                                         workers: Seq[PeaMember],
-                                        func: PeaMember => Future[MemberApiBoolRes]
+                                        args: Any,
+                                        func: (PeaMember, Any) => Future[MemberApiBoolRes]
                                       ): Future[WorkersBoolResponse] = {
     val errors = mutable.Map[String, String]()
     val futures = workers.map(member => {
-      func(member).map(res =>
+      func(member, args).map(res =>
         if (ApiCode.OK.equals(res.code)) {
           (res.data, null)
         } else {

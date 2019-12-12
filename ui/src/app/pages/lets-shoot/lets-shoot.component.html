@@ -86,7 +86,7 @@
             <span>{{'item.script'|translate}}</span>
           </div>
         </ng-template>
-        <nz-select style="width: 100%;" [(ngModel)]="simulation" nzAllowClear>
+        <nz-select style="width: 100%;" [(ngModel)]="simulation" nzShowSearch>
           <nz-option *ngFor="let item of simulations" [nzValue]="item" [nzLabel]="item.name" nzCustomContent>
             <div>
               <div class="option-title">

@@ -34,8 +34,11 @@
       {{'item.checkAll'|translate}}
     </label>
     <span class="tool">
+      <label nz-checkbox [(ngModel)]="compilePull">
+        {{'tips.runGitPull'|translate}}
+      </label>
       <button style="color:rebeccapurple;" nz-button nzSize="small" nzType="dashed" (click)="compile()">
-        {{'item.pullAndCompile'|translate}}
+        {{'item.compile'|translate}}
       </button>
     </span>
   </div>

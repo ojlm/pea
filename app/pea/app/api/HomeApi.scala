@@ -17,7 +17,7 @@ import pea.app.actor.CompilerActor.{AsyncCompileMessage, GetAllSimulations}
 import pea.app.actor.ReporterActor.{GetAllWorkers, RunProgramJob, RunScriptJob, SingleHttpScenarioJob}
 import pea.app.api.BaseApi.OkApiRes
 import pea.app.api.util.ResultUtils
-import pea.app.model.{LoadJob, PeaMember, ReporterJobStatus, WorkersRequest}
+import pea.app.model._
 import pea.app.service.PeaService
 import pea.common.model.{ApiRes, ApiResError}
 import pea.common.util.{JsonUtils, LogUtils}
@@ -153,9 +153,9 @@ class HomeApi @Inject()(
   }
 
   def compile() = Action(parse.byteString).async { implicit req =>
-    val message = req.bodyAs(classOf[WorkersRequest])
-    if (PeaConfig.enableReporter) PeaConfig.workerActor ! AsyncCompileMessage(pull = true)
-    PeaService.compileWorkers(message.workers).toOkResult
+    val message = req.bodyAs(classOf[WorkersCompileRequest])
+    if (PeaConfig.enableReporter) PeaConfig.workerActor ! AsyncCompileMessage(pull = message.pull)
+    PeaService.compileWorkers(message.workers, message.pull).toOkResult
   }
 
   private def loadJob(message: LoadJob): Future[Result] = {

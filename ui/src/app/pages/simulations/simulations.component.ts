@@ -11,6 +11,7 @@ import { MemberStatus, SimulationModel } from 'src/app/model/pea.model'
 export class SimulationsComponent implements OnInit {
 
   workersAllChecked = false
+  compilePull = false
   indeterminate = true
 
   lastCompileTime = ''
@@ -35,7 +36,7 @@ export class SimulationsComponent implements OnInit {
   compile() {
     const workers = this.workers.filter(item => item.checked)
     if (workers.length > 0) {
-      this.homeService.compile(workers.map(item => item.member)).subscribe(res => {
+      this.homeService.compile(workers.map(item => item.member), this.compilePull).subscribe(res => {
         if (res.data.result) {
           this.compilers = workers
         } else {

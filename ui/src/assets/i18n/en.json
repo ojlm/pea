@@ -60,6 +60,7 @@
   "tips.forever": "Forever",
   "tips.repeat": "Repeat",
   "tips.maxDuration": "Max Duration",
+  "tips.runGitPull": "Rim 'git pull'",
   "injection.rampUsers": "rampUsers",
   "injection.heavisideUsers": "heavisideUsers",
   "injection.atOnceUsers": "atOnceUsers",
