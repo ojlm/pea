@@ -5,6 +5,7 @@ import { JobSummaryComponent } from './job-summary/job-summary.component'
 import { RunningJobComponent } from './running-job/running-job.component'
 import { RunningJobsComponent } from './running-jobs.component'
 import { RunningJobsRoutingModule } from './running-jobs.routing.module'
+import { WorkerStatusComponent } from './worker-status/worker-status.component'
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { RunningJobsRoutingModule } from './running-jobs.routing.module'
     RunningJobsComponent,
     RunningJobComponent,
     JobSummaryComponent,
+    WorkerStatusComponent,
   ],
   exports: []
 })

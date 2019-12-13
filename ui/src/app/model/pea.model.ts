@@ -100,6 +100,11 @@ export interface SingleJob {
   load?: UnionLoadMessage
 }
 
+export interface FinishedCallbackRequest {
+  url?: string
+  ext?: object
+}
+
 export interface LoadJob {
   workers?: PeaMember[]
   load?: UnionLoadMessage
@@ -108,6 +113,8 @@ export interface LoadJob {
   simulationId?: string
   start?: number
   type?: string
+  callback?: FinishedCallbackRequest
+  ext?: object
 }
 
 export interface SingleHttpScenarioMessage extends LoadMessage {

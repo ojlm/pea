@@ -1,0 +1,13 @@
+.item {
+  margin-bottom: 4px;
+  border-bottom: 1px solid lightgray;
+}
+
+.label {
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.value {
+  color: darkcyan;
+}

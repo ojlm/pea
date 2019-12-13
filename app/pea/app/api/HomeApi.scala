@@ -25,6 +25,7 @@ import play.api.http.HttpErrorHandler
 import play.api.mvc._
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -82,7 +83,16 @@ class HomeApi @Inject()(
 
   def jobs() = Action.async { implicit req =>
     val children = try {
-      PeaConfig.zkClient.getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}")
+      val jobs: ArrayBuffer[ReporterJobStatus] = ArrayBuffer()
+      PeaConfig.zkClient
+        .getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}")
+        .forEach(runId => {
+          val job = getJobStatus(runId)
+          if (null != job && MemberStatus.REPORTER_RUNNING.equals(job.status)) {
+            jobs += job
+          }
+        })
+      jobs.sortBy(_.start)
     } catch {
       case t: Throwable =>
         logger.warn(LogUtils.stackTraceToString(t))
@@ -92,18 +102,8 @@ class HomeApi @Inject()(
   }
 
   def jobDetail(runId: String) = Action.async { implicit req =>
-    val status = try {
-      val path = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}/${runId}"
-      val data = PeaConfig.zkClient.getData.forPath(path)
-      JsonUtils.parse(
-        new String(data, StandardCharsets.UTF_8),
-        classOf[ReporterJobStatus]
-      )
-    } catch {
-      case t: Throwable =>
-        logger.warn(LogUtils.stackTraceToString(t))
-        ReporterJobStatus()
-    }
+    val data = getJobStatus(runId)
+    val status = if (null != data) data else ReporterJobStatus()
     Future.successful(status).toOkResult
   }
 
@@ -156,6 +156,22 @@ class HomeApi @Inject()(
     val message = req.bodyAs(classOf[WorkersCompileRequest])
     if (PeaConfig.enableReporter) PeaConfig.workerActor ! AsyncCompileMessage(pull = message.pull)
     PeaService.compileWorkers(message.workers, message.pull).toOkResult
+  }
+
+  private def getJobStatus(runId: String): ReporterJobStatus = {
+    val path = s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}/${runId}"
+    try {
+      val data = PeaConfig.zkClient.getData.forPath(path)
+      if (null != data) {
+        JsonUtils.parse(new String(data, StandardCharsets.UTF_8), classOf[ReporterJobStatus])
+      } else {
+        null
+      }
+    } catch {
+      case t: Throwable =>
+        logger.warn(LogUtils.stackTraceToString(t))
+        null
+    }
   }
 
   private def loadJob(message: LoadJob): Future[Result] = {

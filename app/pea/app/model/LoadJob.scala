@@ -13,4 +13,5 @@ trait LoadJob {
   var simulationId: String = null
   var start: Long = 0L
   var callback: FinishedCallbackRequest = null
+  var ext: Any = null // any additional information
 }

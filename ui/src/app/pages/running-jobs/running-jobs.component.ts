@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 import { HomeService } from 'src/app/api/home.service'
+import { LoadTypes, ReporterJobStatus } from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-running-jobs',
@@ -9,15 +10,34 @@ import { HomeService } from 'src/app/api/home.service'
 })
 export class RunningJobsComponent implements OnInit {
 
-  items: string[] = []
+  items: ReporterJobStatus[] = []
 
   constructor(
     private homeService: HomeService,
     private router: Router,
   ) { }
 
-  open(item: string) {
-    this.router.navigateByUrl(`/jobs/${item}`)
+  open(item: ReporterJobStatus) {
+    this.router.navigateByUrl(`/jobs/${item.runId}`)
+  }
+
+  itemColor(item: ReporterJobStatus) {
+    if (item.load) {
+      switch (item.load.type) {
+        case LoadTypes.SINGLE:
+          return 'magenta'
+        case LoadTypes.SCRIPT:
+          return 'cyan'
+        case LoadTypes.PROGRAM:
+          return 'blue'
+      }
+    } else {
+      return ''
+    }
+  }
+
+  itemDate(item: ReporterJobStatus) {
+    return new Date(item.start).toLocaleString()
   }
 
   ngOnInit() {

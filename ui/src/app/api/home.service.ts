@@ -22,7 +22,7 @@ export class HomeService extends BaseService {
   constructor(private http: HttpClient) { super() }
 
   getRunningJobs() {
-    return this.http.get<ApiRes<string[]>>(`${this.API_BASE}/jobs`)
+    return this.http.get<ApiRes<ReporterJobStatus[]>>(`${this.API_BASE}/jobs`)
   }
 
   getJobDetails(runId: string) {

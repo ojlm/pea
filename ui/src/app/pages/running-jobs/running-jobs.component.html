@@ -1,7 +1,31 @@
-<nz-list [nzDataSource]="items" nzBordered [nzRenderItem]="item">
-  <ng-template #item let-item>
-    <nz-list-item>
-      <a (click)="open(item)">{{item}}</a>
-    </nz-list-item>
+<nz-table #table nzSize="small" [nzData]="items" [nzFrontPagination]="true" [nzPageSize]="20" [nzTotal]="items.length"
+  [nzShowSizeChanger]="true" [nzShowTotal]="totalTemplate">
+  <tbody>
+    <tr *ngFor="let item of table.data">
+      <td>
+        <span class="workers">
+          <i nz-icon nzType="cloud" nzTheme="outline" nz-popover nzPopoverPlacement="topLeft"
+            [nzPopoverContent]="contentTpl"></i>
+          <ng-template #contentTpl>
+            <app-worker-status [data]="item.workers"></app-worker-status>
+          </ng-template>
+        </span>
+        <nz-divider nzType="vertical"></nz-divider>
+        <nz-tag [nzColor]="itemColor(item)">{{item.load.type}}</nz-tag>
+        <a (click)="open(item)">{{item.runId}}</a>
+        <span class="tail">
+          <span class="time">
+            <span class="label">
+              <i nz-icon nzType="schedule" nzTheme="outline"></i>
+              <span>{{'tips.startTime'|translate}}: </span>
+            </span>
+            <span class="value">{{itemDate(item)}}</span>
+          </span>
+        </span>
+      </td>
+    </tr>
+  </tbody>
+  <ng-template #totalTemplate let-total>
+    <span style="color:darkgray;">{{'item.total'|translate}} {{total}} {{'item.items'|translate}}</span>
   </ng-template>
-</nz-list>
+</nz-table>

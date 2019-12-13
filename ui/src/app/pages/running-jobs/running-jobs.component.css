@@ -1,0 +1,17 @@
+.workers {
+  cursor: pointer;
+}
+
+.tail {
+  float: right;
+  font-size: small;
+}
+
+.time .label {
+  color: lightseagreen;
+}
+
+.time .value {
+  color: lightslategray;
+  font-size: smaller;
+}
