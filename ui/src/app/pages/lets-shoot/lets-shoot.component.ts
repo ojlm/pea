@@ -48,6 +48,11 @@ export class LetsShootComponent implements OnInit {
   selectedWorkers: WorkerData[] = []
 
   headersStr = ''
+  headerPlaceholder = `{
+    "Content-Type" : "application/json;charset=UTF-8",
+    "User-Agent" : "Mozilla/5.0 ..."
+}`
+  bodyPlaceholder = 'use rendered plaintext'
 
   lastCompileTime = ''
   editorBaseUrl = ''

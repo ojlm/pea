@@ -21,10 +21,11 @@
       </nz-input-group>
       <nz-tabset nzAnimated="false" nzSize="small" nzType="line" nzTabPosition="top" nzTabBarGutter="0">
         <nz-tab [nzTitle]="'Headers'">
-          <textarea rows="4" nz-input [(ngModel)]="headersStr"></textarea>
+          <textarea rows="4" nz-input [(ngModel)]="headersStr" [placeholder]="headerPlaceholder"></textarea>
         </nz-tab>
         <nz-tab [nzTitle]="'Body'">
-          <textarea rows="4" nz-input [(ngModel)]="innerRequest.request.body"></textarea>
+          <textarea rows="4" nz-input [(ngModel)]="innerRequest.request.body" [placeholder]="bodyPlaceholder">
+          </textarea>
         </nz-tab>
         <nz-tab [nzTitle]="'Feeder'">
           <app-feeder [(data)]="innerRequest.feeder"></app-feeder>
