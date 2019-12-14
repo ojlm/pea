@@ -1,3 +1,19 @@
+.workload {
+  width: 100%;
+  padding-bottom: 4px;
+  border-bottom: 1px solid lightgray;
+}
+
+.line {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.label {
+  width: 84px;
+  text-align: left;
+}
+
 .inj-type>i {
   color: lightseagreen;
 }

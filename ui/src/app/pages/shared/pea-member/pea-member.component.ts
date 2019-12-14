@@ -15,6 +15,7 @@ import {
   TotalCounters,
   UnionLoadMessage,
 } from 'src/app/model/pea.model'
+import { injectionSumText } from 'src/app/util/injection'
 
 @Component({
   selector: 'app-pea-member',
@@ -108,14 +109,7 @@ export class PeaMemberComponent implements OnDestroy {
   }
 
   sumText(item: Injection) {
-    let sum = `Users: ${item.users}`
-    if (item.to) {
-      sum = `${sum},${item.to}`
-    }
-    if (item.duration && item.duration.value && item.duration.unit) {
-      sum = `${sum}. Duration: ${item.duration.value} ${this.i18nService.instant(`time.${item.duration.unit}`)}.`
-    }
-    return sum
+    return injectionSumText(item, this.i18nService)
   }
 
   ngOnDestroy(): void {

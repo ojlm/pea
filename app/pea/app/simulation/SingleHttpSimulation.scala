@@ -1,6 +1,7 @@
 package pea.app.simulation
 
 import io.gatling.core.Predef._
+import io.gatling.core.controller.inject.closed.ClosedInjectionStep
 import io.gatling.core.controller.inject.open.OpenInjectionStep
 import io.gatling.core.controller.throttle.ThrottleStep
 import io.gatling.core.feeder.FeederBuilder
@@ -58,18 +59,16 @@ class SingleHttpSimulation extends PeaSimulation {
     scenario(scnName).exec(chain)
   }
 
-  if (hasMaxDuration()) {
-    setUp(
-      scn.inject(
-        getInjectionSteps()
-      ).protocols(http.disableCaching)
-    ).throttle(getThrottleSteps()).maxDuration(toFiniteDuration(singleHttpScenario.maxDuration))
+  val populationBuilders = if (isOpenInjectionModel()) {
+    scn.inject(getOpenInjectionSteps()).protocols(http.disableCaching)
   } else {
-    setUp(
-      scn.inject(
-        getInjectionSteps()
-      ).protocols(http.disableCaching)
-    ).throttle(getThrottleSteps())
+    scn.inject(getClosedInjectionSteps()).protocols(http.disableCaching)
+  }
+
+  if (hasMaxDuration()) {
+    setUp(populationBuilders).throttle(getThrottleSteps()).maxDuration(toFiniteDuration(singleHttpScenario.maxDuration))
+  } else {
+    setUp(populationBuilders).throttle(getThrottleSteps())
   }
 
   def hasMaxDuration(): Boolean = {
@@ -110,22 +109,81 @@ class SingleHttpSimulation extends PeaSimulation {
     }
   }
 
-  def getInjectionSteps(): Seq[OpenInjectionStep] = {
+  def isOpenInjectionModel(): Boolean = {
+    val injections = singleHttpScenario.injections
+    if (null != injections && injections.nonEmpty) {
+      val firstType = injections(0).`type`
+      !(firstType.equals(Injection.TYPE_CONSTANT_CONCURRENT_USERS) ||
+        firstType.equals(Injection.TYPE_RAMP_CONCURRENT_USERS) ||
+        firstType.equals(Injection.TYPE_INCREMENT_CONCURRENT_USERS))
+    } else {
+      false
+    }
+  }
+
+  def getOpenInjectionSteps(): Seq[OpenInjectionStep] = {
     val injections = singleHttpScenario.injections
     if (null != injections && injections.nonEmpty) {
       injections.map(injection => {
         val duration = injection.duration
         injection.`type` match {
-          case Injection.TYPE_RAMP_USERS => rampUsers(injection.users) during (toFiniteDuration(duration))
-          case Injection.TYPE_HEAVISIDE_USERS => heavisideUsers(injection.users) during (toFiniteDuration(duration))
+          case Injection.TYPE_NOTHING_FOR => nothingFor(toFiniteDuration(duration))
           case Injection.TYPE_AT_ONCE_USERS => atOnceUsers(injection.users)
-          case Injection.TYPE_CONSTANT_USERS_PER_SEC => constantUsersPerSec(injection.users) during (toFiniteDuration(duration))
-          case Injection.TYPE_RAMP_USERS_PER_SEC => rampUsersPerSec(injection.users) to injection.to during (toFiniteDuration(duration))
+          case Injection.TYPE_RAMP_USERS => rampUsers(injection.users) during toFiniteDuration(duration)
+          case Injection.TYPE_CONSTANT_USERS_PER_SEC => constantUsersPerSec(injection.users) during toFiniteDuration(duration)
+          case Injection.TYPE_RAMP_USERS_PER_SEC => rampUsersPerSec(injection.from) to injection.to during toFiniteDuration(duration)
+          case Injection.TYPE_HEAVISIDE_USERS => heavisideUsers(injection.users) during toFiniteDuration(duration)
+          case Injection.TYPE_INCREMENT_USERS_PER_SEC =>
+            if (isValid(injection.separatedByRampsLasting)) {
+              incrementUsersPerSec(injection.users)
+                .times(injection.times)
+                .eachLevelLasting(toFiniteDuration(injection.eachLevelLasting))
+                .separatedByRampsLasting(toFiniteDuration(injection.separatedByRampsLasting))
+                .startingFrom(injection.from)
+            } else {
+              incrementUsersPerSec(injection.users)
+                .times(injection.times)
+                .eachLevelLasting(toFiniteDuration(injection.eachLevelLasting))
+                .startingFrom(injection.from)
+            }
         }
       })
     } else {
       Nil
     }
+  }
+
+  def getClosedInjectionSteps(): Seq[ClosedInjectionStep] = {
+    val injections = singleHttpScenario.injections
+    if (null != injections && injections.nonEmpty) {
+      injections.map(injection => {
+        val duration = injection.duration
+        injection.`type` match {
+          case Injection.TYPE_CONSTANT_CONCURRENT_USERS => constantConcurrentUsers(injection.users) during toFiniteDuration(duration)
+          case Injection.TYPE_RAMP_CONCURRENT_USERS => rampConcurrentUsers(injection.from) to (injection.to) during toFiniteDuration(duration)
+          case Injection.TYPE_INCREMENT_CONCURRENT_USERS =>
+            if (isValid(injection.separatedByRampsLasting)) {
+              incrementConcurrentUsers(injection.users)
+                .times(injection.times)
+                .eachLevelLasting(toFiniteDuration(injection.eachLevelLasting))
+                .separatedByRampsLasting(toFiniteDuration(injection.separatedByRampsLasting))
+                .startingFrom(injection.from)
+            } else {
+              incrementConcurrentUsers(injection.users)
+                .times(injection.times)
+                .eachLevelLasting(toFiniteDuration(injection.eachLevelLasting))
+                .startingFrom(injection.from)
+            }
+        }
+      })
+    } else {
+      Nil
+    }
+  }
+
+  @inline
+  def isValid(duration: DurationParam): Boolean = {
+    null != duration && StringUtils.isNotEmpty(duration.unit) && duration.value >= 0
   }
 
   def getChecks(): Seq[HttpCheck] = {

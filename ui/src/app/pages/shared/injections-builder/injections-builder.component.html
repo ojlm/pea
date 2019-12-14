@@ -2,9 +2,21 @@
   <div nz-col nzSpan="8">
     <div nz-row>
       <div nz-col nzSpan="24">
-        <nz-input-group style="width:100%;" nzSize="small" [nzAddOnBefore]="funcTpl">
+        <nz-input-group class="workload" nzSize="small" [nzAddOnBefore]="workloadTpl">
+          <ng-template #workloadTpl>
+            <div class="label">
+              <span>{{'item.workloadModel'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-select style="width:100%;" nzDropdownMatchSelectWidth="false" nzSize="small" [(ngModel)]="workload"
+            (ngModelChange)="workloadModelChange()">
+            <nz-option *ngFor="let item of WORKLOAD_MODELS" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+          </nz-select>
+        </nz-input-group>
+        <!-- type -->
+        <nz-input-group class="line" nzSize="small" [nzAddOnBefore]="funcTpl">
           <ng-template #funcTpl>
-            <div style="width:58px;text-align:left;">
+            <div class="label">
               <span>{{'item.injectionFunction'|translate}}</span>
             </div>
           </ng-template>
@@ -13,29 +25,86 @@
             <nz-option *ngFor="let item of INJECTION_TYPES" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
           </nz-select>
         </nz-input-group>
-        <nz-input-group style="width:100%;margin-top:4px;" nzSize="small" [nzAddOnBefore]="nameTpl">
-          <ng-template #nameTpl>
-            <div style="width:58px;text-align:left;">
+        <!-- users -->
+        <nz-input-group *ngIf="showUsers()" class="line" nzSize="small" [nzAddOnBefore]="usersTpl">
+          <ng-template #usersTpl>
+            <div class="label">
               <span>{{'item.injectionUsers'|translate}}</span>
             </div>
           </ng-template>
           <nz-input-number style="width:100%;" [(ngModel)]="current.users" nzSize="small" [nzMin]="1" [nzStep]="1">
           </nz-input-number>
         </nz-input-group>
-        <div *ngIf="current.type!='atOnceUsers'" style="margin-top:4px;">
-          <nz-input-group nzCompact [nzAddOnBefore]="durationTpl">
-            <ng-template #durationTpl>
-              <div style="width:58px;text-align:left;">
-                <span>{{'item.duration'|translate}}</span>
-              </div>
-            </ng-template>
-            <nz-input-number [(ngModel)]="current.duration.value" nzSize="small" [nzMin]="1" [nzStep]="1">
-            </nz-input-number>
-            <nz-select [(ngModel)]="current.duration.unit" nzSize="small">
-              <nz-option *ngFor="let item of TIME_UNITS" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
-            </nz-select>
-          </nz-input-group>
-        </div>
+        <!-- from -->
+        <nz-input-group *ngIf="showFrom()" class="line" nzSize="small" [nzAddOnBefore]="fromTpl">
+          <ng-template #fromTpl>
+            <div class="label">
+              <span>{{'item.injectionFrom'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-input-number style="width:100%;" [(ngModel)]="current.from" nzSize="small" [nzMin]="1" [nzStep]="1">
+          </nz-input-number>
+        </nz-input-group>
+        <!-- to -->
+        <nz-input-group *ngIf="showTo()" class="line" nzSize="small" [nzAddOnBefore]="toTpl">
+          <ng-template #toTpl>
+            <div class="label">
+              <span>{{'item.injectionTo'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-input-number style="width:100%;" [(ngModel)]="current.to" nzSize="small" [nzMin]="1" [nzStep]="1">
+          </nz-input-number>
+        </nz-input-group>
+        <!-- duration -->
+        <nz-input-group *ngIf="showDuration()" class="line" nzCompact [nzAddOnBefore]="durationTpl">
+          <ng-template #durationTpl>
+            <div class="label">
+              <span>{{'item.duration'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-input-number [(ngModel)]="current.duration.value" nzSize="small" [nzMin]="1" [nzStep]="1">
+          </nz-input-number>
+          <nz-select [(ngModel)]="current.duration.unit" nzSize="small">
+            <nz-option *ngFor="let item of TIME_UNITS" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+          </nz-select>
+        </nz-input-group>
+        <!-- times -->
+        <nz-input-group *ngIf="showTimes()" class="line" nzSize="small" [nzAddOnBefore]="timesTpl">
+          <ng-template #timesTpl>
+            <div class="label">
+              <span>{{'item.injectionTimes'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-input-number style="width:100%;" [(ngModel)]="current.times" nzSize="small" [nzMin]="1" [nzStep]="1">
+          </nz-input-number>
+        </nz-input-group>
+        <!-- eachLevelLasting -->
+        <nz-input-group *ngIf="showEachLevelLasting()" class="line" nzCompact [nzAddOnBefore]="eachLevelLastingTpl">
+          <ng-template #eachLevelLastingTpl>
+            <div class="label">
+              <span>{{'item.eachLevelLasting'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-input-number [(ngModel)]="current.eachLevelLasting.value" nzSize="small" [nzMin]="1" [nzStep]="1">
+          </nz-input-number>
+          <nz-select [(ngModel)]="current.eachLevelLasting.unit" nzSize="small">
+            <nz-option *ngFor="let item of TIME_UNITS" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+          </nz-select>
+        </nz-input-group>
+        <!-- separatedByRampsLasting -->
+        <nz-input-group *ngIf="showSeparatedByRampsLasting()" class="line" nzCompact
+          [nzAddOnBefore]="separatedByRampsLastingTpl">
+          <ng-template #separatedByRampsLastingTpl>
+            <div class="label">
+              <span>{{'item.separatedByRampsLasting'|translate}}</span>
+            </div>
+          </ng-template>
+          <nz-input-number [(ngModel)]="current.separatedByRampsLasting.value" nzSize="small" [nzMin]="1" [nzStep]="1">
+          </nz-input-number>
+          <nz-select [(ngModel)]="current.separatedByRampsLasting.unit" nzSize="small">
+            <nz-option *ngFor="let item of TIME_UNITS" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+          </nz-select>
+        </nz-input-group>
       </div>
     </div>
     <div nz-row>
