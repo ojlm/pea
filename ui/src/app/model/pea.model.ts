@@ -253,3 +253,12 @@ export const ThrottleTypes = {
   HOLD: 'hold',
   JUMP: 'jump',
 }
+
+export const StatusColors = {
+  idle: 'darkslategray',
+  running: 'darkcyan',
+  reporting: 'darkgoldenrod',
+  finished: 'darkmagenta',
+  ill: 'darkred',
+  gathering: 'darkorchid'
+}

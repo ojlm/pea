@@ -7,6 +7,10 @@
   font-size: small;
 }
 
+.tail .status {
+  font-weight: 500;
+}
+
 .time .label {
   color: lightseagreen;
 }

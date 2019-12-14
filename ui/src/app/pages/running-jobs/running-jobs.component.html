@@ -14,6 +14,8 @@
         <nz-tag [nzColor]="itemColor(item)">{{item.load.type}}</nz-tag>
         <a (click)="open(item)">{{item.runId}}</a>
         <span class="tail">
+          <span class="status" [style.color]="statusColor(item)">{{item.status}}</span>
+          <nz-divider nzType="vertical"></nz-divider>
           <span class="time">
             <span class="label">
               <i nz-icon nzType="schedule" nzTheme="outline"></i>

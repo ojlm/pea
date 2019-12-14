@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 import { HomeService } from 'src/app/api/home.service'
-import { LoadTypes, ReporterJobStatus } from 'src/app/model/pea.model'
+import { LoadTypes, ReporterJobStatus, StatusColors } from 'src/app/model/pea.model'
 
 @Component({
   selector: 'app-running-jobs',
@@ -19,6 +19,10 @@ export class RunningJobsComponent implements OnInit {
 
   open(item: ReporterJobStatus) {
     this.router.navigateByUrl(`/jobs/${item.runId}`)
+  }
+
+  statusColor(item: ReporterJobStatus) {
+    return StatusColors[item.status]
   }
 
   itemColor(item: ReporterJobStatus) {

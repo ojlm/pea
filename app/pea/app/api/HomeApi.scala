@@ -88,7 +88,7 @@ class HomeApi @Inject()(
         .getChildren.forPath(s"${PeaConfig.zkRootPath}/${PeaConfig.PATH_JOBS}")
         .forEach(runId => {
           val job = getJobStatus(runId)
-          if (null != job && MemberStatus.REPORTER_RUNNING.equals(job.status)) {
+          if (null != job && !MemberStatus.REPORTER_FINISHED.equals(job.status)) {
             jobs += job
           }
         })
