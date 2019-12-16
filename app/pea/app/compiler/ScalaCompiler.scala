@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, Future}
 object ScalaCompiler {
 
   private def getFullClasspath(): String = {
-    if (StringUtils.isNotEmpty(PeaConfig.compilerExtraClasspath)) {
+    val systemClasspath = if (StringUtils.isNotEmpty(PeaConfig.compilerExtraClasspath)) {
       val file = new File(PeaConfig.compilerExtraClasspath)
       val fileNames = file.listFiles(item => item.isFile && item.getName.endsWith(".jar"))
         .map(item => item.getCanonicalPath)
@@ -30,17 +30,17 @@ object ScalaCompiler {
     } else {
       System.getProperty("java.class.path")
     }
+    systemClasspath.split(File.pathSeparator)
+      .filter(p => {
+        // filter idea_rt.jar when run in idea ide
+        !p.contains("idea_rt.jar")
+      })
+      .mkString(File.pathSeparator)
   }
 
-  val classpath = getFullClasspath()
-    .split(File.pathSeparator)
-    .filter(p => {
-      // filter idea_rt.jar when run in idea ide
-      !p.contains("idea_rt.jar")
-    })
-    .mkString(File.pathSeparator)
+  var oldClasspath = getFullClasspath()
 
-  val compiler = ZincCompilerInstance.build(classpath)
+  var compiler = ZincCompilerInstance.build(oldClasspath)
 
   def doCompile(msg: SyncCompileMessage): Future[CompileResponse] = {
     doCompile(CompilerConfiguration.fromCompileMessage(msg))
@@ -49,6 +49,12 @@ object ScalaCompiler {
   def doCompile(config: CompilerConfiguration): Future[CompileResponse] = {
     implicit val ec = ExecutionContext.global
     Future {
+      val newClasspath = getFullClasspath()
+      if (!oldClasspath.equals(newClasspath)) {
+        // if there is a new jar uploaded to classpath, there is only on actor call this function
+        oldClasspath = newClasspath
+        compiler = ZincCompilerInstance.build(newClasspath)
+      }
       if (null != compiler) {
         compiler.doCompile(config)
       } else {
@@ -64,7 +70,7 @@ object ScalaCompiler {
   }
 
   def getGatlingCmd(message: SyncCompileMessage): String = {
-    val cmd = s"java -Dfile.encoding=UTF-8 -cp ${classpath} " +
+    val cmd = s"java -Dfile.encoding=UTF-8 -cp ${getFullClasspath()} " +
       s"io.gatling.compiler.ZincCompiler " +
       s"-sf ${message.srcFolder} " +
       s"-bf ${message.outputFolder} " +
