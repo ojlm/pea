@@ -63,6 +63,14 @@ class DubboGreetingSimulation extends PeaSimulation {
 
 ---
 
+### 版本
+
+| pea   | gatling| dubbo   |  grpc  |
+| ----- | ------ | ------- | ------ |
+| 0.6.0 | 3.3.1  | 2.7.4.1 | 1.22.2 |
+
+---
+
 ### 视频演示
 
 > https://www.bilibili.com/video/av73339161/
