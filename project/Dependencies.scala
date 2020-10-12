@@ -7,15 +7,7 @@ import sbtrelease.ReleasePlugin.autoImport._
 
 object Dependencies {
 
-  val commonSettings = Seq(
-    organization := "cc.akkaha",
-    version := "0.7.0",
-    scalaVersion := "2.12.8",
-    maintainer := "ngxcorpio@gmail.com"
-  )
-
   def subProject(id: String) = Project(id, file(id))
-    .settings(commonSettings: _*)
     .settings(publishSettings: _*)
 
   // release and publish settings
@@ -71,9 +63,9 @@ object Dependencies {
 
   /// Deps
 
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.5.26"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.6.10"
   val akkaStream = "com.typesafe.akka" %% "akka-stream" % akkaActor.revision
-  val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.10.1"
+  val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.11.3"
 
   val commonDependencies = Seq(akkaActor, jackson)
 
@@ -84,8 +76,8 @@ object Dependencies {
     filters
   )
 
-  val playPac4jVersion = "8.0.0"
-  val pac4jVersion = "3.7.0"
+  val playPac4jVersion = "10.0.2"
+  val pac4jVersion = "4.1.0"
   val appPlayDeps = Seq(
     "org.pac4j" %% "play-pac4j" % playPac4jVersion,
     "org.pac4j" % "pac4j-http" % pac4jVersion,

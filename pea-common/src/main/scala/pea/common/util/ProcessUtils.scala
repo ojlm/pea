@@ -56,7 +56,7 @@ trait ProcessUtils {
   }
 
   def exec(cmd: String, cwd: Option[File], extraEnv: (String, String)*): ExecResult =
-    exec(cmd.split(" "), cwd, extraEnv: _*)
+    exec(cmd.split(" ").toIndexedSeq, cwd, extraEnv: _*)
 
   def exec(cmd: Seq[String], cwd: Option[File], extraEnv: (String, String)*): ExecResult = {
     val stdout = new OutputBuffer
@@ -76,7 +76,7 @@ trait ProcessUtils {
                  cwd: Option[File],
                  extraEnv: (String, String)*,
                )(implicit ec: ExecutionContext): AsyncExecResult =
-    execAsync(cmd.split(" "), cwd, extraEnv: _*)
+    execAsync(cmd.split(" ").toIndexedSeq, cwd, extraEnv: _*)
 
   def execAsync(
                  cmd: Seq[String],
@@ -112,10 +112,10 @@ trait ProcessUtils {
     val stderr = new OutputBuffer
 
     val process = Process(cmd, cwd, extraEnv: _*).run(ProcessLogger(stdout.appendLine, stderr.appendLine))
-    p.tryCompleteWith(Future(process.exitValue).map(c => (c, stdout.get, stderr.get)))
+    p.completeWith(Future(process.exitValue).map(c => (c, stdout.get, stderr.get)))
 
     val cancelFunc = () => {
-      p.tryFailure(new ExecutionCanceled(s"Process: '${cmd.mkString(" ")}' canceled"))
+      p.tryFailure(ExecutionCanceled(s"Process: '${cmd.mkString(" ")}' canceled"))
       process.destroy()
     }
     (p.future, cancelFunc)
@@ -138,7 +138,7 @@ trait ProcessUtils {
                  cwd: Option[File],
                  extraEnv: (String, String)*,
                )(implicit ec: ExecutionContext): AsyncIntResult = {
-    val (fut, cancelable) = execAsync(cmd.split(" "), fout, ferr, cwd, extraEnv: _*)
+    val (fut, cancelable) = execAsync(cmd.split(" ").toIndexedSeq, fout, ferr, cwd, extraEnv: _*)
 
     new AsyncIntResult {
       override def map[T](f: Int => T): Future[T] = fut.map(f)
@@ -165,10 +165,10 @@ trait ProcessUtils {
     val p = Promise[Int]
 
     val process = Process(cmd, cwd, extraEnv: _*).run(ProcessLogger(fout, ferr))
-    p.tryCompleteWith(Future(process.exitValue))
+    p.completeWith(Future(process.exitValue))
 
     val cancelFunc = () => {
-      p.tryFailure(new ExecutionCanceled(s"Process: '${cmd.mkString(" ")}' canceled"))
+      p.tryFailure(ExecutionCanceled(s"Process: '${cmd.mkString(" ")}' canceled"))
       process.destroy()
     }
     (p.future, cancelFunc)

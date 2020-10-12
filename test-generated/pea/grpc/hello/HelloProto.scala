@@ -5,20 +5,18 @@
 
 package pea.grpc.hello
 
-
-
-object HelloProto extends _root_.com.trueaccord.scalapb.GeneratedFileObject {
-  lazy val dependencies: Seq[_root_.com.trueaccord.scalapb.GeneratedFileObject] = Seq(
-  )
-  lazy val messagesCompanions: Seq[_root_.com.trueaccord.scalapb.GeneratedMessageCompanion[_]] = Seq(
-    pea.grpc.hello.HelloRequest,
-    pea.grpc.hello.HelloResponse
-  )
+object HelloProto extends _root_.scalapb.GeneratedFileObject {
+  lazy val dependencies: Seq[_root_.scalapb.GeneratedFileObject] = Seq.empty
+  lazy val messagesCompanions: Seq[_root_.scalapb.GeneratedMessageCompanion[_ <: _root_.scalapb.GeneratedMessage]] =
+    Seq[_root_.scalapb.GeneratedMessageCompanion[_ <: _root_.scalapb.GeneratedMessage]](
+      pea.grpc.hello.HelloRequest,
+      pea.grpc.hello.HelloResponse
+    )
   private lazy val ProtoBytes: Array[Byte] =
-      com.trueaccord.scalapb.Encoding.fromBase64(scala.collection.Seq(
-  """CgtoZWxsby5wcm90bxIIcGVhLmdycGMiKgoMSGVsbG9SZXF1ZXN0EhoKCGdyZWV0aW5nGAEgASgJUghncmVldGluZyIlCg1IZ
-  Wxsb1Jlc3BvbnNlEhQKBXJlcGx5GAEgASgJUgVyZXBseTJLCgxIZWxsb1NlcnZpY2USOwoIU2F5SGVsbG8SFi5wZWEuZ3JwYy5IZ
-  Wxsb1JlcXVlc3QaFy5wZWEuZ3JwYy5IZWxsb1Jlc3BvbnNlYgZwcm90bzM="""
+      scalapb.Encoding.fromBase64(scala.collection.immutable.Seq(
+  """CgtoZWxsby5wcm90bxIIcGVhLmdycGMiOQoMSGVsbG9SZXF1ZXN0EikKCGdyZWV0aW5nGAEgASgJQg3iPwoSCGdyZWV0aW5nU
+  ghncmVldGluZyIxCg1IZWxsb1Jlc3BvbnNlEiAKBXJlcGx5GAEgASgJQgriPwcSBXJlcGx5UgVyZXBseTJLCgxIZWxsb1NlcnZpY
+  2USOwoIU2F5SGVsbG8SFi5wZWEuZ3JwYy5IZWxsb1JlcXVlc3QaFy5wZWEuZ3JwYy5IZWxsb1Jlc3BvbnNlYgZwcm90bzM="""
       ).mkString)
   lazy val scalaDescriptor: _root_.scalapb.descriptors.FileDescriptor = {
     val scalaProto = com.google.protobuf.descriptor.FileDescriptorProto.parseFrom(ProtoBytes)
